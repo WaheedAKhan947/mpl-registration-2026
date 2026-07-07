@@ -16,6 +16,7 @@ build/
 # Environment variables
 # Keep your local secrets out of source control
 .env*.local
+.env
 
 # Vercel deployment configurations
 .vercel
