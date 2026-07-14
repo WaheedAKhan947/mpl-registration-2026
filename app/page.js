@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
 const VILLAGES = ["Maneri Payan", "Maneri Bala"];
 const TEAMS = [
@@ -64,6 +65,7 @@ export default function HomePage() {
   const [navOpen, setNavOpen] = useState(false);
   const [status, setStatus] = useState({ type: "", text: "" });
   const [submitting, setSubmitting] = useState(false);
+  const [year, setYear] = useState(2026); // Fallback year
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -112,6 +114,10 @@ export default function HomePage() {
     }
   }
 
+  useEffect(() => {
+    setYear(new Date().getFullYear());
+  }, []);
+
   return (
     <>
       <div className="topbar">
@@ -131,7 +137,9 @@ export default function HomePage() {
       <nav className="site-nav" aria-label="Main navigation">
         <div className="nav-inner">
           <a className="brand" href="#home" aria-label="Maneri Premier League home">
-            <span className="brand-mark">MPL</span>
+            <span className="brand-mark">
+              <Image src={"/logo.png"} alt="logo" width={40} height={40}/>
+            </span>
             <span>
               Maneri Premier League
               <small>Swabi, KP, Pakistan</small>
@@ -404,7 +412,7 @@ export default function HomePage() {
       <footer className="site-footer">
         <div className="footer-inner">
           <strong>Maneri Premier League</strong>
-          <span>Copyright 2026</span>
+          <span>&copy; {year} MPL</span>
           {/* <a href="/admin">Admin</a> */}
         </div>
       </footer>
