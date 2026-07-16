@@ -9,7 +9,7 @@ export default function Hero() {
         backgroundImage:
           "linear-gradient(90deg, rgba(4,33,20,0.94), rgba(4,33,20,0.68) 48%, rgba(4,33,20,0.16)), url('/hero.jpeg')",
         backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundPosition: "bottom",
         backgroundRepeat: "no-repeat",
       }}
     >

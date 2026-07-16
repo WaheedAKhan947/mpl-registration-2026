@@ -12,7 +12,11 @@
       "Bash(NODE_PATH=\"/d/MyProjects/mpl-registration/node_modules\" node verify_full.js)",
       "Bash(taskkill //F //IM node.exe)",
       "Bash(npm uninstall *)",
-      "Bash(git status *)"
+      "Bash(git status *)",
+      "Read(//c/Users/llll/.claude/skills/cloudflare/references/r2/**)",
+      "Bash(node -e \"console.log\\('node ok'\\)\")",
+      "Bash(npx next *)",
+      "Bash(MONGODB_URI=\"mongodb://localhost/dummy\" ADMIN_PASSWORD=x SESSION_SECRET=x R2_ACCOUNT_ID=x R2_ACCESS_KEY_ID=x R2_SECRET_ACCESS_KEY=x R2_BUCKET_NAME=x npx next build)"
     ]
   }
 }
