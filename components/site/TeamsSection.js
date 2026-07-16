@@ -1,4 +1,5 @@
 import { TEAM_CARDS } from "@/lib/siteData";
+import Image from "next/image";
 
 export default function TeamsSection() {
   return (
@@ -16,13 +17,11 @@ export default function TeamsSection() {
           {TEAM_CARDS.map((team) => (
             <article
               key={team.code}
-              className="flex min-h-[170px] flex-col justify-between rounded-lg border border-white/15 bg-white/10 p-6"
+              className="flex flex-col justify-between rounded-lg border border-white/15 bg-white/10 p-6"
             >
-              <span className="grid h-12 w-12 place-items-center rounded-full bg-gold font-black text-green-dark">
-                {team.code}
-              </span>
-              <div>
-                <h3 className="mb-2 text-[1.3rem] leading-[1.15]">{team.name}</h3>
+            <Image className="min-h-[100px]" src={team.code}  width={100} height={100} alt="team logo" />
+              <div className="pt-4">
+                <h3 className="text-[1rem] leading-[1.15]">{team.name}</h3>
                 <p className="font-semibold text-white/70">{team.copy}</p>
               </div>
             </article>

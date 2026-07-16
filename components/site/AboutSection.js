@@ -2,17 +2,17 @@ import { IMG_BASE } from "@/lib/siteData";
 
 const PHOTOS = [
   {
-    src: `${IMG_BASE}/about01.png`,
+    src: `/image2.jpeg`,
     alt: "Cricket match moment",
     className: "w-full rounded-lg bg-white object-cover shadow-panel sm:absolute sm:left-0 sm:top-[34px] sm:w-[70%]",
   },
   {
-    src: `${IMG_BASE}/about02.png`,
+    src: `/image1.jpeg`,
     alt: "Cricket player",
     className: "w-full rounded-lg bg-white object-cover shadow-panel sm:absolute sm:right-0 sm:top-0 sm:w-[58%]",
   },
   {
-    src: `${IMG_BASE}/about03.png`,
+    src: `/image3.jpeg`,
     alt: "Cricketer in action",
     className: "w-full rounded-lg bg-white object-cover shadow-panel sm:absolute sm:bottom-0 sm:right-[8%] sm:w-[48%]",
   },

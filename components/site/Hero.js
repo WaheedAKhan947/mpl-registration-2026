@@ -7,7 +7,7 @@ export default function Hero() {
       className="relative overflow-hidden text-white sm:min-h-[610px]"
       style={{
         backgroundImage:
-          "linear-gradient(90deg, rgba(4,33,20,0.94), rgba(4,33,20,0.68) 48%, rgba(4,33,20,0.16)), url('https://mpl.unaux.com/wp-content/themes/cricket-club-league/assets/images/banner-image.png')",
+          "linear-gradient(90deg, rgba(4,33,20,0.94), rgba(4,33,20,0.68) 48%, rgba(4,33,20,0.16)), url('/hero.jpeg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
