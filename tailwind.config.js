@@ -19,9 +19,16 @@ module.exports = {
         brand: {
           red: "#d83b31",
         },
+        navy: {
+          DEFAULT: "#0b1c3d",
+          dark: "#060f22",
+          light: "#16305c",
+        },
+        ember: "#e8720c",
       },
       boxShadow: {
         panel: "0 22px 60px rgba(6, 66, 39, 0.16)",
+        "panel-navy": "0 22px 60px rgba(11, 28, 61, 0.25)",
       },
     },
   },

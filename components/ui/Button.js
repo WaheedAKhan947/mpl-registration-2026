@@ -3,6 +3,8 @@ const VARIANT_CLASSES = {
     "border border-transparent bg-green text-white shadow-[0_14px_30px_rgba(11,107,58,0.22)] hover:-translate-y-0.5 hover:bg-green-dark hover:shadow-[0_18px_36px_rgba(11,107,58,0.27)]",
   secondary:
     "border border-ink/10 bg-white text-green-dark shadow-none hover:-translate-y-0.5",
+  gold:
+    "border border-transparent bg-gold text-navy-dark shadow-[0_14px_30px_rgba(244,182,61,0.35)] hover:-translate-y-0.5 hover:bg-[#e8a827] hover:shadow-[0_18px_36px_rgba(244,182,61,0.42)]",
 };
 
 const BASE_CLASSES =
