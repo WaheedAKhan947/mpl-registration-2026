@@ -6,7 +6,7 @@ const SOCIAL_LINKS = [
 
 export default function TopBar() {
   return (
-    <div className="border-b border-gold/20 bg-navy-dark text-sm text-white/90">
+    <div className="hidden border-b border-gold/20 bg-navy-dark text-sm text-white/90 md:block">
       <div className="mx-auto flex min-h-[42px] w-[min(1180px,calc(100%-32px))] flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-3">
           <span>+92 310 9898996</span>
