@@ -12,7 +12,7 @@ const RegistrationSchema = new mongoose.Schema(
     playingRole: { type: String, required: true, trim: true },
     battingStyle: { type: String, required: true, trim: true },
     bowlingStyle: { type: String, required: true, trim: true },
-    experience: { type: String, trim: true },
+    cricProId: { type: String, trim: true },
     notes: { type: String, trim: true },
     // R2 object keys (not URLs) -- signed URLs are generated on read.
     profilePicture: { type: String, trim: true },

@@ -18,7 +18,7 @@ const SEARCH_FIELDS = [
   "playingRole",
   "battingStyle",
   "bowlingStyle",
-  "experience",
+  "cricProId",
   "notes",
 ];
 

@@ -15,8 +15,8 @@ export default function RegistrationSection() {
         </div>
 
         <div className="grid grid-cols-1 items-start gap-7 lg:grid-cols-[0.85fr_1.15fr]">
-          <aside className="rounded-lg bg-green-dark p-6 text-white shadow-panel">
-            <h3 className="mb-2.5 text-[1.6rem] leading-[1.1]">Before You Submit</h3>
+          <aside className="rounded-lgp-6 text-white shadow-panel">
+            {/* <h3 className="mb-2.5 text-[1.6rem] leading-[1.1]">Before You Submit</h3>
             <p className="font-semibold text-white/80">
               Use correct contact details so the MPL management team can reach you for selection, trials, or team
               coordination.
@@ -25,7 +25,7 @@ export default function RegistrationSection() {
               <li>Register only once with your active phone number.</li>
               <li>Choose the playing role that best describes you.</li>
               <li>Admin can export all entries as an Excel file.</li>
-            </ul>
+            </ul> */}
           </aside>
 
           <RegistrationForm />

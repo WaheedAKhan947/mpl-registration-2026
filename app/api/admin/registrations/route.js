@@ -32,7 +32,7 @@ export async function GET() {
       playingRole: r.playingRole,
       battingStyle: r.battingStyle,
       bowlingStyle: r.bowlingStyle,
-      experience: r.experience,
+      cricProId: r.cricProId,
       notes: r.notes,
       profilePicture: await getSignedFileUrl(r.profilePicture),
       cnicImage: await getSignedFileUrl(r.cnicImage),

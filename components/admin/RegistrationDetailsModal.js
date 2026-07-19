@@ -13,7 +13,7 @@ const FIELD_ROWS = [
   ["Playing Role", "playingRole"],
   ["Batting Style", "battingStyle"],
   ["Bowling Style", "bowlingStyle"],
-  ["Experience", "experience"],
+  ["CricPro ID", "cricProId"],
   ["Notes", "notes"],
 ];
 

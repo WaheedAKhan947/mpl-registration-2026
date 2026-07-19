@@ -26,7 +26,7 @@ export async function GET() {
     "Playing Role": r.playingRole,
     "Batting Style": r.battingStyle,
     "Bowling Style": r.bowlingStyle,
-    Experience: r.experience,
+    "CricPro ID": r.cricProId,
     Notes: r.notes,
     "Has Profile Picture": r.profilePicture ? "Yes" : "No",
     "Has CNIC Image": r.cnicImage ? "Yes" : "No",

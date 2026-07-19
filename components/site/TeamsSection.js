@@ -17,12 +17,12 @@ export default function TeamsSection() {
           {TEAM_CARDS.map((team) => (
             <article
               key={team.code}
-              className="flex flex-col justify-between rounded-lg border border-white/15 bg-white/10 p-6"
+              className="flex flex-col justify-between items-center rounded-lg border border-white/15 bg-white/10 p-6"
             >
             <Image className="min-h-[100px]" src={team.code}  width={100} height={100} alt="team logo" />
               <div className="pt-4">
-                <h3 className="text-[1rem] leading-[1.15]">{team.name}</h3>
-                <p className="font-semibold text-white/70">{team.copy}</p>
+                <h3 className="text-[1rem] text-center leading-[1.15]">{team.name}</h3>
+                <p className="font-semibold text-center text-white/70">{team.copy}</p>
               </div>
             </article>
           ))}

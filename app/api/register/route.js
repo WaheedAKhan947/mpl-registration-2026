@@ -105,7 +105,7 @@ export async function POST(request) {
         playingRole: body.playingRole,
         battingStyle: body.battingStyle,
         bowlingStyle: body.bowlingStyle,
-        experience: body.experience || "",
+        cricProId: body.cricProId || "",
         notes: body.notes || "",
         profilePicture: profilePictureKey || undefined,
         cnicImage: cnicImageKey || undefined,
