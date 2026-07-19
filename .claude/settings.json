@@ -20,7 +20,18 @@
       "Bash(NODE_PATH=\"/d/MyProjects/mpl-registration/node_modules\" node verify_theme.js)",
       "Bash(curl -s -o /dev/null -w \"home: %{http_code} time: %{time_total}\\\\n\" http://localhost:3000/)",
       "Bash(command -v npx)",
-      "Bash(NODE_PATH=\"/d/MyProjects/mpl-registration/node_modules\" node verify_redesign.js)"
+      "Bash(NODE_PATH=\"/d/MyProjects/mpl-registration/node_modules\" node verify_redesign.js)",
+      "Bash(curl -s http://localhost:3000 -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(timeout 60 bash -c 'until grep -qi \"ready\\\\|error\" /tmp/dev.log 2>/dev/null; do sleep 1; done; cat /tmp/dev.log')",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3001)",
+      "Bash(curl -s http://localhost:3001/api/settings)",
+      "Bash(curl -s -o /dev/null -w \"home:%{http_code}\\\\n\" http://localhost:3001/)",
+      "Bash(curl -s -o /dev/null -w \"admin:%{http_code}\\\\n\" http://localhost:3001/admin)",
+      "Bash(curl -s http://localhost:3001/)",
+      "Bash(timeout 40 bash -c 'until grep -qi \"ready\\\\|error\" /tmp/dev2.log 2>/dev/null; do sleep 1; done; cat /tmp/dev2.log')",
+      "Bash(curl -s http://localhost:3001/api/stats)",
+      "Bash(nohup npm run dev)",
+      "Bash(disown)"
     ]
   }
 }

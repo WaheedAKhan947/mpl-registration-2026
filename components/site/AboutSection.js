@@ -8,7 +8,7 @@ const PHOTOS = [
       "w-full rounded-lg bg-white object-cover shadow-panel-navy ring-2 ring-gold/40 transition-transform duration-500 hover:-rotate-1 hover:scale-[1.03] sm:absolute sm:left-0 sm:top-[34px] sm:w-[70%]",
   },
   {
-    src: `/image1.jpeg`,
+    src: `/image11.jpeg`,
     alt: "Cricket player",
     className:
       "w-full rounded-lg bg-white object-cover shadow-panel-navy ring-2 ring-gold/40 transition-transform duration-500 hover:rotate-1 hover:scale-[1.03] sm:absolute sm:right-0 sm:top-0 sm:w-[58%]",

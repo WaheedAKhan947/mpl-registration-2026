@@ -14,6 +14,7 @@ const REQUIRED_FIELDS = [
   "playingRole",
   "battingStyle",
   "bowlingStyle",
+  "cricProId",
 ];
 
 export async function POST(request) {

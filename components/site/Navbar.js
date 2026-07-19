@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { label: "Teams", href: "#teams" },
   { label: "Management", href: "#management" },
   { label: "Gallery", href: "#gallery" },
+  { label: "Highlights", href: "#highlights" },
   { label: "Register", href: "#register" },
 ];
 

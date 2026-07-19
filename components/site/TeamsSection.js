@@ -7,7 +7,7 @@ export default function TeamsSection() {
       <div className="mx-auto w-[min(1180px,calc(100%-32px))]">
         <div className="mb-8 flex flex-col gap-6 sm:mb-[34px] sm:flex-row sm:items-end sm:justify-between">
           <h2 className="max-w-[680px] text-[clamp(2rem,5vw,4.2rem)] uppercase leading-[0.98]">
-            Six Teams. One League.
+            Six Teams. <br/>One League.
           </h2>
           <p className="max-w-[440px] font-semibold text-white/70">
             Each side represents local pride, strong identity, and the competitive spirit of Maneri cricket.

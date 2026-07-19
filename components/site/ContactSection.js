@@ -46,7 +46,7 @@ const CONTACT_ITEMS = [
     icon: PinIcon,
     label: "Location",
     value: "Maneri Payan, Swabi, KP, Pakistan",
-    href: null,
+    href: "https://maps.app.goo.gl/2LiV29eyEhodga1t7",
     badge: "bg-brand-red text-white",
   },
 ];
@@ -88,7 +88,11 @@ export default function ContactSection() {
                 <div className="min-w-0">
                   <span className="block text-[0.75rem] font-bold uppercase tracking-wide text-white/50">{label}</span>
                   {href ? (
-                    <a href={href} className="block break-words font-extrabold transition-colors hover:text-gold">
+                    <a
+                      href={href}
+                      {...(href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})}
+                      className="block break-words font-extrabold transition-colors hover:text-gold"
+                    >
                       {value}
                     </a>
                   ) : (

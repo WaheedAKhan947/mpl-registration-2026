@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const STATS = [
-  { target: 6, suffix: "", label: "Competitive teams", color: "text-navy-dark", bar: "bg-navy-dark" },
-  { target: 1, suffix: "", label: "Professional local platform", color: "text-brand-red", bar: "bg-brand-red" },
-  { target: 100, suffix: "%", label: "Focus on fair play", color: "text-ember", bar: "bg-ember" },
+const BASE_STATS = [
+  { key: "teams", target: 6, suffix: "", label: "Competitive teams", color: "text-navy-dark", bar: "bg-navy-dark" },
+  { key: "players", target: 0, suffix: "", label: "Players registered", color: "text-brand-red", bar: "bg-brand-red" },
+  { key: "fairplay", target: 100, suffix: "%", label: "Focus on fair play", color: "text-ember", bar: "bg-ember" },
 ];
 
 function StatItem({ stat }) {
@@ -60,10 +60,23 @@ function StatItem({ stat }) {
 }
 
 export default function StatsBar() {
+  const [totalPlayers, setTotalPlayers] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/stats", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => setTotalPlayers(data.totalPlayers || 0))
+      .catch(() => {});
+  }, []);
+
+  const stats = BASE_STATS.map((stat) =>
+    stat.key === "players" ? { ...stat, target: totalPlayers } : stat
+  );
+
   return (
     <div className="grid grid-cols-1 gap-5 bg-ink/10 sm:grid-cols-3 my-5" aria-label="League highlights">
-      {STATS.map((stat) => (
-        <StatItem key={stat.label} stat={stat} />
+      {stats.map((stat) => (
+        <StatItem key={stat.key} stat={stat} />
       ))}
     </div>
   );

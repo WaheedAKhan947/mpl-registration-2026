@@ -6,6 +6,10 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        display: ["var(--font-display)", "ui-sans-serif", "system-ui"],
+        sans: ["var(--font-body)", "ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+      },
       colors: {
         ink: "#102018",
         muted: "#5a6860",
@@ -39,10 +43,15 @@ module.exports = {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
         },
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
       },
       animation: {
         "fade-up": "fadeUp 0.8s ease-out both",
         "fade-in": "fadeIn 0.9s ease-out both",
+        marquee: "marquee 22s linear infinite",
       },
     },
   },

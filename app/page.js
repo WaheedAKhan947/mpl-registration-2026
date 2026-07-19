@@ -6,8 +6,10 @@ import AboutSection from "@/components/site/AboutSection";
 import TeamsSection from "@/components/site/TeamsSection";
 import ManagementSection from "@/components/site/ManagementSection";
 import GallerySection from "@/components/site/GallerySection";
+import HighlightsSection from "@/components/site/HighlightsSection";
 import RegistrationSection from "@/components/site/RegistrationSection";
 import ContactSection from "@/components/site/ContactSection";
+import SponsorsSection from "@/components/site/SponsorsSection";
 import Footer from "@/components/site/Footer";
 
 export default function HomePage() {
@@ -23,7 +25,9 @@ export default function HomePage() {
         <TeamsSection />
         <ManagementSection />
         <GallerySection />
+        <HighlightsSection />
         <RegistrationSection />
+        <SponsorsSection />
         <ContactSection />
       </main>
 

@@ -5,9 +5,10 @@ import { IMG_BASE } from "@/lib/siteData";
 
 const GALLERY_IMAGES = [
   { src: `/image4.jpeg`, alt: "MPL gallery feature" },
-  { src: `/image5.jpeg`, alt: "Cricket player portrait" },
-  { src: `/image6.jpeg`, alt: "Cricket action" },
-  { src: "/image7.jpeg", alt: "MPL 2025 champions with the trophy" },
+  { src: `/image1.jpeg`, alt: "Cricket player portrait" },
+  { src: `/image11.jpeg`, alt: "Cricket action" },
+  { src: "/image12.jpeg", alt: "MPL 2025, Drone View"},
+  { src: "/image9.jpeg", alt: "MPL 2025 champions with the trophy" },
   { src: "/image8.jpeg", alt: "Spectators watching the match" },
 ];
 
