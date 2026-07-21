@@ -9,15 +9,15 @@ function SponsorLogo({ sponsor }) {
       rel="noreferrer"
       aria-label={sponsor.name}
       title={sponsor.name}
-      className="flex h-24 w-40 shrink-0 items-center justify-center rounded-lg border border-ink/10 bg-white px-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-panel sm:w-48"
+      className="flex h-60 w-40 shrink-0 items-center justify-center rounded-lg border border-ink/10 bg-white px-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-panel sm:w-48"
     >
       {sponsor.logo ? (
         <Image
           src={sponsor.logo}
           alt={sponsor.name}
-          width={140}
-          height={70}
-          className="max-h-16 w-auto object-contain grayscale transition hover:grayscale-0"
+          width={170}
+          height={170}
+          className="max-h-56 w-auto object-contain transition hover:grayscale-0"
         />
       ) : (
         <span className="text-center text-sm font-bold uppercase tracking-wide text-ink/70">
