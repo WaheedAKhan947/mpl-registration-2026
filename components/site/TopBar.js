@@ -58,7 +58,7 @@ export default function TopBar() {
               title={label}
               className="opacity-90 transition hover:scale-110 hover:opacity-100"
             >
-              <Icon className="h-4 w-4" />
+              <Icon className="h-5 w-5" />
             </a>
           ))}
         </div>
