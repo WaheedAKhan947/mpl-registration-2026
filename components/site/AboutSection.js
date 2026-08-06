@@ -50,14 +50,13 @@ export default function AboutSection() {
           </h2>
           <div className="grid gap-4 text-[1.05rem] text-muted">
             <p>
-              Maneri Premier League was created to provide a serious and organized platform
-              for emerging players. The league brings teams together under proper rules,
-              transparent management, and a competitive tournament structure.
+              The Maneri Premier League (MPL) Management Committee is the driving force behind one of Maneri’s most prestigious cricket tournaments. United by a passion for cricket and a commitment to excellence, our team works with integrity, professionalism, and transparency to deliver a world-class sporting experience.
             </p>
             <p>
-              Since formation, MPL has focused on discipline, teamwork, and talent
-              development, turning local cricket into a stronger opportunity-driven system
-              for future players.
+              Every season, we strive to raise the standards of local cricket by creating a competitive, well-organized, and inspiring platform where talent can shine and dreams can take flight. From strategic leadership and tournament operations to media, finance, communications, and event management, every member of the committee plays a vital role in the league’s success.
+            </p>
+            <p>
+              Our vision extends beyond cricket. We aim to inspire the next generation, strengthen community unity, promote respect and fair play, and establish the Maneri Premier League as a symbol of pride, excellence, and sporting spirit. Through dedication, innovation, and teamwork, we are building a lasting legacy that represents the true passion and identity of Maneri.
             </p>
           </div>
           <div className="mt-6 flex flex-wrap gap-2.5">
