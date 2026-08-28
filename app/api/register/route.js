@@ -29,6 +29,13 @@ export async function POST(request) {
       );
     }
 
+    if (!body.agreedToTerms) {
+      return NextResponse.json(
+        { error: "You must agree to the Official Playing Conditions & Tournament Regulations." },
+        { status: 400 }
+      );
+    }
+
     const cnicNumber = body.cnicNumber.trim();
 
     await connectToDatabase();
@@ -108,6 +115,7 @@ export async function POST(request) {
         bowlingStyle: body.bowlingStyle,
         cricProId: body.cricProId || "",
         notes: body.notes || "",
+        agreedToTerms: Boolean(body.agreedToTerms),
         profilePicture: profilePictureKey || undefined,
         cnicImage: cnicImageKey || undefined,
         feeReceipt: feeReceiptKey || undefined,

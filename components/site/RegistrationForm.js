@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Button from "@/components/ui/Button";
 import FormField from "@/components/ui/FormField";
 import { REGISTRATION_FIELDS } from "@/lib/siteData";
@@ -28,6 +29,7 @@ export default function RegistrationForm() {
       registration.profilePicture = await readFileAsDataUrl(form.elements.profilePicture.files[0]);
       registration.cnicImage = await readFileAsDataUrl(form.elements.cnicImage.files[0]);
       registration.feeReceipt = await readFileAsDataUrl(form.elements.feeReceipt.files[0]);
+      registration.agreedToTerms = form.elements.agreedToTerms.checked;
 
       const response = await fetch("/api/register", {
         method: "POST",
@@ -60,6 +62,26 @@ export default function RegistrationForm() {
           <FormField key={field.name} field={field} />
         ))}
       </div>
+
+      <label className="mt-6 flex items-start gap-3 rounded-lg border border-ink/10 bg-[#fbfbf8] p-4 text-[0.9rem] font-bold text-ink">
+        <input
+          name="agreedToTerms"
+          type="checkbox"
+          required
+          className="mt-0.5 h-[18px] w-[18px] shrink-0 accent-green"
+        />
+        <span>
+          I have read and agree to the{" "}
+          <Link
+            href="/terms"
+            target="_blank"
+            className="font-black text-green underline hover:text-green-dark"
+          >
+            Official Playing Conditions &amp; Tournament Regulations
+          </Link>
+          . <span className="font-black text-brand-red">*</span>
+        </span>
+      </label>
 
       <div className="mt-7 flex flex-wrap gap-3.5">
         <Button type="submit" disabled={submitting}>

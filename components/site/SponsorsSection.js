@@ -1,36 +1,50 @@
-import Image from "next/image";
-import { SPONSORS } from "@/lib/siteData";
+"use client";
 
-function SponsorLogo({ sponsor }) {
+import { useEffect, useState } from "react";
+
+function SponsorCard({ sponsor }) {
   return (
-    <a
-      href={sponsor.url}
-      target="_blank"
-      rel="noreferrer"
-      aria-label={sponsor.name}
-      title={sponsor.name}
-      className="flex h-60 w-40 shrink-0 items-center justify-center rounded-lg border border-ink/10 bg-white px-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-panel sm:w-48"
-    >
-      {sponsor.logo ? (
-        <Image
-          src={sponsor.logo}
-          alt={sponsor.name}
-          width={170}
-          height={170}
-          className="max-h-56 w-auto object-contain transition hover:grayscale-0"
-        />
-      ) : (
-        <span className="text-center text-sm font-bold uppercase tracking-wide text-ink/70">
-          {sponsor.name}
-        </span>
-      )}
-    </a>
+    <div className="flex h-64 w-44 shrink-0 flex-col items-center gap-3 rounded-lg border border-ink/10 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-panel sm:w-52">
+      <div className="flex h-28 w-full items-center justify-center">
+        {sponsor.logo ? (
+          <img src={sponsor.logo} alt={sponsor.name} className="max-h-28 w-auto object-contain" />
+        ) : (
+          <span className="text-center text-sm font-bold uppercase tracking-wide text-ink/70">
+            {sponsor.name}
+          </span>
+        )}
+      </div>
+      <p className="line-clamp-1 text-center text-[0.95rem] font-black text-green-dark">{sponsor.name}</p>
+      <a
+        href={sponsor.url || "#"}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-auto inline-flex min-h-[38px] items-center justify-center rounded-lg bg-green px-4 text-[0.8rem] font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-green-dark"
+      >
+        Visit
+      </a>
+    </div>
   );
 }
 
 export default function SponsorsSection() {
-  if (!SPONSORS.length) return null;
-  const sponsors = [...SPONSORS, ...SPONSORS];
+  const [sponsors, setSponsors] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/sponsors", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) setSponsors(data.sponsors || []);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!sponsors.length) return null;
+  const loopedSponsors = [...sponsors, ...sponsors];
 
   return (
     <section id="sponsors" className="py-16 sm:py-[84px]">
@@ -46,9 +60,9 @@ export default function SponsorsSection() {
       </div>
 
       <div className="group overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
-        <div className="flex w-max animate-marquee items-center gap-6 group-hover:[animation-play-state:paused]">
-          {sponsors.map((sponsor, index) => (
-            <SponsorLogo key={`${sponsor.name}-${index}`} sponsor={sponsor} />
+        <div className="flex w-max animate-marquee items-stretch gap-6 group-hover:[animation-play-state:paused]">
+          {loopedSponsors.map((sponsor, index) => (
+            <SponsorCard key={`${sponsor.id}-${index}`} sponsor={sponsor} />
           ))}
         </div>
       </div>

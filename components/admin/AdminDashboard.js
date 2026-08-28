@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import DashboardHeader from "@/components/admin/DashboardHeader";
 import HighlightsSettingsCard from "@/components/admin/HighlightsSettingsCard";
+import SponsorsSettingsCard from "@/components/admin/SponsorsSettingsCard";
 import StatsRow from "@/components/admin/StatsRow";
 import SearchBar from "@/components/admin/SearchBar";
 import RegistrationsTable from "@/components/admin/RegistrationsTable";
@@ -80,6 +81,7 @@ export default function AdminDashboard({ onLogout }) {
     <main className="mx-auto w-[min(1100px,calc(100%-32px))] py-10 pb-[70px]">
       <DashboardHeader onRefresh={loadRegistrations} onLogout={onLogout} />
       <HighlightsSettingsCard />
+      <SponsorsSettingsCard />
       <StatsRow total={registrations.length} showing={filteredRegistrations.length} searching={searching} />
       <SearchBar value={search} onChange={setSearch} />
 
