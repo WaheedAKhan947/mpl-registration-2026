@@ -28,6 +28,9 @@ export default function RegistrationCards({ registrations, onSelect, onDelete })
             <span className="block truncate text-sm text-muted">
               {registration.preferredTeam} • {registration.playingRole}
             </span>
+            <span className="block truncate text-sm text-muted">
+              Allocated: {registration.allocatedTeam || "Unassigned"}
+            </span>
             <span className="block truncate text-sm text-muted">{registration.phone}</span>
           </div>
           <button

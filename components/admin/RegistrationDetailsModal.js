@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
+import { ROSTER_TEAMS } from "@/lib/siteData";
 
 const FIELD_ROWS = [
   ["Father Name", "fatherName"],
@@ -26,8 +28,31 @@ function DetailRow({ label, value }) {
   );
 }
 
-export default function RegistrationDetailsModal({ registration, onClose, onDelete }) {
+export default function RegistrationDetailsModal({ registration, onClose, onDelete, onAllocate }) {
+  const [team, setTeam] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    setTeam(registration?.allocatedTeam || "");
+    setError("");
+  }, [registration]);
+
   if (!registration) return null;
+
+  const isDirty = team !== (registration.allocatedTeam || "");
+
+  async function handleAllocate() {
+    setSaving(true);
+    setError("");
+    try {
+      await onAllocate(registration.id, team);
+    } catch (err) {
+      setError(err.message || "Could not update the allocated team.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <Modal onClose={onClose} title={registration.playerName}>
@@ -39,6 +64,28 @@ export default function RegistrationDetailsModal({ registration, onClose, onDele
             className="mx-auto h-28 w-28 rounded-full border border-ink/10 object-cover"
           />
         ) : null}
+
+        <div className="rounded-lg border border-green/30 bg-[#f6faf2] p-3.5">
+          <label className="mb-2 block text-sm font-bold text-green-dark">Allocated Team</label>
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              value={team}
+              onChange={(event) => setTeam(event.target.value)}
+              className="min-w-[180px] flex-1 rounded-lg border border-ink/15 bg-white px-3 py-2 font-medium outline-none focus:border-green"
+            >
+              <option value="">Unassigned</option>
+              {ROSTER_TEAMS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+            <Button type="button" disabled={!isDirty || saving} onClick={handleAllocate}>
+              {saving ? "Saving..." : "Save"}
+            </Button>
+          </div>
+          {error ? <p className="mt-2 font-semibold text-brand-red">{error}</p> : null}
+        </div>
 
         <div>
           {FIELD_ROWS.map(([label, key]) => (

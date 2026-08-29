@@ -1,7 +1,13 @@
-import { TEAM_CARDS } from "@/lib/siteData";
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
+import { TEAM_CARDS } from "@/lib/siteData";
+import TeamRosterModal from "@/components/site/TeamRosterModal";
 
 export default function TeamsSection() {
+  const [selectedTeam, setSelectedTeam] = useState(null);
+
   return (
     <section id="teams" className="bg-green-dark py-16 text-white sm:py-[84px]">
       <div className="mx-auto w-[min(1180px,calc(100%-32px))]">
@@ -15,19 +21,26 @@ export default function TeamsSection() {
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {TEAM_CARDS.map((team) => (
-            <article
+            <button
               key={team.code}
-              className="flex flex-col justify-between items-center rounded-lg border border-white/15 bg-white/10 p-6"
+              type="button"
+              onClick={() => setSelectedTeam(team.name)}
+              className="flex flex-col items-center justify-between rounded-lg border border-white/15 bg-white/10 p-6 text-left transition hover:-translate-y-0.5 hover:bg-white/15"
             >
-            <Image className="min-h-[100px]" src={team.code}  width={100} height={100} alt="team logo" />
+              <Image className="min-h-[100px]" src={team.code} width={100} height={100} alt="team logo" />
               <div className="pt-4">
-                <h3 className="text-[1rem] text-center leading-[1.15]">{team.name}</h3>
-                <p className="font-semibold text-center text-white/70">{team.copy}</p>
+                <h3 className="text-center text-[1rem] leading-[1.15]">{team.name}</h3>
+                <p className="text-center font-semibold text-white/70">{team.copy}</p>
+                <span className="mt-2 block text-center text-[0.8rem] font-black uppercase tracking-wide text-gold">
+                  View Squad
+                </span>
               </div>
-            </article>
+            </button>
           ))}
         </div>
       </div>
+
+      <TeamRosterModal teamName={selectedTeam} onClose={() => setSelectedTeam(null)} />
     </section>
   );
 }

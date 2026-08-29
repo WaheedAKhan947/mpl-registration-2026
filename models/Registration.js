@@ -15,6 +15,9 @@ const RegistrationSchema = new mongoose.Schema(
     cricProId: { type: String, required: true, trim: true },
     notes: { type: String, trim: true },
     agreedToTerms: { type: Boolean, required: true },
+    // Team the player is actually assigned to after the draft. Distinct from
+    // preferredTeam, which is just what the player requested at signup.
+    allocatedTeam: { type: String, trim: true, default: "" },
     // R2 object keys (not URLs) -- signed URLs are generated on read.
     profilePicture: { type: String, trim: true },
     cnicImage: { type: String, trim: true },

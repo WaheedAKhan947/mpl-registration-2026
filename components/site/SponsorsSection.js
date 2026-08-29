@@ -44,7 +44,12 @@ export default function SponsorsSection() {
   }, []);
 
   if (!sponsors.length) return null;
-  const loopedSponsors = [...sponsors, ...sponsors];
+
+  // The marquee works by rendering the list twice and scrolling exactly
+  // halfway, so it loops seamlessly. With only a few sponsors that just
+  // looks like duplicates sitting side by side, so only loop once there
+  // are enough of them to actually need scrolling.
+  const shouldLoop = sponsors.length > 5;
 
   return (
     <section id="sponsors" className="py-16 sm:py-[84px]">
@@ -57,15 +62,25 @@ export default function SponsorsSection() {
             Proud partners powering the Maneri Premier League.
           </p>
         </div>
+
+        {!shouldLoop ? (
+          <div className="flex flex-wrap items-stretch justify-center gap-6">
+            {sponsors.map((sponsor) => (
+              <SponsorCard key={sponsor.id} sponsor={sponsor} />
+            ))}
+          </div>
+        ) : null}
       </div>
 
-      <div className="group overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
-        <div className="flex w-max animate-marquee items-stretch gap-6 group-hover:[animation-play-state:paused]">
-          {loopedSponsors.map((sponsor, index) => (
-            <SponsorCard key={`${sponsor.id}-${index}`} sponsor={sponsor} />
-          ))}
+      {shouldLoop ? (
+        <div className="group overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
+          <div className="flex w-max animate-marquee items-stretch gap-6 group-hover:[animation-play-state:paused]">
+            {[...sponsors, ...sponsors].map((sponsor, index) => (
+              <SponsorCard key={`${sponsor.id}-${index}`} sponsor={sponsor} />
+            ))}
+          </div>
         </div>
-      </div>
+      ) : null}
     </section>
   );
 }

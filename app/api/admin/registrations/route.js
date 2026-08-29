@@ -4,6 +4,7 @@ import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Registration from "@/models/Registration";
 import { getSignedFileUrl, deleteFileFromR2 } from "@/lib/r2";
+import { ROSTER_TEAMS } from "@/lib/siteData";
 
 function requireAuth() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
@@ -34,6 +35,7 @@ export async function GET() {
       bowlingStyle: r.bowlingStyle,
       cricProId: r.cricProId,
       notes: r.notes,
+      allocatedTeam: r.allocatedTeam || "",
       profilePicture: await getSignedFileUrl(r.profilePicture),
       cnicImage: await getSignedFileUrl(r.cnicImage),
       feeReceipt: await getSignedFileUrl(r.feeReceipt),
@@ -41,6 +43,35 @@ export async function GET() {
   );
 
   return NextResponse.json({ registrations: data });
+}
+
+export async function PUT(request) {
+  if (!requireAuth()) {
+    return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+  }
+
+  const { id, allocatedTeam } = await request.json();
+  if (!id) {
+    return NextResponse.json({ error: "Missing id." }, { status: 400 });
+  }
+
+  const team = String(allocatedTeam || "").trim();
+  if (team && !ROSTER_TEAMS.includes(team)) {
+    return NextResponse.json({ error: "Invalid team." }, { status: 400 });
+  }
+
+  await connectToDatabase();
+  const registration = await Registration.findByIdAndUpdate(
+    id,
+    { allocatedTeam: team },
+    { new: true }
+  ).lean();
+
+  if (!registration) {
+    return NextResponse.json({ error: "Registration not found." }, { status: 404 });
+  }
+
+  return NextResponse.json({ ok: true, allocatedTeam: registration.allocatedTeam });
 }
 
 export async function DELETE(request) {

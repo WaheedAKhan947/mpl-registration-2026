@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import DashboardHeader from "@/components/admin/DashboardHeader";
 import HighlightsSettingsCard from "@/components/admin/HighlightsSettingsCard";
 import SponsorsSettingsCard from "@/components/admin/SponsorsSettingsCard";
+import TeamOwnersCard from "@/components/admin/TeamOwnersCard";
+import PointsTableCard from "@/components/admin/PointsTableCard";
 import StatsRow from "@/components/admin/StatsRow";
 import SearchBar from "@/components/admin/SearchBar";
 import RegistrationsTable from "@/components/admin/RegistrationsTable";
@@ -22,6 +24,7 @@ const SEARCH_FIELDS = [
   "bowlingStyle",
   "cricProId",
   "notes",
+  "allocatedTeam",
 ];
 
 export default function AdminDashboard({ onLogout }) {
@@ -48,6 +51,20 @@ export default function AdminDashboard({ onLogout }) {
     } finally {
       setLoadingData(false);
     }
+  }
+
+  async function handleAllocate(id, allocatedTeam) {
+    const res = await fetch("/api/admin/registrations", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, allocatedTeam }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Could not update the allocated team.");
+    setRegistrations((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, allocatedTeam: data.allocatedTeam } : r))
+    );
+    setSelected((prev) => (prev && prev.id === id ? { ...prev, allocatedTeam: data.allocatedTeam } : prev));
   }
 
   async function handleDelete(id) {
@@ -81,6 +98,8 @@ export default function AdminDashboard({ onLogout }) {
     <main className="mx-auto w-[min(1100px,calc(100%-32px))] py-10 pb-[70px]">
       <DashboardHeader onRefresh={loadRegistrations} onLogout={onLogout} />
       <HighlightsSettingsCard />
+      <TeamOwnersCard />
+      <PointsTableCard />
       <SponsorsSettingsCard />
       <StatsRow total={registrations.length} showing={filteredRegistrations.length} searching={searching} />
       <SearchBar value={search} onChange={setSearch} />
@@ -103,7 +122,12 @@ export default function AdminDashboard({ onLogout }) {
         </>
       ) : null}
 
-      <RegistrationDetailsModal registration={selected} onClose={() => setSelected(null)} onDelete={handleDelete} />
+      <RegistrationDetailsModal
+        registration={selected}
+        onClose={() => setSelected(null)}
+        onDelete={handleDelete}
+        onAllocate={handleAllocate}
+      />
     </main>
   );
 }

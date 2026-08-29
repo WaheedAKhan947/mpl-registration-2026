@@ -4,6 +4,7 @@ import Hero from "@/components/site/Hero";
 import StatsBar from "@/components/site/StatsBar";
 import AboutSection from "@/components/site/AboutSection";
 import TeamsSection from "@/components/site/TeamsSection";
+import PointsTableSection from "@/components/site/PointsTableSection";
 import ManagementSection from "@/components/site/ManagementSection";
 import GallerySection from "@/components/site/GallerySection";
 import HighlightsSection from "@/components/site/HighlightsSection";
@@ -23,6 +24,7 @@ export default function HomePage() {
         <StatsBar />
         <AboutSection />
         <TeamsSection />
+        <PointsTableSection />
         <ManagementSection />
         <GallerySection />
         <HighlightsSection />

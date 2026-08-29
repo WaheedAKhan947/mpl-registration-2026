@@ -1,4 +1,4 @@
-const COLUMNS = ["Photo", "Player Name", "Phone", "Village", "Team", "Role", "Submitted", ""];
+const COLUMNS = ["Photo", "Player Name", "Phone", "Village", "Preferred Team", "Allocated", "Role", "Submitted", ""];
 
 export default function RegistrationsTable({ registrations, onSelect, onDelete }) {
   return (
@@ -38,6 +38,15 @@ export default function RegistrationsTable({ registrations, onSelect, onDelete }
               <td className="whitespace-nowrap px-3.5 py-2.5">{registration.phone}</td>
               <td className="whitespace-nowrap px-3.5 py-2.5">{registration.area}</td>
               <td className="whitespace-nowrap px-3.5 py-2.5">{registration.preferredTeam}</td>
+              <td className="whitespace-nowrap px-3.5 py-2.5">
+                {registration.allocatedTeam ? (
+                  <span className="rounded-full bg-[#e8f2db] px-2.5 py-1 font-bold text-green-dark">
+                    {registration.allocatedTeam}
+                  </span>
+                ) : (
+                  <span className="text-muted">Unassigned</span>
+                )}
+              </td>
               <td className="whitespace-nowrap px-3.5 py-2.5">{registration.playingRole}</td>
               <td className="whitespace-nowrap px-3.5 py-2.5">
                 {registration.createdAt ? new Date(registration.createdAt).toLocaleString() : "—"}
