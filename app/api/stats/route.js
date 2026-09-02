@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import Registration from "@/models/Registration";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   await connectToDatabase();
   const totalPlayers = await Registration.countDocuments();

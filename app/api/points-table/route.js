@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import PointsTableRow from "@/models/PointsTableRow";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   await connectToDatabase();
   const rows = await PointsTableRow.find().sort({ points: -1, netRunRate: -1 }).lean();
