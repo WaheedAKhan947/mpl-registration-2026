@@ -15,6 +15,7 @@ const RegistrationSchema = new mongoose.Schema(
     cricProId: { type: String, required: true, trim: true },
     notes: { type: String, trim: true },
     agreedToTerms: { type: Boolean, required: true },
+    feeNonRefundableAcknowledged: { type: Boolean, required: true },
     // Team the player is actually assigned to after the draft. Distinct from
     // preferredTeam, which is just what the player requested at signup.
     allocatedTeam: { type: String, trim: true, default: "" },

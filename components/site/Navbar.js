@@ -1,17 +1,18 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import Button from "@/components/ui/Button";
 
 const NAV_LINKS = [
-  { label: "About", href: "#about" },
-  { label: "Teams", href: "#teams" },
-  { label: "Points Table", href: "#points-table" },
-  { label: "Management", href: "#management" },
-  { label: "Gallery", href: "#gallery" },
-  { label: "Highlights", href: "#highlights" },
-  { label: "Register", href: "#register" },
+  { label: "About", href: "/#about" },
+  { label: "Teams", href: "/#teams" },
+  { label: "Points Table", href: "/#points-table" },
+  { label: "Management", href: "/#management" },
+  { label: "Gallery", href: "/#gallery" },
+  { label: "Highlights", href: "/#highlights" },
+  { label: "Register", href: "/register" },
 ];
 
 export default function Navbar() {
@@ -23,7 +24,7 @@ export default function Navbar() {
       aria-label="Main navigation"
     >
       <div className="relative mx-auto flex min-h-[76px] w-[min(1180px,calc(100%-32px))] items-center justify-between gap-6">
-        <a className="flex items-center gap-3 font-black" href="#home" aria-label="Maneri Premier League home">
+        <Link className="flex items-center gap-3 font-black" href="/#home" aria-label="Maneri Premier League home">
           <Image
             src="/logo.png"
             alt="MPL logo"
@@ -35,7 +36,7 @@ export default function Navbar() {
             Maneri Premier League
             <small className="-mt-1 block text-[0.78rem] font-bold text-muted">Swabi, KP, Pakistan</small>
           </span>
-        </a>
+        </Link>
 
         <button
           className="grid h-[42px] w-[42px] place-content-center gap-1 rounded-lg border border-ink/10 bg-white text-navy-dark md:hidden"
@@ -56,11 +57,11 @@ export default function Navbar() {
           onClick={() => setNavOpen(false)}
         >
           {NAV_LINKS.map((link) => (
-            <a key={link.href} href={link.href} className="py-2 font-bold text-[#24392e] hover:text-navy md:py-0">
+            <Link key={link.href} href={link.href} className="py-2 font-bold text-[#24392e] hover:text-navy md:py-0">
               {link.label}
-            </a>
+            </Link>
           ))}
-          <Button as="a" href="#contact" variant="gold" className="w-full md:w-auto">
+          <Button as="a" href="/#contact" variant="gold" className="w-full md:w-auto">
             Contact
           </Button>
         </div>

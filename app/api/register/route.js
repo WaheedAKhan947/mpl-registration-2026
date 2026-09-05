@@ -36,6 +36,13 @@ export async function POST(request) {
       );
     }
 
+    if (!body.feeNonRefundableAcknowledged) {
+      return NextResponse.json(
+        { error: "You must acknowledge that the registration fee is non-refundable." },
+        { status: 400 }
+      );
+    }
+
     const cnicNumber = body.cnicNumber.trim();
 
     await connectToDatabase();
@@ -116,6 +123,7 @@ export async function POST(request) {
         cricProId: body.cricProId || "",
         notes: body.notes || "",
         agreedToTerms: Boolean(body.agreedToTerms),
+        feeNonRefundableAcknowledged: Boolean(body.feeNonRefundableAcknowledged),
         profilePicture: profilePictureKey || undefined,
         cnicImage: cnicImageKey || undefined,
         feeReceipt: feeReceiptKey || undefined,

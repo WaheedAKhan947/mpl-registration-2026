@@ -13,7 +13,7 @@ export default function TermsPage() {
       <div className="mx-auto w-[min(900px,calc(100%-32px))]">
         <div className="mb-6 flex items-center justify-between gap-4">
           <Link
-            href="/#register"
+            href="/register"
             className="inline-flex items-center gap-2 font-extrabold text-green-dark hover:text-green"
           >
             ← Back to Registration
