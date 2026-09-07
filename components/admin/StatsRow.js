@@ -7,10 +7,10 @@ function StatBox({ value, label }) {
   );
 }
 
-export default function StatsRow({ total, showing, searching }) {
+export default function StatsRow({ total, showing, searching, label = "Total Registrations" }) {
   return (
     <div className="mb-5 flex flex-wrap gap-4">
-      <StatBox value={total} label="Total Registrations" />
+      <StatBox value={total} label={label} />
       {searching ? <StatBox value={showing} label="Matching Search" /> : null}
     </div>
   );

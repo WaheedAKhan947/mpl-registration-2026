@@ -8,7 +8,11 @@ export async function GET() {
   await connectToDatabase();
   const settings = await Settings.findOne({ key: "site" }).lean();
   return NextResponse.json(
-    { highlightVideoUrl: settings?.highlightVideoUrl || "" },
+    {
+      highlightVideoUrl: settings?.highlightVideoUrl || "",
+      announcementText: settings?.announcementText || "",
+      announcementEnabled: settings?.announcementEnabled ?? true,
+    },
     { headers: { "Cache-Control": "no-store" } }
   );
 }

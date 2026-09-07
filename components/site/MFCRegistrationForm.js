@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import Button from "@/components/ui/Button";
 import FormField from "@/components/ui/FormField";
-import { REGISTRATION_FIELDS } from "@/lib/siteData";
+import { MFC_REGISTRATION_FIELDS } from "@/lib/siteData";
 import { readFileAsDataUrl } from "@/lib/files";
 import { generateRegistrationPdf } from "@/lib/pdf";
 
-export default function RegistrationForm() {
+export default function MFCRegistrationForm() {
   const [status, setStatus] = useState({ type: "", text: "" });
   const [submitting, setSubmitting] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -25,18 +24,16 @@ export default function RegistrationForm() {
     try {
       setSubmitting(true);
       const registration = {};
-      for (const field of REGISTRATION_FIELDS) {
+      for (const field of MFC_REGISTRATION_FIELDS) {
         if (field.type === "file") continue;
         const value = formData.get(field.name);
         registration[field.name] = field.trim ? value.trim() : value;
       }
-      registration.profilePicture = await readFileAsDataUrl(form.elements.profilePicture.files[0]);
+      registration.photo = await readFileAsDataUrl(form.elements.photo.files[0]);
       registration.cnicImage = await readFileAsDataUrl(form.elements.cnicImage.files[0]);
-      registration.feeReceipt = await readFileAsDataUrl(form.elements.feeReceipt.files[0]);
-      registration.agreedToTerms = form.elements.agreedToTerms.checked;
-      registration.feeNonRefundableAcknowledged = form.elements.feeNonRefundableAcknowledged.checked;
+      registration.declarationAgreed = form.elements.declarationAgreed.checked;
 
-      const response = await fetch("/api/register", {
+      const response = await fetch("/api/mfc-register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(registration),
@@ -48,7 +45,7 @@ export default function RegistrationForm() {
       setSubmittedRegistration({ ...registration, id: result.id });
       setStatus({
         type: "success",
-        text: `Registration submitted. Your registration ID is ${result.id}. MPL management can view it in Admin.`,
+        text: `Registration submitted. Your registration ID is ${result.id}. MFC management can view it in Admin.`,
       });
     } catch (error) {
       setStatus({ type: "error", text: error.message || "Registration could not be submitted. Please try again." });
@@ -62,26 +59,26 @@ export default function RegistrationForm() {
 
     setDownloading(true);
     try {
-      const rows = REGISTRATION_FIELDS.filter((field) => field.type !== "file").map((field) => [
+      const rows = MFC_REGISTRATION_FIELDS.filter((field) => field.type !== "file").map((field) => [
         field.label,
         submittedRegistration[field.name],
       ]);
 
       const doc = await generateRegistrationPdf({
-        orgName: "Maneri Premier League",
-        orgTagline: "MPL 2026 - Player Registration Form",
+        orgName: "Maneri Football Club",
+        orgTagline: "MFC - Player Registration Form",
         documentTitle: "Official Registration Confirmation",
         registrationId: submittedRegistration.id,
         submittedAt: new Date().toLocaleString(),
-        photo: submittedRegistration.profilePicture,
+        photo: submittedRegistration.photo,
         sections: [{ heading: "Player Details", rows }],
         notes: [
-          "The player has read and agreed to the Official Playing Conditions & Tournament Regulations.",
-          "The registration fee paid by the player is NON-REFUNDABLE under any circumstances.",
+          "The player has declared that all information provided is true and correct.",
+          "Submitting this form does not guarantee selection in Maneri Football Club.",
         ],
       });
 
-      doc.save(`MPL-Registration-${submittedRegistration.id}.pdf`);
+      doc.save(`MFC-Registration-${submittedRegistration.id}.pdf`);
     } catch (error) {
       setStatus({ type: "error", text: "Could not generate the PDF. Please try again." });
     } finally {
@@ -92,51 +89,33 @@ export default function RegistrationForm() {
   return (
     <form
       className="rounded-lg border border-ink/10 bg-white p-6 shadow-[0_14px_42px_rgba(6,66,39,0.08)]"
-      id="playerRegistrationForm"
+      id="mfcRegistrationForm"
       onSubmit={handleSubmit}
     >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {REGISTRATION_FIELDS.map((field) => (
+        {MFC_REGISTRATION_FIELDS.map((field) => (
           <FormField key={field.name} field={field} />
         ))}
       </div>
 
       <label className="mt-6 flex items-start gap-3 rounded-lg border border-ink/10 bg-[#fbfbf8] p-4 text-[0.9rem] font-bold text-ink">
         <input
-          name="agreedToTerms"
+          name="declarationAgreed"
           type="checkbox"
           required
           className="mt-0.5 h-[18px] w-[18px] shrink-0 accent-green"
         />
         <span>
-          I have read and agree to the{" "}
-          <Link
-            href="/terms"
-            target="_blank"
-            className="font-black text-green underline hover:text-green-dark"
-          >
-            Official Playing Conditions &amp; Tournament Regulations
-          </Link>
-          . <span className="font-black text-brand-red">*</span>
-        </span>
-      </label>
-
-      <label className="mt-3 flex items-start gap-3 rounded-lg border border-ink/10 bg-[#fbfbf8] p-4 text-[0.9rem] font-bold text-ink">
-        <input
-          name="feeNonRefundableAcknowledged"
-          type="checkbox"
-          required
-          className="mt-0.5 h-[18px] w-[18px] shrink-0 accent-green"
-        />
-        <span>
-          I understand that the registration fee is <strong>non-refundable</strong> under any circumstances.{" "}
-          <span className="font-black text-brand-red">*</span>
+          I hereby declare that all information provided in this registration form is true and correct. I agree to
+          follow the rules, regulations, discipline, and decisions of Maneri Football Club. I understand that
+          submitting this form does not guarantee selection. I confirm that all the information provided is
+          correct. <span className="font-black text-brand-red">*</span>
         </span>
       </label>
 
       <div className="mt-7 flex flex-wrap gap-3.5">
         <Button type="submit" disabled={submitting}>
-          {submitting ? "Submitting..." : "Submit Registration"}
+          {submitting ? "Submitting..." : "Submit Player Registration"}
         </Button>
       </div>
 

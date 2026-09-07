@@ -38,12 +38,18 @@ export default function Hero() {
             className="mt-7 flex animate-fade-up flex-wrap gap-3.5 opacity-0"
             style={{ animationDelay: "360ms" }}
           >
-            <Button as="a" href="#teams" variant="gold">
+            <Button as="a" href="/register" variant="gold">
+              MPL Player Registration
+            </Button>
+            <Button as="a" href="/mfc-register" variant="primary">
+              MFC Player Registration
+            </Button>
+            {/* <Button as="a" href="#teams" variant="secondary">
               View Teams
             </Button>
             <Button as="a" href="#management" variant="secondary">
               Meet Management
-            </Button>
+            </Button> */}
           </div>
         </div>
         <aside

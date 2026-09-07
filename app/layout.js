@@ -1,4 +1,5 @@
 import { Anton, Inter } from "next/font/google";
+import AnnouncementBar from "@/components/site/AnnouncementBar";
 import "./globals.css";
 
 const displayFont = Anton({
@@ -23,7 +24,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${displayFont.variable} ${bodyFont.variable}`}>
-      <body>{children}</body>
+      <body>
+        <AnnouncementBar />
+        {children}
+      </body>
     </html>
   );
 }

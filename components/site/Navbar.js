@@ -8,11 +8,12 @@ import Button from "@/components/ui/Button";
 const NAV_LINKS = [
   { label: "About", href: "/#about" },
   { label: "Teams", href: "/#teams" },
-  { label: "Points Table", href: "/#points-table" },
+  // { label: "Points Table", href: "/#points-table" },
   { label: "Management", href: "/#management" },
   { label: "Gallery", href: "/#gallery" },
-  { label: "Highlights", href: "/#highlights" },
-  { label: "Register", href: "/register" },
+  // { label: "Highlights", href: "/#highlights" },
+  // { label: "MPL Register", href: "/register" },
+  // { label: "MFC Register", href: "/mfc-register" },
 ];
 
 export default function Navbar() {
