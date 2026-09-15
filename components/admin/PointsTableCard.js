@@ -2,6 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
+import Panel from "@/components/admin/Panel";
+import Notice from "@/components/admin/Notice";
+import { EditIcon, TrashIcon } from "@/components/admin/icons";
+import {
+  DELETE_BUTTON_CLASSES,
+  EDIT_BUTTON_CLASSES,
+  EDITING_BOX_CLASSES,
+  INPUT_CLASSES,
+} from "@/components/admin/formStyles";
+import { teamLogo } from "@/lib/matches";
 
 const STAT_FIELDS = [
   { key: "played", label: "M" },
@@ -14,6 +24,8 @@ const STAT_FIELDS = [
 
 const EMPTY_FORM = { team: "", played: "", won: "", lost: "", tied: "", noResult: "", points: "", netRunRate: "" };
 
+const SMALL_INPUT_CLASSES = `${INPUT_CLASSES} px-2 py-1.5 tabular-nums`;
+
 function toFormValues(row) {
   return {
     team: row.team,
@@ -25,6 +37,15 @@ function toFormValues(row) {
     points: String(row.points ?? 0),
     netRunRate: String(row.netRunRate ?? 0),
   };
+}
+
+function StatChip({ label, value, tone = "" }) {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-md bg-ink/[0.05] px-1.5 py-0.5 text-xs tabular-nums">
+      <span className="font-bold text-muted">{label}</span>
+      <span className={`font-bold ${tone || "text-ink"}`}>{value}</span>
+    </span>
+  );
 }
 
 export default function PointsTableCard() {
@@ -123,42 +144,48 @@ export default function PointsTableCard() {
   }
 
   return (
-    <section className="mb-6 rounded-2xl border border-ink/10 bg-white p-5 shadow-panel">
-      <h2 className="mb-1 text-lg font-bold text-ink">Points Table</h2>
-      <p className="mb-4 text-muted">
-        Manage league standings shown on the homepage. Rows are ranked automatically by points, then net run rate.
-      </p>
-
-      {error ? <p className="mb-3 font-semibold text-brand-red">{error}</p> : null}
-      {loading ? <p className="text-muted">Loading points table...</p> : null}
+    <Panel
+      title="Points Table"
+      description="Manage league standings shown on the homepage. Rows are ranked automatically by points, then net run rate."
+    >
+      {error ? (
+        <Notice tone="error" className="mb-4">
+          {error}
+        </Notice>
+      ) : null}
+      {loading ? <p className="text-sm text-muted">Loading points table...</p> : null}
 
       {!loading && rows.length ? (
         <ul className="mb-5 grid gap-3">
-          {rows.map((row) =>
+          {rows.map((row, index) =>
             editingId === row.id ? (
-              <li key={row.id} className="rounded-lg border border-green/30 bg-[#f6faf2] p-3.5">
+              <li key={row.id} className={`${EDITING_BOX_CLASSES} p-4`}>
                 <input
                   value={editForm.team}
                   onChange={(event) => setEditForm((f) => ({ ...f, team: event.target.value }))}
                   placeholder="Team name"
-                  className="mb-2.5 w-full rounded-lg border border-ink/15 px-3 py-2 font-medium outline-none focus:border-green"
+                  className={`${INPUT_CLASSES} mb-2.5`}
                 />
                 <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-7">
                   {STAT_FIELDS.map((field) => (
                     <label key={field.key} className="text-sm">
-                      <span className="mb-1 block font-bold text-muted">{field.label}</span>
+                      <span className="mb-1 block text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted">
+                        {field.label}
+                      </span>
                       <input
                         type="number"
                         value={editForm[field.key]}
                         onChange={(event) =>
                           setEditForm((f) => ({ ...f, [field.key]: event.target.value }))
                         }
-                        className="w-full rounded-lg border border-ink/15 px-2 py-1.5 outline-none focus:border-green"
+                        className={SMALL_INPUT_CLASSES}
                       />
                     </label>
                   ))}
                   <label className="text-sm">
-                    <span className="mb-1 block font-bold text-muted">NRR</span>
+                    <span className="mb-1 block text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted">
+                      NRR
+                    </span>
                     <input
                       type="number"
                       step="0.001"
@@ -166,15 +193,15 @@ export default function PointsTableCard() {
                       onChange={(event) =>
                         setEditForm((f) => ({ ...f, netRunRate: event.target.value }))
                       }
-                      className="w-full rounded-lg border border-ink/15 px-2 py-1.5 outline-none focus:border-green"
+                      className={SMALL_INPUT_CLASSES}
                     />
                   </label>
                 </div>
                 <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <Button type="button" disabled={saving} onClick={() => handleUpdate(row.id)}>
+                  <Button type="button" size="sm" disabled={saving} onClick={() => handleUpdate(row.id)}>
                     {saving ? "Saving..." : "Save"}
                   </Button>
-                  <Button type="button" variant="secondary" onClick={() => setEditingId(null)}>
+                  <Button type="button" size="sm" variant="secondary" onClick={() => setEditingId(null)}>
                     Cancel
                   </Button>
                 </div>
@@ -182,24 +209,41 @@ export default function PointsTableCard() {
             ) : (
               <li
                 key={row.id}
-                className="flex flex-wrap items-center gap-3.5 rounded-lg border border-ink/10 p-3.5"
+                className="flex flex-wrap items-center gap-3.5 rounded-xl border border-ink/10 p-3.5 transition hover:border-ink/20"
               >
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-ink/[0.05] text-xs font-black tabular-nums text-muted">
+                  {index + 1}
+                </span>
+                {teamLogo(row.team) ? (
+                  <img
+                    src={teamLogo(row.team)}
+                    alt=""
+                    className="h-10 w-10 shrink-0 rounded-full border border-ink/10 bg-white object-contain p-0.5"
+                  />
+                ) : null}
                 <div className="min-w-[160px] flex-1">
                   <p className="font-bold text-ink">{row.team}</p>
-                  <p className="text-sm text-muted">
-                    M {row.played} · W {row.won} · L {row.lost} · T {row.tied} · NR {row.noResult} · P{" "}
-                    <span className="font-bold text-green-dark">{row.points}</span> · NRR{" "}
-                    <span className={row.netRunRate >= 0 ? "font-bold text-green-dark" : "font-bold text-brand-red"}>
-                      {row.netRunRate > 0 ? "+" : ""}
-                      {row.netRunRate}
-                    </span>
+                  <p className="mt-1 flex flex-wrap gap-1.5">
+                    <StatChip label="M" value={row.played} />
+                    <StatChip label="W" value={row.won} />
+                    <StatChip label="L" value={row.lost} />
+                    <StatChip label="T" value={row.tied} />
+                    <StatChip label="NR" value={row.noResult} />
+                    <StatChip label="P" value={row.points} tone="text-green-dark" />
+                    <StatChip
+                      label="NRR"
+                      value={`${row.netRunRate > 0 ? "+" : ""}${row.netRunRate}`}
+                      tone={row.netRunRate >= 0 ? "text-green-dark" : "text-brand-red"}
+                    />
                   </p>
                 </div>
-                <div className="flex gap-3.5">
-                  <button type="button" onClick={() => startEdit(row)} className="font-bold text-green hover:text-green-dark">
+                <div className="flex gap-1.5">
+                  <button type="button" onClick={() => startEdit(row)} className={EDIT_BUTTON_CLASSES}>
+                    <EditIcon className="h-4 w-4" />
                     Edit
                   </button>
-                  <button type="button" onClick={() => handleDelete(row.id)} className="font-bold text-brand-red">
+                  <button type="button" onClick={() => handleDelete(row.id)} className={DELETE_BUTTON_CLASSES}>
+                    <TrashIcon className="h-4 w-4" />
                     Delete
                   </button>
                 </div>
@@ -209,42 +253,45 @@ export default function PointsTableCard() {
         </ul>
       ) : null}
 
-      {!loading && !rows.length ? <p className="mb-5 text-muted">No teams added yet.</p> : null}
+      {!loading && !rows.length ? <p className="mb-5 text-sm text-muted">No teams added yet.</p> : null}
 
-      <form onSubmit={handleAdd} className="rounded-lg border border-dashed border-ink/15 p-3.5">
+      <form onSubmit={handleAdd} className="rounded-xl border border-dashed border-ink/20 bg-[#fafbfa] p-4">
+        <p className="mb-2.5 text-xs font-black uppercase tracking-[0.12em] text-muted">Add a team</p>
         <input
           value={form.team}
           onChange={(event) => setForm((f) => ({ ...f, team: event.target.value }))}
           placeholder="Team name"
-          className="mb-2.5 w-full rounded-lg border border-ink/15 px-3 py-2 font-medium outline-none focus:border-green sm:max-w-xs"
+          className={`${INPUT_CLASSES} mb-2.5 sm:max-w-xs`}
         />
         <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-7">
           {STAT_FIELDS.map((field) => (
             <label key={field.key} className="text-sm">
-              <span className="mb-1 block font-bold text-muted">{field.label}</span>
+              <span className="mb-1 block text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted">
+                {field.label}
+              </span>
               <input
                 type="number"
                 value={form[field.key]}
                 onChange={(event) => setForm((f) => ({ ...f, [field.key]: event.target.value }))}
-                className="w-full rounded-lg border border-ink/15 px-2 py-1.5 outline-none focus:border-green"
+                className={SMALL_INPUT_CLASSES}
               />
             </label>
           ))}
           <label className="text-sm">
-            <span className="mb-1 block font-bold text-muted">NRR</span>
+            <span className="mb-1 block text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted">NRR</span>
             <input
               type="number"
               step="0.001"
               value={form.netRunRate}
               onChange={(event) => setForm((f) => ({ ...f, netRunRate: event.target.value }))}
-              className="w-full rounded-lg border border-ink/15 px-2 py-1.5 outline-none focus:border-green"
+              className={SMALL_INPUT_CLASSES}
             />
           </label>
         </div>
-        <Button type="submit" disabled={saving || !form.team.trim()} className="mt-3">
+        <Button type="submit" size="sm" disabled={saving || !form.team.trim()} className="mt-3">
           {saving ? "Adding..." : "Add Team"}
         </Button>
       </form>
-    </section>
+    </Panel>
   );
 }

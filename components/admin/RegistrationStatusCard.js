@@ -2,13 +2,26 @@
 
 import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
+import Panel from "@/components/admin/Panel";
+import Notice from "@/components/admin/Notice";
+import { INPUT_CLASSES, SUBTLE_BOX_CLASSES } from "@/components/admin/formStyles";
 
 function ToggleRow({ label, description, checked, disabled, onChange }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-lg border border-ink/10 bg-[#fbfbf8] p-4">
-      <div>
-        <p className="font-bold text-ink">{label}</p>
-        <p className="text-sm text-muted">{description}</p>
+    <div className={`${SUBTLE_BOX_CLASSES} flex items-center justify-between gap-4 p-4`}>
+      <div className="min-w-0">
+        <p className="flex flex-wrap items-center gap-2 font-bold text-ink">
+          {label}
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[0.68rem] font-black uppercase tracking-wide ${
+              checked ? "bg-green/10 text-green-dark" : "bg-brand-red/10 text-brand-red"
+            }`}
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${checked ? "bg-green" : "bg-brand-red"}`} />
+            {checked ? "Open" : "Closed"}
+          </span>
+        </p>
+        <p className="mt-0.5 text-sm text-muted">{description}</p>
       </div>
       <button
         type="button"
@@ -17,12 +30,12 @@ function ToggleRow({ label, description, checked, disabled, onChange }) {
         aria-label={label}
         disabled={disabled}
         onClick={() => onChange(!checked)}
-        className={`relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-60 ${
+        className={`relative h-7 w-12 shrink-0 rounded-full transition focus:outline-none focus-visible:ring-4 focus-visible:ring-green/20 disabled:opacity-60 ${
           checked ? "bg-green" : "bg-ink/20"
         }`}
       >
         <span
-          className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition ${
+          className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${
             checked ? "left-[22px]" : "left-0.5"
           }`}
         />
@@ -120,13 +133,12 @@ export default function RegistrationStatusCard() {
   const feeDirty = fee.trim() !== savedFee.trim();
 
   return (
-    <section className="mb-6 rounded-2xl border border-ink/10 bg-white p-5 shadow-panel">
-      <h2 className="mb-1 text-lg font-bold text-ink">Player Registration Status</h2>
-      <p className="mb-4 text-muted">
-        Open or close each registration form. When closed, the public page shows a "Registration Closed" notice
-        and submissions are blocked, and visitors won't be alerted about it on arrival.
-      </p>
-
+    <Panel
+      title="Player Registration Status"
+      description={
+        'Open or close each registration form. When closed, the public page shows a "Registration Closed" notice and submissions are blocked, and visitors won’t be alerted about it on arrival.'
+      }
+    >
       <div className="flex flex-col gap-3">
         <ToggleRow
           label="MPL Registration"
@@ -136,12 +148,9 @@ export default function RegistrationStatusCard() {
           onChange={handleMplChange}
         />
 
-        <form
-          onSubmit={handleSaveFee}
-          className="flex flex-wrap items-end gap-3 rounded-lg border border-ink/10 bg-[#fbfbf8] p-4"
-        >
+        <form onSubmit={handleSaveFee} className={`${SUBTLE_BOX_CLASSES} flex flex-wrap items-end gap-3 p-4`}>
           <label className="min-w-[180px] flex-1">
-            <span className="mb-1 block text-sm font-bold text-ink">MPL Registration Fee (Rs.)</span>
+            <span className="mb-1.5 block text-sm font-bold text-ink">MPL Registration Fee (Rs.)</span>
             <input
               type="number"
               min="0"
@@ -149,10 +158,10 @@ export default function RegistrationStatusCard() {
               value={fee}
               onChange={(event) => setFee(event.target.value)}
               disabled={loading}
-              className="w-full rounded-lg border border-ink/15 bg-white px-3 py-2 font-medium outline-none focus:border-green"
+              className={INPUT_CLASSES}
             />
           </label>
-          <Button type="submit" disabled={loading || savingFee || !feeDirty}>
+          <Button type="submit" size="sm" disabled={loading || savingFee || !feeDirty}>
             {savingFee ? "Saving..." : "Save"}
           </Button>
         </form>
@@ -166,8 +175,16 @@ export default function RegistrationStatusCard() {
         />
       </div>
 
-      {error ? <p className="mt-3 font-semibold text-brand-red">{error}</p> : null}
-      {success ? <p className="mt-3 font-semibold text-green-dark">{success}</p> : null}
-    </section>
+      {error ? (
+        <Notice tone="error" className="mt-4">
+          {error}
+        </Notice>
+      ) : null}
+      {success ? (
+        <Notice tone="success" className="mt-4">
+          {success}
+        </Notice>
+      ) : null}
+    </Panel>
   );
 }

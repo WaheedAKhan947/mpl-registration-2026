@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
+import Panel from "@/components/admin/Panel";
+import Notice from "@/components/admin/Notice";
+import { INPUT_CLASSES } from "@/components/admin/formStyles";
 import { getYoutubeEmbedUrl } from "@/lib/youtube";
 
 export default function HighlightsSettingsCard() {
@@ -50,12 +53,10 @@ export default function HighlightsSettingsCard() {
   const isDirty = trimmedValue !== saved.trim();
 
   return (
-    <section className="mb-6 rounded-2xl border border-ink/10 bg-white p-5 shadow-panel">
-      <h2 className="mb-1 text-lg font-bold text-ink">Match Highlights Video</h2>
-      <p className="mb-4 text-muted">
-        Paste a YouTube link (watch, share, or youtu.be). It shows on the homepage as an embedded video.
-      </p>
-
+    <Panel
+      title="Match Highlights Video"
+      description="Paste a YouTube link (watch, share, or youtu.be). It shows on the homepage as an embedded video."
+    >
       <form onSubmit={handleSave} className="flex flex-col gap-3 sm:flex-row sm:items-start">
         <input
           type="url"
@@ -63,21 +64,31 @@ export default function HighlightsSettingsCard() {
           onChange={(event) => setValue(event.target.value)}
           placeholder="https://www.youtube.com/watch?v=..."
           disabled={loading}
-          className="min-h-[46px] flex-1 rounded-lg border border-ink/15 px-3.5 font-medium outline-none focus:border-green"
+          className={`${INPUT_CLASSES} min-h-[40px] flex-1 px-3.5`}
         />
-        <Button type="submit" disabled={saving || loading || !isDirty}>
+        <Button type="submit" size="sm" disabled={saving || loading || !isDirty}>
           {saving ? "Saving..." : "Save"}
         </Button>
       </form>
 
-      {error ? <p className="mt-3 font-semibold text-brand-red">{error}</p> : null}
-      {success && !isDirty ? <p className="mt-3 font-semibold text-green-dark">{success}</p> : null}
+      {error ? (
+        <Notice tone="error" className="mt-4">
+          {error}
+        </Notice>
+      ) : null}
+      {success && !isDirty ? (
+        <Notice tone="success" className="mt-4">
+          {success}
+        </Notice>
+      ) : null}
       {trimmedValue && !previewUrl ? (
-        <p className="mt-3 font-semibold text-brand-red">This doesn't look like a valid YouTube link.</p>
+        <Notice tone="error" className="mt-4">
+          This doesn&apos;t look like a valid YouTube link.
+        </Notice>
       ) : null}
 
       {previewUrl ? (
-        <div className="mt-4 aspect-video w-full max-w-md overflow-hidden rounded-lg">
+        <div className="mt-4 aspect-video w-full max-w-md overflow-hidden rounded-xl border border-ink/10 bg-ink/5">
           <iframe
             src={previewUrl}
             title="Highlight video preview"
@@ -87,6 +98,6 @@ export default function HighlightsSettingsCard() {
           />
         </div>
       ) : null}
-    </section>
+    </Panel>
   );
 }

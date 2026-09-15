@@ -2,20 +2,27 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Button from "@/components/ui/Button";
+import Panel from "@/components/admin/Panel";
+import Notice from "@/components/admin/Notice";
+import { EditIcon, PlusIcon, TrashIcon } from "@/components/admin/icons";
+import {
+  DELETE_BUTTON_CLASSES,
+  EDIT_BUTTON_CLASSES,
+  EDITING_BOX_CLASSES,
+  INPUT_CLASSES,
+} from "@/components/admin/formStyles";
 import { ROSTER_TEAMS } from "@/lib/siteData";
 import {
   MATCH_STATUSES,
   STATUS_LABELS,
   formatMatchDate,
   formatScore,
+  teamLogo,
   todayInLeagueTimeZone,
 } from "@/lib/matches";
 
-const INPUT_CLASSES =
-  "w-full rounded-lg border border-ink/15 bg-white px-3 py-2 font-medium outline-none focus:border-green disabled:cursor-not-allowed disabled:opacity-60";
-
 const STATUS_PILL_CLASSES = {
-  upcoming: "bg-ink/10 text-ink",
+  upcoming: "bg-navy/10 text-navy",
   live: "bg-brand-red text-white",
   completed: "bg-green/10 text-green-dark",
   abandoned: "bg-ink/10 text-muted",
@@ -128,7 +135,7 @@ function scoreline(match) {
 function Field({ label, children, className = "" }) {
   return (
     <label className={`text-sm ${className}`}>
-      <span className="mb-1 block font-bold text-muted">{label}</span>
+      <span className="mb-1 block text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted">{label}</span>
       {children}
     </label>
   );
@@ -140,8 +147,8 @@ function InningsFields({ team, opponent, value, onChange }) {
   }
 
   return (
-    <fieldset className="rounded-lg border border-ink/10 bg-white p-3.5">
-      <legend className="px-1 text-sm font-black uppercase tracking-wide text-green-dark">
+    <fieldset className="rounded-xl border border-ink/10 bg-white p-3.5">
+      <legend className="px-1.5 text-xs font-black uppercase tracking-[0.12em] text-green-dark">
         {team || "Team"} batting
       </legend>
       <div className="grid grid-cols-3 gap-2.5">
@@ -237,7 +244,7 @@ function MatchForm({ initial, playersByTeam, saving, onSubmit, onCancel }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid gap-3.5 rounded-lg border border-green/30 bg-[#f6faf2] p-3.5">
+    <form onSubmit={handleSubmit} className={`${EDITING_BOX_CLASSES} grid gap-3.5 p-4`}>
       <datalist id={PLAYER_LIST_ID}>
         {suggestions.map((name) => (
           <option key={name} value={name} />
@@ -374,10 +381,10 @@ function MatchForm({ initial, playersByTeam, saving, onSubmit, onCancel }) {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" disabled={saving || !canSave}>
+        <Button type="submit" size="sm" disabled={saving || !canSave}>
           {saving ? "Saving..." : "Save match"}
         </Button>
-        <Button type="button" variant="secondary" onClick={onCancel}>
+        <Button type="button" size="sm" variant="secondary" onClick={onCancel}>
           Cancel
         </Button>
       </div>
@@ -471,21 +478,21 @@ export default function MatchesCard() {
   }
 
   return (
-    <section className="mb-6 rounded-2xl border border-ink/10 bg-white p-5 shadow-panel">
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="mb-1 text-lg font-bold text-ink">Scorecard &amp; Fixtures</h2>
-          <p className="text-muted">
-            Add fixtures and update scores as play happens. The homepage picks yesterday&apos;s result,
-            today&apos;s match, and the next fixture from the match date (Pakistan time).
-          </p>
-        </div>
-        <Button type="button" disabled={editingId === "new"} onClick={() => startEdit("new")}>
+    <Panel
+      title="Scorecard & Fixtures"
+      description="Add fixtures and update scores as play happens. The homepage picks yesterday's result, today's match, and the next fixture from the match date (Pakistan time)."
+      actions={
+        <Button type="button" size="sm" disabled={editingId === "new"} onClick={() => startEdit("new")}>
+          <PlusIcon className="h-4 w-4" />
           Add match
         </Button>
-      </div>
-
-      {error ? <p className="mb-3 font-semibold text-brand-red">{error}</p> : null}
+      }
+    >
+      {error ? (
+        <Notice tone="error" className="mb-4">
+          {error}
+        </Notice>
+      ) : null}
 
       {editingId === "new" ? (
         <div className="mb-4">
@@ -500,7 +507,7 @@ export default function MatchesCard() {
         </div>
       ) : null}
 
-      {loading ? <p className="text-muted">Loading matches...</p> : null}
+      {loading ? <p className="text-sm text-muted">Loading matches...</p> : null}
 
       {!loading && matches.length ? (
         <ul className="grid gap-3">
@@ -532,7 +539,29 @@ export default function MatchesCard() {
             const motm = match.manOfTheMatch;
 
             return (
-              <li key={match.id} className="flex flex-wrap items-center gap-3.5 rounded-lg border border-ink/10 p-3.5">
+              <li
+                key={match.id}
+                className="flex flex-wrap items-center gap-3.5 rounded-xl border border-ink/10 p-4 transition hover:border-ink/20"
+              >
+                <div className="flex shrink-0 -space-x-2.5">
+                  {[match.teamA, match.teamB].map((team, index) =>
+                    teamLogo(team) ? (
+                      <img
+                        key={`${team}-${index}`}
+                        src={teamLogo(team)}
+                        alt=""
+                        className="h-10 w-10 rounded-full border-2 border-white bg-white object-contain p-0.5 shadow-sm"
+                      />
+                    ) : (
+                      <span
+                        key={`${team}-${index}`}
+                        className="grid h-10 w-10 place-items-center rounded-full border-2 border-white bg-green/10 text-[0.65rem] font-black text-green-dark"
+                      >
+                        {String(team || "?").slice(0, 2).toUpperCase()}
+                      </span>
+                    )
+                  )}
+                </div>
                 <div className="min-w-[200px] flex-1">
                   <p className="flex flex-wrap items-center gap-2 font-bold text-ink">
                     <span>
@@ -557,15 +586,13 @@ export default function MatchesCard() {
                     </p>
                   ) : null}
                 </div>
-                <div className="flex gap-3.5">
-                  <button
-                    type="button"
-                    onClick={() => startEdit(match.id)}
-                    className="font-bold text-green hover:text-green-dark"
-                  >
+                <div className="flex gap-1.5">
+                  <button type="button" onClick={() => startEdit(match.id)} className={EDIT_BUTTON_CLASSES}>
+                    <EditIcon className="h-4 w-4" />
                     Edit
                   </button>
-                  <button type="button" onClick={() => handleDelete(match.id)} className="font-bold text-brand-red">
+                  <button type="button" onClick={() => handleDelete(match.id)} className={DELETE_BUTTON_CLASSES}>
+                    <TrashIcon className="h-4 w-4" />
                     Delete
                   </button>
                 </div>
@@ -575,7 +602,7 @@ export default function MatchesCard() {
         </ul>
       ) : null}
 
-      {!loading && !matches.length ? <p className="text-muted">No matches added yet.</p> : null}
-    </section>
+      {!loading && !matches.length ? <p className="text-sm text-muted">No matches added yet.</p> : null}
+    </Panel>
   );
 }

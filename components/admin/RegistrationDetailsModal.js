@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
+import Avatar from "@/components/admin/Avatar";
+import Notice from "@/components/admin/Notice";
+import { DownloadIcon } from "@/components/admin/icons";
+import { INPUT_CLASSES } from "@/components/admin/formStyles";
 import { ROSTER_TEAMS } from "@/lib/siteData";
 
 const FIELD_ROWS = [
@@ -21,7 +25,7 @@ const FIELD_ROWS = [
 
 function DetailRow({ label, value }) {
   return (
-    <div className="grid grid-cols-[130px_1fr] gap-3 border-b border-ink/10 py-2 text-sm last:border-0">
+    <div className="grid grid-cols-[130px_1fr] gap-3 border-b border-ink/[0.06] py-2.5 text-sm last:border-0">
       <span className="font-bold text-muted">{label}</span>
       <span className="break-words text-ink">{value || "—"}</span>
     </div>
@@ -57,21 +61,27 @@ export default function RegistrationDetailsModal({ registration, onClose, onDele
   return (
     <Modal onClose={onClose} title={registration.playerName}>
       <div className="flex flex-col gap-4">
-        {registration.profilePicture ? (
-          <img
-            src={registration.profilePicture}
-            alt={registration.playerName}
-            className="mx-auto h-28 w-28 rounded-full border border-ink/10 object-cover"
-          />
-        ) : null}
+        <div className="flex flex-col items-center gap-2 text-center">
+          <Avatar src={registration.profilePicture} name={registration.playerName} size="lg" />
+          {registration.allocatedTeam ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-green/10 px-3 py-1 text-xs font-bold text-green-dark">
+              <span className="h-1.5 w-1.5 rounded-full bg-green" />
+              {registration.allocatedTeam}
+            </span>
+          ) : (
+            <span className="inline-flex rounded-full bg-ink/[0.06] px-3 py-1 text-xs font-bold text-muted">
+              Unassigned
+            </span>
+          )}
+        </div>
 
-        <div className="rounded-lg border border-green/30 bg-[#f6faf2] p-3.5">
+        <div className="rounded-xl border border-green/25 bg-[#f6faf2] p-4">
           <label className="mb-2 block text-sm font-bold text-green-dark">Allocated Team</label>
           <div className="flex flex-wrap items-center gap-3">
             <select
               value={team}
               onChange={(event) => setTeam(event.target.value)}
-              className="min-w-[180px] flex-1 rounded-lg border border-ink/15 bg-white px-3 py-2 font-medium outline-none focus:border-green"
+              className={`min-w-[180px] flex-1 ${INPUT_CLASSES}`}
             >
               <option value="">Unassigned</option>
               {ROSTER_TEAMS.map((option) => (
@@ -80,14 +90,18 @@ export default function RegistrationDetailsModal({ registration, onClose, onDele
                 </option>
               ))}
             </select>
-            <Button type="button" disabled={!isDirty || saving} onClick={handleAllocate}>
+            <Button type="button" size="sm" disabled={!isDirty || saving} onClick={handleAllocate}>
               {saving ? "Saving..." : "Save"}
             </Button>
           </div>
-          {error ? <p className="mt-2 font-semibold text-brand-red">{error}</p> : null}
+          {error ? (
+            <Notice tone="error" className="mt-3">
+              {error}
+            </Notice>
+          ) : null}
         </div>
 
-        <div>
+        <div className="rounded-xl border border-ink/10 px-4">
           {FIELD_ROWS.map(([label, key]) => (
             <DetailRow key={key} label={label} value={registration[key]} />
           ))}
@@ -97,14 +111,15 @@ export default function RegistrationDetailsModal({ registration, onClose, onDele
           />
         </div>
 
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap gap-3">
           {registration.cnicImage ? (
             <a
               href={registration.cnicImage}
               target="_blank"
               rel="noreferrer"
-              className="font-bold text-green underline"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-ink/10 px-3 py-2 text-sm font-bold text-green-dark transition hover:bg-green/10"
             >
+              <DownloadIcon className="h-4 w-4" />
               View CNIC Image
             </a>
           ) : null}
@@ -113,21 +128,22 @@ export default function RegistrationDetailsModal({ registration, onClose, onDele
               href={registration.feeReceipt}
               target="_blank"
               rel="noreferrer"
-              className="font-bold text-green underline"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-ink/10 px-3 py-2 text-sm font-bold text-green-dark transition hover:bg-green/10"
             >
+              <DownloadIcon className="h-4 w-4" />
               View Fee Receipt
             </a>
           ) : null}
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 border-t border-ink/10 pt-4">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-ink/10 pt-4">
           <Button type="button" variant="secondary" onClick={onClose}>
             Close
           </Button>
           <button
             type="button"
             onClick={() => onDelete(registration.id)}
-            className="font-bold text-brand-red"
+            className="font-bold text-brand-red hover:underline"
           >
             Delete Registration
           </button>

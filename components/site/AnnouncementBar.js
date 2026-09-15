@@ -1,14 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const DISMISS_KEY = "mpl-announcement-dismissed";
 
 export default function AnnouncementBar() {
+  const pathname = usePathname();
   const [announcement, setAnnouncement] = useState(null);
   const [dismissed, setDismissed] = useState(false);
 
+  // The marquee is for visitors; the admin dashboard has its own chrome.
+  const isAdminRoute = pathname?.startsWith("/admin");
+
   useEffect(() => {
+    if (isAdminRoute) return undefined;
     let cancelled = false;
     fetch("/api/settings", { cache: "no-store" })
       .then((res) => res.json())

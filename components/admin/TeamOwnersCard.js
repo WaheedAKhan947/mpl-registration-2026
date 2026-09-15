@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
-
-const CONTROL_CLASSES =
-  "min-w-[160px] flex-1 rounded-lg border border-ink/15 bg-white px-3 py-2 font-medium outline-none focus:border-green";
+import Panel from "@/components/admin/Panel";
+import Notice from "@/components/admin/Notice";
+import { RefreshIcon } from "@/components/admin/icons";
+import { INPUT_CLASSES } from "@/components/admin/formStyles";
+import { teamLogo } from "@/lib/matches";
 
 function draftFor(team) {
   return { ownerName: team.ownerName || "", captainId: team.captainId || "" };
@@ -72,22 +74,22 @@ export default function TeamOwnersCard() {
   }
 
   return (
-    <section className="mb-6 rounded-2xl border border-ink/10 bg-white p-5 shadow-panel">
-      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="mb-1 text-lg font-bold text-ink">Team Owners &amp; Captains</h2>
-          <p className="text-muted">
-            Set each franchise&apos;s owner and pick a captain from its allocated players. Both are
-            shown to visitors when they open a team&apos;s roster.
-          </p>
-        </div>
-        <Button type="button" variant="secondary" disabled={loading} onClick={loadTeams}>
+    <Panel
+      title="Team Owners & Captains"
+      description="Set each franchise's owner and pick a captain from its allocated players. Both are shown to visitors when they open a team's roster."
+      actions={
+        <Button type="button" size="sm" variant="secondary" disabled={loading} onClick={loadTeams}>
+          <RefreshIcon className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           Refresh
         </Button>
-      </div>
-
-      {error ? <p className="mb-3 font-semibold text-brand-red">{error}</p> : null}
-      {loading ? <p className="text-muted">Loading teams...</p> : null}
+      }
+    >
+      {error ? (
+        <Notice tone="error" className="mb-4">
+          {error}
+        </Notice>
+      ) : null}
+      {loading ? <p className="text-sm text-muted">Loading teams...</p> : null}
 
       {!loading ? (
         <ul className="grid gap-3">
@@ -95,44 +97,70 @@ export default function TeamOwnersCard() {
             const draft = drafts[team.name] || { ownerName: "", captainId: "" };
             const isDirty =
               draft.ownerName !== (team.ownerName || "") || draft.captainId !== (team.captainId || "");
+            const logo = teamLogo(team.name);
             return (
               <li
                 key={team.name}
-                className="flex flex-wrap items-center gap-3.5 rounded-lg border border-ink/10 p-3.5"
+                className="grid gap-3 rounded-xl border border-ink/10 p-4 transition hover:border-ink/20 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-center"
               >
-                <div className="min-w-[160px] flex-1">
-                  <p className="font-bold text-ink">{team.name}</p>
-                  <p className="text-sm text-muted">
-                    {team.playerCount} player{team.playerCount === 1 ? "" : "s"} allocated
-                  </p>
+                <div className="flex min-w-0 items-center gap-3">
+                  {logo ? (
+                    <img
+                      src={logo}
+                      alt=""
+                      className="h-10 w-10 shrink-0 rounded-full border border-ink/10 bg-white object-contain p-0.5"
+                    />
+                  ) : (
+                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-green/10 text-xs font-black text-green-dark">
+                      {team.name.slice(0, 2).toUpperCase()}
+                    </span>
+                  )}
+                  <div className="min-w-0">
+                    <p className="truncate font-bold text-ink">{team.name}</p>
+                    <p className="text-xs text-muted">
+                      {team.playerCount} player{team.playerCount === 1 ? "" : "s"} allocated
+                    </p>
+                  </div>
                 </div>
-                <input
-                  value={draft.ownerName}
-                  onChange={(event) => updateDraft(team.name, { ownerName: event.target.value })}
-                  placeholder="Owner name"
-                  aria-label={`${team.name} owner`}
-                  className={CONTROL_CLASSES}
-                />
-                <select
-                  value={draft.captainId}
-                  onChange={(event) => updateDraft(team.name, { captainId: event.target.value })}
-                  aria-label={`${team.name} captain`}
-                  disabled={team.players.length === 0}
-                  className={`${CONTROL_CLASSES} disabled:cursor-not-allowed disabled:opacity-60`}
-                >
-                  <option value="">
-                    {team.players.length ? "No captain" : "No players allocated yet"}
-                  </option>
-                  {team.players.map((player) => (
-                    <option key={player.id} value={player.id}>
-                      {player.playerName}
+                <label className="block">
+                  <span className="mb-1 block text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted lg:sr-only">
+                    Owner
+                  </span>
+                  <input
+                    value={draft.ownerName}
+                    onChange={(event) => updateDraft(team.name, { ownerName: event.target.value })}
+                    placeholder="Owner name"
+                    aria-label={`${team.name} owner`}
+                    className={INPUT_CLASSES}
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted lg:sr-only">
+                    Captain
+                  </span>
+                  <select
+                    value={draft.captainId}
+                    onChange={(event) => updateDraft(team.name, { captainId: event.target.value })}
+                    aria-label={`${team.name} captain`}
+                    disabled={team.players.length === 0}
+                    className={INPUT_CLASSES}
+                  >
+                    <option value="">
+                      {team.players.length ? "No captain" : "No players allocated yet"}
                     </option>
-                  ))}
-                </select>
+                    {team.players.map((player) => (
+                      <option key={player.id} value={player.id}>
+                        {player.playerName}
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 <Button
                   type="button"
+                  size="sm"
                   disabled={!isDirty || savingName === team.name}
                   onClick={() => handleSave(team.name)}
+                  className="w-full lg:w-auto"
                 >
                   {savingName === team.name ? "Saving..." : "Save"}
                 </Button>
@@ -141,6 +169,6 @@ export default function TeamOwnersCard() {
           })}
         </ul>
       ) : null}
-    </section>
+    </Panel>
   );
 }

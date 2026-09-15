@@ -2,6 +2,8 @@
 
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
+import Avatar from "@/components/admin/Avatar";
+import { DownloadIcon } from "@/components/admin/icons";
 
 const FIELD_ROWS = [
   ["Father's Name", "fatherName"],
@@ -24,7 +26,7 @@ const FIELD_ROWS = [
 
 function DetailRow({ label, value }) {
   return (
-    <div className="grid grid-cols-[130px_1fr] gap-3 border-b border-ink/10 py-2 text-sm last:border-0">
+    <div className="grid grid-cols-[130px_1fr] gap-3 border-b border-ink/[0.06] py-2.5 text-sm last:border-0">
       <span className="font-bold text-muted">{label}</span>
       <span className="break-words text-ink">{value || "—"}</span>
     </div>
@@ -37,15 +39,16 @@ export default function MFCRegistrationDetailsModal({ registration, onClose, onD
   return (
     <Modal onClose={onClose} title={registration.fullName}>
       <div className="flex flex-col gap-4">
-        {registration.photo ? (
-          <img
-            src={registration.photo}
-            alt={registration.fullName}
-            className="mx-auto h-28 w-28 rounded-full border border-ink/10 object-cover"
-          />
-        ) : null}
+        <div className="flex flex-col items-center gap-2 text-center">
+          <Avatar src={registration.photo} name={registration.fullName} size="lg" />
+          {registration.position ? (
+            <span className="inline-flex rounded-full bg-navy/[0.08] px-3 py-1 text-xs font-bold text-navy">
+              {registration.position}
+            </span>
+          ) : null}
+        </div>
 
-        <div>
+        <div className="rounded-xl border border-ink/10 px-4">
           {FIELD_ROWS.map(([label, key]) => (
             <DetailRow key={key} label={label} value={registration[key]} />
           ))}
@@ -55,27 +58,28 @@ export default function MFCRegistrationDetailsModal({ registration, onClose, onD
           />
         </div>
 
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap gap-3">
           {registration.cnicImage ? (
             <a
               href={registration.cnicImage}
               target="_blank"
               rel="noreferrer"
-              className="font-bold text-green underline"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-ink/10 px-3 py-2 text-sm font-bold text-green-dark transition hover:bg-green/10"
             >
+              <DownloadIcon className="h-4 w-4" />
               View CNIC / B-Form Image
             </a>
           ) : null}
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 border-t border-ink/10 pt-4">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-ink/10 pt-4">
           <Button type="button" variant="secondary" onClick={onClose}>
             Close
           </Button>
           <button
             type="button"
             onClick={() => onDelete(registration.id)}
-            className="font-bold text-brand-red"
+            className="font-bold text-brand-red hover:underline"
           >
             Delete Registration
           </button>

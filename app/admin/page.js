@@ -33,8 +33,14 @@ export default function AdminPage() {
 
   if (checkingSession) {
     return (
-      <div className="grid min-h-screen place-items-center bg-paper">
-        <p className="text-muted">Loading...</p>
+      <div className="grid min-h-screen place-items-center bg-[#f3f5f4]">
+        <div className="flex flex-col items-center gap-3">
+          <span
+            aria-hidden="true"
+            className="h-9 w-9 animate-spin rounded-full border-[3px] border-green/20 border-t-green"
+          />
+          <p className="text-sm font-semibold text-muted">Loading...</p>
+        </div>
       </div>
     );
   }
