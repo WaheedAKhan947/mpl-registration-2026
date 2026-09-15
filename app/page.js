@@ -2,6 +2,7 @@ import TopBar from "@/components/site/TopBar";
 import Navbar from "@/components/site/Navbar";
 import Hero from "@/components/site/Hero";
 import StatsBar from "@/components/site/StatsBar";
+import ScorecardSection from "@/components/site/ScorecardSection";
 import AboutSection from "@/components/site/AboutSection";
 import TeamsSection from "@/components/site/TeamsSection";
 import PointsTableSection from "@/components/site/PointsTableSection";
@@ -24,6 +25,7 @@ export default function HomePage() {
         <AboutSection />
         <TeamsSection />
         <PointsTableSection />
+        <ScorecardSection />
         <ManagementSection />
         <GallerySection />
         <HighlightsSection />

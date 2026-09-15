@@ -8,6 +8,7 @@ import HighlightsSettingsCard from "@/components/admin/HighlightsSettingsCard";
 import SponsorsSettingsCard from "@/components/admin/SponsorsSettingsCard";
 import TeamOwnersCard from "@/components/admin/TeamOwnersCard";
 import PointsTableCard from "@/components/admin/PointsTableCard";
+import MatchesCard from "@/components/admin/MatchesCard";
 import StatsRow from "@/components/admin/StatsRow";
 import SearchBar from "@/components/admin/SearchBar";
 import RegistrationsTable from "@/components/admin/RegistrationsTable";
@@ -199,6 +200,7 @@ export default function AdminDashboard({ onLogout }) {
 
       {tab === "mpl" ? (
         <>
+          <MatchesCard />
           <TeamOwnersCard />
           <PointsTableCard />
           <StatsRow total={registrations.length} showing={filteredRegistrations.length} searching={searching} />
