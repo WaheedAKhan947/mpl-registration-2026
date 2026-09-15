@@ -2,7 +2,14 @@
 
 import { useEffect } from "react";
 
-export default function Modal({ onClose, title, children }) {
+export default function Modal({
+  onClose,
+  title,
+  children,
+  hideHeader = false,
+  panelClassName,
+  maxWidthClassName = "max-w-lg",
+}) {
   useEffect(() => {
     function handleKeyDown(event) {
       if (event.key === "Escape") onClose();
@@ -17,20 +24,24 @@ export default function Modal({ onClose, title, children }) {
       onClick={onClose}
     >
       <div
-        className="flex max-h-[85vh] w-full max-w-lg flex-col overflow-y-auto rounded-2xl bg-white p-6 shadow-panel"
+        className={`flex max-h-[85vh] w-full ${maxWidthClassName} flex-col overflow-y-auto rounded-2xl shadow-panel ${
+          panelClassName || "bg-white p-6"
+        }`}
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="mb-4 flex items-center justify-between gap-4">
-          <h2 className="text-xl font-bold text-ink">{title}</h2>
-          <button
-            type="button"
-            aria-label="Close"
-            onClick={onClose}
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-lg text-muted transition hover:bg-paper hover:text-ink"
-          >
-            ✕
-          </button>
-        </div>
+        {!hideHeader ? (
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <h2 className="text-xl font-bold text-ink">{title}</h2>
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={onClose}
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-lg text-muted transition hover:bg-paper hover:text-ink"
+            >
+              ✕
+            </button>
+          </div>
+        ) : null}
         {children}
       </div>
     </div>

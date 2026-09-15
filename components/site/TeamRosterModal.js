@@ -1,53 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Modal from "@/components/ui/Modal";
+import { TEAM_CARDS } from "@/lib/siteData";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 function initials(name) {
   return name
     .split(" ")
     .map((part) => part[0])
+    .filter(Boolean)
     .slice(0, 2)
     .join("")
     .toUpperCase();
 }
 
-function PlayerRow({ player, captainTitle }) {
+function PlayerLine({ player, captainLabel, wkLabel }) {
   return (
-    <div
-      className={`flex items-center gap-3.5 rounded-lg border p-3 ${
-        player.isCaptain ? "border-gold/60 bg-gold/10" : "border-ink/10"
-      }`}
-    >
-      {player.profilePicture ? (
-        <img
-          src={player.profilePicture}
-          alt={player.playerName}
-          className="h-12 w-12 shrink-0 rounded-full border border-ink/10 object-cover"
-        />
-      ) : (
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-green-dark text-sm font-black text-white">
-          {initials(player.playerName)}
+    <li className="flex items-center gap-2 border-b border-white/10 py-2 last:border-0">
+      <span className="min-w-0 flex-1 truncate text-[0.92rem] font-extrabold uppercase tracking-wide text-white">
+        {player.playerName}
+      </span>
+      {player.isCaptain ? (
+        <span
+          title={captainLabel}
+          className="shrink-0 rounded bg-gold px-1.5 py-[1px] text-[0.62rem] font-black uppercase tracking-wide text-navy-dark"
+        >
+          C
         </span>
-      )}
-      <div className="min-w-0 flex-1">
-        <strong className="flex items-center gap-2 text-ink">
-          <span className="truncate">{player.playerName}</span>
-          {player.isCaptain ? (
-            <span
-              title={captainTitle}
-              className="shrink-0 rounded-full bg-gold px-2 py-0.5 text-[0.7rem] font-black uppercase tracking-wide text-navy-dark"
-            >
-              C
-            </span>
-          ) : null}
-        </strong>
-        <span className="block truncate text-sm text-muted">
-          {[player.playingRole, player.battingStyle, player.bowlingStyle].filter(Boolean).join(" • ")}
+      ) : null}
+      {!player.isCaptain && player.playingRole === "Wicket Keeper" ? (
+        <span
+          title={wkLabel}
+          className="shrink-0 rounded bg-white/15 px-1.5 py-[1px] text-[0.62rem] font-black uppercase tracking-wide text-white/85"
+        >
+          WK
         </span>
-      </div>
-    </div>
+      ) : null}
+    </li>
   );
 }
 
@@ -56,6 +47,11 @@ export default function TeamRosterModal({ teamName, onClose }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { t } = useLanguage();
+
+  const crest = useMemo(
+    () => TEAM_CARDS.find((team) => team.name === teamName)?.code || null,
+    [teamName]
+  );
 
   useEffect(() => {
     if (!teamName) return;
@@ -85,36 +81,108 @@ export default function TeamRosterModal({ teamName, onClose }) {
 
   if (!teamName) return null;
 
-  return (
-    <Modal onClose={onClose} title={teamName}>
-      <div className="flex flex-col gap-4">
-        {loading ? <p className="text-muted">{t("teamRoster.loading")}</p> : null}
-        {error ? <p className="font-semibold text-brand-red">{error}</p> : null}
+  const captain = data?.players.find((player) => player.isCaptain) || null;
 
-        {data ? (
-          <>
-            <div className="grid gap-2.5 sm:grid-cols-2">
-              <div className="rounded-lg bg-paper px-3.5 py-3">
-                <span className="text-sm font-bold text-muted">{t("teamRoster.owner")}</span>
-                <p className="font-black text-green-dark">{data.ownerName || t("teamRoster.tba")}</p>
-              </div>
-              <div className="rounded-lg bg-paper px-3.5 py-3">
-                <span className="text-sm font-bold text-muted">{t("teamRoster.captain")}</span>
-                <p className="font-black text-green-dark">{data.captainName || t("teamRoster.tba")}</p>
+  return (
+    <Modal
+      onClose={onClose}
+      hideHeader
+      maxWidthClassName="max-w-2xl"
+      panelClassName="relative p-0 text-white ring-1 ring-lime/25"
+    >
+      <div
+        className="relative"
+        style={{
+          backgroundImage:
+            "radial-gradient(ellipse at top left, rgba(184,229,74,0.2), transparent 55%), radial-gradient(ellipse at bottom right, rgba(244,182,61,0.14), transparent 50%), linear-gradient(180deg, #06301c 0%, #041c10 100%)",
+        }}
+      >
+        {crest ? (
+          <Image
+            src={crest}
+            alt=""
+            width={280}
+            height={280}
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-10 -top-10 opacity-[0.08]"
+          />
+        ) : null}
+
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute right-3 top-3 z-20 grid h-9 w-9 place-items-center rounded-full bg-black/25 text-lg text-white/90 transition hover:bg-black/45"
+        >
+          ✕
+        </button>
+
+        <div className="relative z-10 flex flex-col gap-6 p-6 sm:p-8">
+          <div className="text-center">
+            <span className="inline-block rounded-full bg-gold px-4 py-1 text-[0.68rem] font-black uppercase tracking-[0.2em] text-navy-dark">
+              {t("teamRoster.badge")}
+            </span>
+            <h2 className="mt-3 text-[clamp(1.9rem,6vw,3rem)] font-black uppercase italic leading-[0.95] text-white [text-shadow:0_4px_0_rgba(0,0,0,0.3)]">
+              {teamName}
+            </h2>
+            {data ? (
+              <p className="mt-1.5 text-sm font-bold uppercase tracking-wide text-lime">
+                {t("teamRoster.ownedBy", { owner: data.ownerName || t("teamRoster.tba") })}
+              </p>
+            ) : null}
+          </div>
+
+          {loading ? <p className="text-center text-white/80">{t("teamRoster.loading")}</p> : null}
+          {error ? <p className="text-center font-semibold text-brand-red">{error}</p> : null}
+
+          {data ? (
+            <div className="flex flex-col gap-6 sm:grid sm:grid-cols-[1fr_auto] sm:items-start">
+              {captain ? (
+                <div className="mx-auto flex shrink-0 flex-col items-center gap-2 sm:order-2 sm:mx-0">
+                  <div className="relative h-36 w-36 sm:h-44 sm:w-44">
+                    {captain.profilePicture ? (
+                      <img
+                        src={captain.profilePicture}
+                        alt={captain.playerName}
+                        className="h-full w-full rounded-full border-4 border-gold object-cover shadow-panel-navy"
+                      />
+                    ) : (
+                      <span className="grid h-full w-full place-items-center rounded-full border-4 border-gold bg-green text-3xl font-black text-white">
+                        {initials(captain.playerName)}
+                      </span>
+                    )}
+                    <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-navy-dark px-3 py-1 text-[0.62rem] font-black uppercase tracking-wide text-gold shadow">
+                      {t("teamRoster.captain")}
+                    </span>
+                  </div>
+                  <p className="mt-1 max-w-[10rem] truncate text-center text-sm font-extrabold uppercase text-white">
+                    {captain.playerName}
+                  </p>
+                </div>
+              ) : null}
+
+              <div className="min-w-0 sm:order-1">
+                <h3 className="mb-1 text-[0.7rem] font-black uppercase tracking-[0.2em] text-white/60">
+                  {t("teamRoster.squad")}
+                </h3>
+                {data.players.length ? (
+                  <ul className="flex flex-col">
+                    {data.players.map((player) => (
+                      <PlayerLine
+                        key={player.id}
+                        player={player}
+                        captainLabel={t("teamRoster.captain")}
+                        wkLabel={t("teamRoster.wicketKeeper")}
+                      />
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-white/70">{t("teamRoster.squadNotFinal")}</p>
+                )}
               </div>
             </div>
-
-            {data.players.length ? (
-              <div className="grid gap-2.5">
-                {data.players.map((player) => (
-                  <PlayerRow key={player.id} player={player} captainTitle={t("teamRoster.captain")} />
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted">{t("teamRoster.squadNotFinal")}</p>
-            )}
-          </>
-        ) : null}
+          ) : null}
+        </div>
       </div>
     </Modal>
   );
