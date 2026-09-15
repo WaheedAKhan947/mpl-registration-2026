@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const COLUMNS = ["#", "Team", "M", "W", "L", "T", "NR", "P", "NRR"];
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function PointsTableSection() {
   const [rows, setRows] = useState([]);
+  const { t } = useLanguage();
+  const columns = ["#", t("pointsTable.colTeam"), "M", "W", "L", "T", "NR", "P", "NRR"];
 
   useEffect(() => {
     let cancelled = false;
@@ -27,18 +28,16 @@ export default function PointsTableSection() {
       <div className="mx-auto w-[min(1180px,calc(100%-32px))]">
         <div className="mb-8 flex flex-col gap-6 sm:mb-[34px] sm:flex-row sm:items-end sm:justify-between">
           <h2 className="max-w-[680px] text-[clamp(2rem,5vw,4.2rem)] uppercase leading-[0.98]">
-            Points Table
+            {t("pointsTable.heading")}
           </h2>
-          <p className="max-w-[440px] font-semibold text-muted">
-            Current standings for the Maneri Premier League season.
-          </p>
+          <p className="max-w-[440px] font-semibold text-muted">{t("pointsTable.subtitle")}</p>
         </div>
 
         <div className="overflow-x-auto rounded-xl border border-ink/10 bg-white shadow-panel">
           <table className="w-full min-w-[620px] border-collapse text-[0.9rem]">
             <thead>
               <tr className="bg-gold">
-                {COLUMNS.map((heading) => (
+                {columns.map((heading) => (
                   <th
                     key={heading}
                     className="whitespace-nowrap px-3.5 py-3 text-left font-black uppercase tracking-wide text-navy-dark first:pl-5 last:pr-5"

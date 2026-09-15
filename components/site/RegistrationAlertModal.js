@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const SEEN_KEY = "mpl-registration-alert-seen";
 
@@ -11,6 +12,7 @@ export default function RegistrationAlertModal() {
   const pathname = usePathname();
   const [status, setStatus] = useState(null);
   const [open, setOpen] = useState(false);
+  const { t } = useLanguage();
 
   const isAdminRoute = pathname?.startsWith("/admin");
 
@@ -54,15 +56,15 @@ export default function RegistrationAlertModal() {
 
   const both = status.mpl && status.mfc;
   const title = both
-    ? "Player Registrations Are Open!"
+    ? t("registrationAlert.titleBoth")
     : status.mpl
-    ? "MPL Player Registration Is Open!"
-    : "MFC Player Registration Is Open!";
+    ? t("registrationAlert.titleMpl")
+    : t("registrationAlert.titleMfc");
   const message = both
-    ? "Player registration is now open for both the Maneri Premier League (cricket) and Maneri Football Club. Don't miss your spot — register today."
+    ? t("registrationAlert.messageBoth")
     : status.mpl
-    ? "Player registration is now open for the Maneri Premier League. Don't miss your spot — register today."
-    : "Player registration is now open for Maneri Football Club. Don't miss your spot — register today.";
+    ? t("registrationAlert.messageMpl")
+    : t("registrationAlert.messageMfc");
 
   return (
     <Modal onClose={handleClose} title={title}>
@@ -71,12 +73,12 @@ export default function RegistrationAlertModal() {
         <div className="flex flex-wrap gap-3.5">
           {status.mpl ? (
             <Button as="a" href="/register" variant="gold" onClick={handleClose}>
-              Register for MPL
+              {t("registrationAlert.registerMpl")}
             </Button>
           ) : null}
           {status.mfc ? (
             <Button as="a" href="/mfc-register" onClick={handleClose}>
-              Register for MFC
+              {t("registrationAlert.registerMfc")}
             </Button>
           ) : null}
         </div>

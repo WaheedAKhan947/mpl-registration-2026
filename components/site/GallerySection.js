@@ -2,6 +2,7 @@
 
 import Carousel from "@/components/ui/Carousel";
 import { IMG_BASE } from "@/lib/siteData";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const GALLERY_IMAGES = [
   { src: `/image4.jpeg`, alt: "MPL gallery feature" },
@@ -29,20 +30,20 @@ function GallerySlide({ image }) {
 }
 
 export default function GallerySection() {
+  const { t } = useLanguage();
+
   return (
     <section id="gallery" className="bg-white py-16 sm:py-[84px]">
       <div className="mx-auto w-[min(1180px,calc(100%-32px))]">
         <div className="mb-8 flex flex-col gap-6 sm:mb-[34px] sm:flex-row sm:items-end sm:justify-between">
           <h2 className="max-w-[680px] text-[clamp(2rem,5vw,4.2rem)] uppercase leading-[0.98]">
-            Match-Day Energy
+            {t("gallery.heading")}
           </h2>
-          <p className="max-w-[440px] font-semibold text-muted">
-            A cleaner visual gallery gives the league a more official and memorable presence.
-          </p>
+          <p className="max-w-[440px] font-semibold text-muted">{t("gallery.subtitle")}</p>
         </div>
         <Carousel
           items={GALLERY_IMAGES}
-          ariaLabel="MPL match-day gallery"
+          ariaLabel={t("gallery.ariaLabel")}
           slideClassName="w-[86%] sm:w-[58%] lg:w-[42%]"
           renderItem={(image) => <GallerySlide image={image} />}
         />

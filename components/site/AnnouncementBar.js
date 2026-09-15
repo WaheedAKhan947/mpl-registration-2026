@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const DISMISS_KEY = "mpl-announcement-dismissed";
 
 export default function AnnouncementBar() {
   const pathname = usePathname();
+  const { t } = useLanguage();
   const [announcement, setAnnouncement] = useState(null);
   const [dismissed, setDismissed] = useState(false);
 
@@ -49,11 +51,11 @@ export default function AnnouncementBar() {
   return (
     <div
       role="region"
-      aria-label="Latest announcement"
+      aria-label={t("announcement.aria")}
       className="relative flex items-center gap-3 border-b border-gold/30 bg-navy-dark py-2 pl-4 pr-11 text-white"
     >
       <span className="hidden shrink-0 items-center gap-1.5 rounded-full bg-gold px-2.5 py-1 text-[0.68rem] font-black uppercase tracking-wide text-navy-dark sm:inline-flex">
-        Latest
+        {t("announcement.latest")}
       </span>
       <div className="group flex-1 overflow-hidden">
         <div className="flex w-max animate-marquee gap-24 group-hover:[animation-play-state:paused]">

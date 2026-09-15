@@ -5,9 +5,10 @@ import Link from "next/link";
 import Button from "@/components/ui/Button";
 import FormField from "@/components/ui/FormField";
 import RegistrationClosedNotice from "@/components/site/RegistrationClosedNotice";
-import { REGISTRATION_FIELDS } from "@/lib/siteData";
+import { getRegistrationFields, REGISTRATION_FIELDS } from "@/lib/siteData";
 import { readFileAsDataUrl } from "@/lib/files";
 import { generateRegistrationPdf } from "@/lib/pdf";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function RegistrationForm() {
   const [status, setStatus] = useState({ type: "", text: "" });
@@ -16,6 +17,7 @@ export default function RegistrationForm() {
   const [submittedRegistration, setSubmittedRegistration] = useState(null);
   const [registrationOpen, setRegistrationOpen] = useState(null);
   const [fee, setFee] = useState(1000);
+  const { lang, t } = useLanguage();
 
   useEffect(() => {
     let cancelled = false;
@@ -34,11 +36,11 @@ export default function RegistrationForm() {
     };
   }, []);
 
-  const fields = REGISTRATION_FIELDS.map((field) =>
+  const fields = getRegistrationFields(lang).map((field) =>
     field.name === "feeReceipt"
       ? {
           ...field,
-          help: `Registration Fee: Rs. ${fee}/- (Non-Refundable). Upload payment receipt screenshot, image, or PDF.`,
+          help: t("registrationForm.feeHelp", { fee }),
         }
       : field
   );
@@ -71,16 +73,16 @@ export default function RegistrationForm() {
         body: JSON.stringify(registration),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Registration could not be submitted.");
+      if (!response.ok) throw new Error(result.error || t("registrationForm.genericError"));
 
       form.reset();
       setSubmittedRegistration({ ...registration, id: result.id });
       setStatus({
         type: "success",
-        text: `Registration submitted. Your registration ID is ${result.id}. MPL management can view it in Admin.`,
+        text: t("registrationForm.success", { id: result.id }),
       });
     } catch (error) {
-      setStatus({ type: "error", text: error.message || "Registration could not be submitted. Please try again." });
+      setStatus({ type: "error", text: error.message || t("registrationForm.genericError") });
     } finally {
       setSubmitting(false);
     }
@@ -112,7 +114,7 @@ export default function RegistrationForm() {
 
       doc.save(`MPL-Registration-${submittedRegistration.id}.pdf`);
     } catch (error) {
-      setStatus({ type: "error", text: "Could not generate the PDF. Please try again." });
+      setStatus({ type: "error", text: t("registrationForm.pdfError") });
     } finally {
       setDownloading(false);
     }
@@ -142,13 +144,13 @@ export default function RegistrationForm() {
           className="mt-0.5 h-[18px] w-[18px] shrink-0 accent-green"
         />
         <span>
-          I have read and agree to the{" "}
+          {t("registrationForm.agreeTermsPrefix")}{" "}
           <Link
             href="/terms"
             target="_blank"
             className="font-black text-green underline hover:text-green-dark"
           >
-            Official Playing Conditions &amp; Tournament Regulations
+            {t("registrationForm.agreeTermsLink")}
           </Link>
           . <span className="font-black text-brand-red">*</span>
         </span>
@@ -162,15 +164,13 @@ export default function RegistrationForm() {
           className="mt-0.5 h-[18px] w-[18px] shrink-0 accent-green"
         />
         <span>
-          I understand that the registration fee of <strong>Rs. {fee}</strong> is <strong>non-refundable</strong>{" "}
-          under any circumstances.{" "}
-          <span className="font-black text-brand-red">*</span>
+          {t("registrationForm.feeAck", { fee })} <span className="font-black text-brand-red">*</span>
         </span>
       </label>
 
       <div className="mt-7 flex flex-wrap gap-3.5">
         <Button type="submit" disabled={submitting}>
-          {submitting ? "Submitting..." : "Submit Registration"}
+          {submitting ? t("registrationForm.submitting") : t("registrationForm.submit")}
         </Button>
       </div>
 
@@ -186,7 +186,7 @@ export default function RegistrationForm() {
 
       {status.type === "success" && submittedRegistration ? (
         <Button type="button" variant="secondary" className="mt-3" onClick={handleDownloadPdf} disabled={downloading}>
-          {downloading ? "Preparing PDF..." : "Download Registration Form (PDF)"}
+          {downloading ? t("registrationForm.preparingPdf") : t("registrationForm.downloadPdf")}
         </Button>
       ) : null}
     </form>

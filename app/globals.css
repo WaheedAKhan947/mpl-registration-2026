@@ -23,3 +23,18 @@ h1, h2, h3 {
   font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
   letter-spacing: 0.01em;
 }
+
+/* Urdu (RTL) mode: switch to an Urdu-shaped font and drop the Latin
+   display font + uppercase tracking, which don't apply to Arabic script. */
+html.lang-ur body {
+  font-family: var(--font-urdu), "Noto Nastaliq Urdu", "Noto Sans Urdu", serif;
+  line-height: 2.2;
+}
+
+html.lang-ur h1,
+html.lang-ur h2,
+html.lang-ur h3 {
+  font-family: var(--font-urdu), "Noto Nastaliq Urdu", serif;
+  letter-spacing: 0;
+  line-height: 1.9;
+}

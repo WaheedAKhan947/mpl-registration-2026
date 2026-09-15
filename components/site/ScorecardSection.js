@@ -3,16 +3,19 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { formatMatchDate, formatScore, shiftIsoDate, teamLogo } from "@/lib/matches";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 // Live scores change quickly, so refresh while the page stays open and visible.
 const REFRESH_MS = 60 * 1000;
 
-const STATUS_BADGES = {
-  upcoming: { label: "Upcoming", className: "bg-white/15 text-white" },
-  live: { label: "Live", className: "bg-brand-red text-white" },
-  completed: { label: "Result", className: "bg-gold text-navy-dark" },
-  abandoned: { label: "Abandoned", className: "bg-white/15 text-white/80" },
-};
+function getStatusBadges(t) {
+  return {
+    upcoming: { label: t("scorecard.statusUpcoming"), className: "bg-white/15 text-white" },
+    live: { label: t("scorecard.statusLive"), className: "bg-brand-red text-white" },
+    completed: { label: t("scorecard.statusCompleted"), className: "bg-gold text-navy-dark" },
+    abandoned: { label: t("scorecard.statusAbandoned"), className: "bg-white/15 text-white/80" },
+  };
+}
 
 function initials(name) {
   return name
@@ -24,7 +27,9 @@ function initials(name) {
 }
 
 function StatusBadge({ status }) {
-  const badge = STATUS_BADGES[status] || STATUS_BADGES.upcoming;
+  const { t } = useLanguage();
+  const badges = getStatusBadges(t);
+  const badge = badges[status] || badges.upcoming;
   return (
     <span
       className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[0.68rem] font-black uppercase tracking-wider ${badge.className}`}
@@ -76,11 +81,12 @@ function PerformerRow({ label, performer }) {
 }
 
 function ScorePill({ innings }) {
+  const { t } = useLanguage();
   const score = formatScore(innings);
   if (!score) {
     return (
       <span className="shrink-0 rounded-md bg-white/10 px-3 py-1.5 text-[0.7rem] font-black uppercase tracking-wider text-white/70">
-        Yet to bat
+        {t("scorecard.yetToBat")}
       </span>
     );
   }
@@ -93,6 +99,7 @@ function ScorePill({ innings }) {
 }
 
 function InningsBlock({ team, innings, showScore }) {
+  const { t } = useLanguage();
   return (
     <div className="grid gap-2 py-3.5">
       <div className="flex items-center gap-3">
@@ -102,8 +109,8 @@ function InningsBlock({ team, innings, showScore }) {
       </div>
       {showScore ? (
         <>
-          <PerformerRow label="Bat" performer={innings.topBatter} />
-          <PerformerRow label="Bowl" performer={innings.topBowler} />
+          <PerformerRow label={t("scorecard.bat")} performer={innings.topBatter} />
+          <PerformerRow label={t("scorecard.bowl")} performer={innings.topBowler} />
         </>
       ) : null}
     </div>
@@ -111,10 +118,11 @@ function InningsBlock({ team, innings, showScore }) {
 }
 
 function MatchCard({ match }) {
+  const { t } = useLanguage();
   const showScore = match.status !== "upcoming";
   const motm = match.manOfTheMatch;
   const meta = [formatMatchDate(match.date), match.time, match.venue].filter(Boolean).join(" · ");
-  const kickoff = match.time ? `Starts at ${match.time}` : "Start time to be announced";
+  const kickoff = match.time ? t("scorecard.startsAt", { time: match.time }) : t("scorecard.startTimeTba");
   const hasFooter = Boolean(match.result || motm.name || !showScore);
 
   return (
@@ -122,7 +130,7 @@ function MatchCard({ match }) {
       <header className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 px-4 py-3">
         <div className="min-w-0">
           <p className="text-[0.72rem] font-black uppercase tracking-[0.16em] text-gold">
-            {match.matchNumber ? `Match ${match.matchNumber}` : "Fixture"}
+            {match.matchNumber ? t("scorecard.matchNumber", { n: match.matchNumber }) : t("scorecard.fixture")}
           </p>
           <p className="text-[0.78rem] text-white/60">{meta}</p>
         </div>
@@ -144,7 +152,7 @@ function MatchCard({ match }) {
           {motm.name ? (
             <p className="mt-1.5 flex flex-wrap items-baseline gap-x-2 text-sm">
               <span className="text-[0.66rem] font-black uppercase tracking-wider text-white/50">
-                Man of the Match
+                {t("scorecard.manOfTheMatch")}
               </span>
               <span className="font-black uppercase">{motm.name}</span>
               {motm.team ? <span className="text-white/60">{motm.team}</span> : null}
@@ -179,6 +187,7 @@ function Bucket({ title, subtitle, bucket, emptyText, className = "" }) {
 
 export default function ScorecardSection() {
   const [data, setData] = useState(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     let cancelled = false;
@@ -207,8 +216,8 @@ export default function ScorecardSection() {
   if (!data || (!data.recent && !data.today && !data.upcoming)) return null;
 
   const { todayDate, recent, today, upcoming } = data;
-  const recentTitle = recent?.date === shiftIsoDate(todayDate, -1) ? "Yesterday" : "Last Match";
-  const upcomingTitle = upcoming?.date === shiftIsoDate(todayDate, 1) ? "Tomorrow" : "Next Match";
+  const recentTitle = recent?.date === shiftIsoDate(todayDate, -1) ? t("scorecard.yesterday") : t("scorecard.lastMatch");
+  const upcomingTitle = upcoming?.date === shiftIsoDate(todayDate, 1) ? t("scorecard.tomorrow") : t("scorecard.nextMatch");
 
   return (
     <section
@@ -223,14 +232,11 @@ export default function ScorecardSection() {
         <div className="mb-8 flex flex-col gap-6 sm:mb-[34px] sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="mb-2.5 inline-flex items-center gap-2.5 text-[0.76rem] font-black uppercase tracking-[0.18em] text-gold before:h-[3px] before:w-7 before:rounded-full before:bg-gold before:content-['']">
-              Match Centre
+              {t("scorecard.eyebrow")}
             </p>
-            <h2 className="max-w-[680px] text-[clamp(2rem,5vw,4.2rem)] uppercase leading-[0.98]">Scorecard</h2>
+            <h2 className="max-w-[680px] text-[clamp(2rem,5vw,4.2rem)] uppercase leading-[0.98]">{t("scorecard.heading")}</h2>
           </div>
-          <p className="max-w-[440px] font-semibold text-white/70">
-            Yesterday&apos;s result, today&apos;s match, and the next fixture. Scores are updated live by MPL
-            management.
-          </p>
+          <p className="max-w-[440px] font-semibold text-white/70">{t("scorecard.subtitle")}</p>
         </div>
 
         <div className="grid gap-5 lg:grid-cols-3">
@@ -238,20 +244,20 @@ export default function ScorecardSection() {
             title={recentTitle}
             subtitle={recent ? formatMatchDate(recent.date) : ""}
             bucket={recent}
-            emptyText="No results yet."
+            emptyText={t("scorecard.noResults")}
           />
           <Bucket
-            title="Today"
+            title={t("scorecard.today")}
             subtitle={formatMatchDate(todayDate)}
             bucket={today}
-            emptyText="No match scheduled today."
+            emptyText={t("scorecard.noMatchToday")}
             className="order-first lg:order-none"
           />
           <Bucket
             title={upcomingTitle}
             subtitle={upcoming ? formatMatchDate(upcoming.date) : ""}
             bucket={upcoming}
-            emptyText="Next fixture to be announced."
+            emptyText={t("scorecard.nextFixtureTba")}
           />
         </div>
       </div>

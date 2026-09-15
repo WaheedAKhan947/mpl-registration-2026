@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Modal from "@/components/ui/Modal";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 function initials(name) {
   return name
@@ -12,7 +13,7 @@ function initials(name) {
     .toUpperCase();
 }
 
-function PlayerRow({ player }) {
+function PlayerRow({ player, captainTitle }) {
   return (
     <div
       className={`flex items-center gap-3.5 rounded-lg border p-3 ${
@@ -35,7 +36,7 @@ function PlayerRow({ player }) {
           <span className="truncate">{player.playerName}</span>
           {player.isCaptain ? (
             <span
-              title="Captain"
+              title={captainTitle}
               className="shrink-0 rounded-full bg-gold px-2 py-0.5 text-[0.7rem] font-black uppercase tracking-wide text-navy-dark"
             >
               C
@@ -54,6 +55,7 @@ export default function TeamRosterModal({ teamName, onClose }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (!teamName) return;
@@ -66,7 +68,7 @@ export default function TeamRosterModal({ teamName, onClose }) {
       .then((res) => res.json().then((body) => ({ ok: res.ok, body })))
       .then(({ ok, body }) => {
         if (cancelled) return;
-        if (!ok) throw new Error(body.error || "Could not load this team.");
+        if (!ok) throw new Error(body.error || t("teamRoster.couldNotLoad"));
         setData(body);
       })
       .catch((err) => {
@@ -86,30 +88,30 @@ export default function TeamRosterModal({ teamName, onClose }) {
   return (
     <Modal onClose={onClose} title={teamName}>
       <div className="flex flex-col gap-4">
-        {loading ? <p className="text-muted">Loading squad...</p> : null}
+        {loading ? <p className="text-muted">{t("teamRoster.loading")}</p> : null}
         {error ? <p className="font-semibold text-brand-red">{error}</p> : null}
 
         {data ? (
           <>
             <div className="grid gap-2.5 sm:grid-cols-2">
               <div className="rounded-lg bg-paper px-3.5 py-3">
-                <span className="text-sm font-bold text-muted">Owner</span>
-                <p className="font-black text-green-dark">{data.ownerName || "To be announced"}</p>
+                <span className="text-sm font-bold text-muted">{t("teamRoster.owner")}</span>
+                <p className="font-black text-green-dark">{data.ownerName || t("teamRoster.tba")}</p>
               </div>
               <div className="rounded-lg bg-paper px-3.5 py-3">
-                <span className="text-sm font-bold text-muted">Captain</span>
-                <p className="font-black text-green-dark">{data.captainName || "To be announced"}</p>
+                <span className="text-sm font-bold text-muted">{t("teamRoster.captain")}</span>
+                <p className="font-black text-green-dark">{data.captainName || t("teamRoster.tba")}</p>
               </div>
             </div>
 
             {data.players.length ? (
               <div className="grid gap-2.5">
                 {data.players.map((player) => (
-                  <PlayerRow key={player.id} player={player} />
+                  <PlayerRow key={player.id} player={player} captainTitle={t("teamRoster.captain")} />
                 ))}
               </div>
             ) : (
-              <p className="text-muted">Squad not finalized yet.</p>
+              <p className="text-muted">{t("teamRoster.squadNotFinal")}</p>
             )}
           </>
         ) : null}

@@ -1,3 +1,5 @@
+import LanguageToggle from "@/components/site/LanguageToggle";
+
 function FacebookIcon(props) {
   return (
     <svg viewBox="0 0 24 24" {...props}>
@@ -44,23 +46,26 @@ export default function TopBar() {
     <div className="border-b border-gold/20 bg-navy-dark text-sm text-white/90">
       <div className="mx-auto flex min-h-[42px] w-[min(1180px,calc(100%-32px))] flex-wrap items-center justify-between gap-4">
         <div className="hidden flex-wrap items-center gap-3 md:flex">
-          <span>+92 310 9898996</span>
-          <span>maneripremierleague@gmail.com</span>
+          <span dir="ltr">+92 310 9898996</span>
+          <span dir="ltr">maneripremierleague@gmail.com</span>
         </div>
-        <div className="flex flex-wrap items-center gap-3" aria-label="Social links">
-          {SOCIAL_LINKS.map(({ label, icon: Icon, href }) => (
-            <a
-              key={label}
-              target="_blank"
-              rel="noreferrer"
-              href={href}
-              aria-label={label}
-              title={label}
-              className="opacity-90 transition hover:scale-110 hover:opacity-100"
-            >
-              <Icon className="h-5 w-5" />
-            </a>
-          ))}
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3" aria-label="Social links">
+            {SOCIAL_LINKS.map(({ label, icon: Icon, href }) => (
+              <a
+                key={label}
+                target="_blank"
+                rel="noreferrer"
+                href={href}
+                aria-label={label}
+                title={label}
+                className="opacity-90 transition hover:scale-110 hover:opacity-100"
+              >
+                <Icon className="h-5 w-5" />
+              </a>
+            ))}
+          </div>
+          <LanguageToggle />
         </div>
       </div>
     </div>

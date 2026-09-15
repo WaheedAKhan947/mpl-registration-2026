@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const COUNT_DURATION_MS = 1400;
 
@@ -37,39 +38,41 @@ function FairPlayIcon() {
   );
 }
 
-const BASE_STATS = [
-  {
-    key: "teams",
-    target: 6,
-    suffix: "",
-    label: "Teams",
-    blurb: "Franchises chasing the title",
-    Icon: TeamsIcon,
-    chip: "bg-navy-dark/10 text-navy-dark group-hover:bg-navy-dark group-hover:text-gold",
-    bar: "bg-navy-dark",
-  },
-  {
-    key: "players",
-    target: 0,
-    suffix: "",
-    label: "Players",
-    blurb: "Registered for this season",
-    live: true,
-    Icon: PlayersIcon,
-    chip: "bg-brand-red/10 text-brand-red group-hover:bg-brand-red group-hover:text-white",
-    bar: "bg-brand-red",
-  },
-  {
-    key: "fairplay",
-    target: 100,
-    suffix: "%",
-    label: "Fair Play",
-    blurb: "Discipline, respect, and spirit",
-    Icon: FairPlayIcon,
-    chip: "bg-ember/10 text-ember group-hover:bg-ember group-hover:text-white",
-    bar: "bg-ember",
-  },
-];
+function getBaseStats(t) {
+  return [
+    {
+      key: "teams",
+      target: 6,
+      suffix: "",
+      label: t("stats.teamsLabel"),
+      blurb: t("stats.teamsBlurb"),
+      Icon: TeamsIcon,
+      chip: "bg-navy-dark/10 text-navy-dark group-hover:bg-navy-dark group-hover:text-gold",
+      bar: "bg-navy-dark",
+    },
+    {
+      key: "players",
+      target: 0,
+      suffix: "",
+      label: t("stats.playersLabel"),
+      blurb: t("stats.playersBlurb"),
+      live: true,
+      Icon: PlayersIcon,
+      chip: "bg-brand-red/10 text-brand-red group-hover:bg-brand-red group-hover:text-white",
+      bar: "bg-brand-red",
+    },
+    {
+      key: "fairplay",
+      target: 100,
+      suffix: "%",
+      label: t("stats.fairplayLabel"),
+      blurb: t("stats.fairplayBlurb"),
+      Icon: FairPlayIcon,
+      chip: "bg-ember/10 text-ember group-hover:bg-ember group-hover:text-white",
+      bar: "bg-ember",
+    },
+  ];
+}
 
 // Counts from whatever is currently shown to the new target, so a late-arriving
 // live number glides up instead of snapping back to zero.
@@ -107,7 +110,7 @@ function useCountUp(target, active) {
   return value;
 }
 
-function StatTile({ stat, active, index }) {
+function StatTile({ stat, active, index, liveLabel }) {
   const value = useCountUp(stat.target, active);
   const { Icon } = stat;
 
@@ -136,7 +139,7 @@ function StatTile({ stat, active, index }) {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green opacity-75" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green" />
               </span>
-              Live
+              {liveLabel}
             </span>
           ) : null}
         </div>
@@ -158,6 +161,7 @@ export default function StatsBar() {
   const panelRef = useRef(null);
   const [active, setActive] = useState(false);
   const [totalPlayers, setTotalPlayers] = useState(0);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const node = panelRef.current;
@@ -182,12 +186,12 @@ export default function StatsBar() {
       .catch(() => {});
   }, []);
 
-  const stats = BASE_STATS.map((stat) =>
+  const stats = getBaseStats(t).map((stat) =>
     stat.key === "players" ? { ...stat, target: totalPlayers } : stat
   );
 
   return (
-    <section aria-label="League highlights" className="relative z-10 mt-6 sm:mt-9">
+    <section aria-label={t("stats.ariaLabel")} className="relative z-10 mt-6 sm:mt-9">
       <div
         ref={panelRef}
         className="mx-auto flex w-[min(1180px,calc(100%-32px))] flex-col overflow-hidden rounded-2xl bg-white shadow-panel-navy ring-1 ring-ink/10 lg:flex-row"
@@ -215,21 +219,19 @@ export default function StatsBar() {
           <div className="relative flex items-center gap-5">
             <div className="min-w-0 flex-1">
               <p className="mb-2.5 inline-flex items-center gap-2.5 text-[0.76rem] font-black uppercase tracking-[0.18em] text-gold before:h-[3px] before:w-7 before:rounded-full before:bg-gold before:content-['']">
-                League at a glance
+                {t("stats.eyebrow")}
               </p>
               <h2 className="text-[clamp(1.7rem,2.6vw,2.3rem)] uppercase leading-[0.95] text-white">
                 <span className="bg-gradient-to-r from-brand-red via-ember to-gold bg-clip-text text-transparent">
                   MPL
                 </span>{" "}
-                by the numbers
+                {t("stats.headingSuffix")}
               </h2>
-              <p className="mt-2.5 text-sm text-white/65">
-                Six franchises, one title, and a growing pool of Maneri talent.
-              </p>
+              <p className="mt-2.5 text-sm text-white/65">{t("stats.subtitle")}</p>
             </div>
             <Image
               src="/logo.png"
-              alt="Maneri Premier League Season II crest"
+              alt={t("stats.crestAlt")}
               width={112}
               height={112}
               className="h-[72px] w-[72px] shrink-0 drop-shadow-[0_12px_28px_rgba(244,182,61,0.45)] sm:h-24 sm:w-24 lg:h-[96px] lg:w-[96px]"
@@ -239,7 +241,7 @@ export default function StatsBar() {
 
         <div className="grid flex-1 grid-cols-1 divide-y divide-ink/10 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           {stats.map((stat, index) => (
-            <StatTile key={stat.key} stat={stat} active={active} index={index} />
+            <StatTile key={stat.key} stat={stat} active={active} index={index} liveLabel={t("stats.live")} />
           ))}
         </div>
       </div>

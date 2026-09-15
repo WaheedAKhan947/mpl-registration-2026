@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
 import FormField from "@/components/ui/FormField";
 import RegistrationClosedNotice from "@/components/site/RegistrationClosedNotice";
-import { MFC_REGISTRATION_FIELDS } from "@/lib/siteData";
+import { getMfcRegistrationFields, MFC_REGISTRATION_FIELDS } from "@/lib/siteData";
 import { readFileAsDataUrl } from "@/lib/files";
 import { generateRegistrationPdf } from "@/lib/pdf";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 export default function MFCRegistrationForm() {
   const [status, setStatus] = useState({ type: "", text: "" });
@@ -14,6 +15,8 @@ export default function MFCRegistrationForm() {
   const [downloading, setDownloading] = useState(false);
   const [submittedRegistration, setSubmittedRegistration] = useState(null);
   const [registrationOpen, setRegistrationOpen] = useState(null);
+  const { lang, t } = useLanguage();
+  const fields = getMfcRegistrationFields(lang);
 
   useEffect(() => {
     let cancelled = false;
@@ -56,16 +59,16 @@ export default function MFCRegistrationForm() {
         body: JSON.stringify(registration),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "Registration could not be submitted.");
+      if (!response.ok) throw new Error(result.error || t("registrationForm.genericError"));
 
       form.reset();
       setSubmittedRegistration({ ...registration, id: result.id });
       setStatus({
         type: "success",
-        text: `Registration submitted. Your registration ID is ${result.id}. MFC management can view it in Admin.`,
+        text: t("mfcForm.success", { id: result.id }),
       });
     } catch (error) {
-      setStatus({ type: "error", text: error.message || "Registration could not be submitted. Please try again." });
+      setStatus({ type: "error", text: error.message || t("registrationForm.genericError") });
     } finally {
       setSubmitting(false);
     }
@@ -97,7 +100,7 @@ export default function MFCRegistrationForm() {
 
       doc.save(`MFC-Registration-${submittedRegistration.id}.pdf`);
     } catch (error) {
-      setStatus({ type: "error", text: "Could not generate the PDF. Please try again." });
+      setStatus({ type: "error", text: t("registrationForm.pdfError") });
     } finally {
       setDownloading(false);
     }
@@ -114,7 +117,7 @@ export default function MFCRegistrationForm() {
       onSubmit={handleSubmit}
     >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {MFC_REGISTRATION_FIELDS.map((field) => (
+        {fields.map((field) => (
           <FormField key={field.name} field={field} />
         ))}
       </div>
@@ -127,16 +130,13 @@ export default function MFCRegistrationForm() {
           className="mt-0.5 h-[18px] w-[18px] shrink-0 accent-green"
         />
         <span>
-          I hereby declare that all information provided in this registration form is true and correct. I agree to
-          follow the rules, regulations, discipline, and decisions of Maneri Football Club. I understand that
-          submitting this form does not guarantee selection. I confirm that all the information provided is
-          correct. <span className="font-black text-brand-red">*</span>
+          {t("mfcForm.declaration")} <span className="font-black text-brand-red">*</span>
         </span>
       </label>
 
       <div className="mt-7 flex flex-wrap gap-3.5">
         <Button type="submit" disabled={submitting}>
-          {submitting ? "Submitting..." : "Submit Player Registration"}
+          {submitting ? t("registrationForm.submitting") : t("mfcForm.submit")}
         </Button>
       </div>
 
@@ -152,7 +152,7 @@ export default function MFCRegistrationForm() {
 
       {status.type === "success" && submittedRegistration ? (
         <Button type="button" variant="secondary" className="mt-3" onClick={handleDownloadPdf} disabled={downloading}>
-          {downloading ? "Preparing PDF..." : "Download Registration Form (PDF)"}
+          {downloading ? t("registrationForm.preparingPdf") : t("registrationForm.downloadPdf")}
         </Button>
       ) : null}
     </form>

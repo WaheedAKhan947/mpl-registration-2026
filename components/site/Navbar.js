@@ -4,21 +4,26 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import Button from "@/components/ui/Button";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
-const NAV_LINKS = [
-  { label: "About", href: "/#about" },
-  { label: "Teams", href: "/#teams" },
-  { label: "Scorecard", href: "/#scores" },
-  // { label: "Points Table", href: "/#points-table" },
-  { label: "Management", href: "/#management" },
-  { label: "Gallery", href: "/#gallery" },
-  // { label: "Highlights", href: "/#highlights" },
-  // { label: "MPL Register", href: "/register" },
-  // { label: "MFC Register", href: "/mfc-register" },
-];
+function useNavLinks(t) {
+  return [
+    { key: "about", label: t("nav.about"), href: "/#about" },
+    { key: "teams", label: t("nav.teams"), href: "/#teams" },
+    { key: "scorecard", label: t("nav.scorecard"), href: "/#scores" },
+    // { key: "pointsTable", label: "Points Table", href: "/#points-table" },
+    { key: "management", label: t("nav.management"), href: "/#management" },
+    { key: "gallery", label: t("nav.gallery"), href: "/#gallery" },
+    // { key: "highlights", label: "Highlights", href: "/#highlights" },
+    // { key: "mplRegister", label: "MPL Register", href: "/register" },
+    // { key: "mfcRegister", label: "MFC Register", href: "/mfc-register" },
+  ];
+}
 
 export default function Navbar() {
   const [navOpen, setNavOpen] = useState(false);
+  const { t } = useLanguage();
+  const navLinks = useNavLinks(t);
 
   return (
     <nav
@@ -26,7 +31,7 @@ export default function Navbar() {
       aria-label="Main navigation"
     >
       <div className="relative mx-auto flex min-h-[76px] w-[min(1180px,calc(100%-32px))] items-center justify-between gap-6">
-        <Link className="flex items-center gap-3 font-black" href="/#home" aria-label="Maneri Premier League home">
+        <Link className="flex items-center gap-3 font-black" href="/#home" aria-label={t("nav.homeAria")}>
           <Image
             src="/logo.png"
             alt="MPL logo"
@@ -36,14 +41,14 @@ export default function Navbar() {
           />
           <span className="text-navy-dark">
             Maneri Premier League
-            <small className="-mt-1 block text-[0.78rem] font-bold text-muted">Swabi, KP, Pakistan</small>
+            <small className="-mt-1 block text-[0.78rem] font-bold text-muted">{t("nav.tagline")}</small>
           </span>
         </Link>
 
         <button
           className="grid h-[42px] w-[42px] place-content-center gap-1 rounded-lg border border-ink/10 bg-white text-navy-dark md:hidden"
           type="button"
-          aria-label="Open menu"
+          aria-label={t("nav.openMenu")}
           aria-expanded={navOpen}
           onClick={() => setNavOpen((o) => !o)}
         >
@@ -58,13 +63,13 @@ export default function Navbar() {
           } absolute left-0 right-0 top-[76px] flex-col items-stretch gap-2 rounded-lg border border-gold/30 bg-white p-4 shadow-panel-navy md:static md:flex md:flex-row md:items-center md:gap-6 md:border-0 md:bg-transparent md:p-0 md:shadow-none`}
           onClick={() => setNavOpen(false)}
         >
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className="py-2 font-bold text-[#24392e] hover:text-navy md:py-0">
               {link.label}
             </Link>
           ))}
           <Button as="a" href="/#contact" variant="gold" className="w-full md:w-auto">
-            Contact
+            {t("nav.contact")}
           </Button>
         </div>
       </div>

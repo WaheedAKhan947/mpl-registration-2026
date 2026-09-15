@@ -30,9 +30,15 @@ export default function FormField({ field }) {
           <option value="" disabled>
             {placeholder}
           </option>
-          {options.map((option) => (
-            <option key={option}>{option}</option>
-          ))}
+          {options.map((option) => {
+            const value = typeof option === "string" ? option : option.value;
+            const label = typeof option === "string" ? option : option.label;
+            return (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            );
+          })}
         </select>
       ) : type === "textarea" ? (
         <textarea

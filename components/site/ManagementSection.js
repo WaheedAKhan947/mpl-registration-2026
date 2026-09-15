@@ -1,7 +1,8 @@
 "use client";
 
 import Carousel from "@/components/ui/Carousel";
-import { MANAGEMENT } from "@/lib/siteData";
+import { getManagement } from "@/lib/siteData";
+import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const AVATAR_COLORS = [
   "bg-navy-dark text-gold",
@@ -48,20 +49,21 @@ function MemberCard({ member, index }) {
 }
 
 export default function ManagementSection() {
+  const { lang, t } = useLanguage();
+  const management = getManagement(lang);
+
   return (
     <section id="management" className="py-16 sm:py-[84px]">
       <div className="mx-auto w-[min(1180px,calc(100%-32px))]">
         <div className="mb-8 flex flex-col gap-6 sm:mb-[34px] sm:flex-row sm:items-end sm:justify-between">
           <h2 className="max-w-[680px] text-[clamp(2rem,5vw,4.2rem)] uppercase leading-[0.98]">
-            Management MPL
+            {t("management.heading")}
           </h2>
-          <p className="max-w-[440px] font-semibold text-muted">
-            The people responsible for planning, operations, communication, finance, media, and match experience.
-          </p>
+          <p className="max-w-[440px] font-semibold text-muted">{t("management.subtitle")}</p>
         </div>
         <Carousel
-          items={MANAGEMENT}
-          ariaLabel="MPL management team"
+          items={management}
+          ariaLabel={t("management.ariaLabel")}
           slideClassName="w-[86%] sm:w-[46%] lg:w-[31%]"
           renderItem={(member, index) => <MemberCard member={member} index={index} />}
         />
