@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import Registration from "@/models/Registration";
+import Settings from "@/models/Settings";
 import { parseUploadedFile, buildFileKey, uploadBufferToR2, deleteFileFromR2 } from "@/lib/r2";
 
 const REQUIRED_FIELDS = [
@@ -46,6 +47,14 @@ export async function POST(request) {
     const cnicNumber = body.cnicNumber.trim();
 
     await connectToDatabase();
+
+    const settings = await Settings.findOne({ key: "site" }).lean();
+    if (settings && settings.mplRegistrationOpen === false) {
+      return NextResponse.json(
+        { error: "MPL registration is currently closed." },
+        { status: 403 }
+      );
+    }
 
     const existingCnic = await Registration.findOne({ cnicNumber }).lean();
     if (existingCnic) {

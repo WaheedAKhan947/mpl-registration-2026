@@ -12,6 +12,9 @@ export async function GET() {
       highlightVideoUrl: settings?.highlightVideoUrl || "",
       announcementText: settings?.announcementText || "",
       announcementEnabled: settings?.announcementEnabled ?? true,
+      mplRegistrationOpen: settings?.mplRegistrationOpen ?? true,
+      mfcRegistrationOpen: settings?.mfcRegistrationOpen ?? true,
+      mplRegistrationFee: settings?.mplRegistrationFee ?? 1000,
     },
     { headers: { "Cache-Control": "no-store" } }
   );

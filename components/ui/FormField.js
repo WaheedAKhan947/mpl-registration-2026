@@ -10,6 +10,7 @@ export default function FormField({ field }) {
     options,
     placeholder,
     help,
+    helpVariant,
     full,
     autoComplete,
     inputMode,
@@ -62,7 +63,15 @@ export default function FormField({ field }) {
         />
       )}
 
-      {help ? <span className="text-[0.82rem] font-bold text-muted">{help}</span> : null}
+      {help ? (
+        <span
+          className={`text-[0.82rem] font-bold ${
+            helpVariant === "danger" ? "text-brand-red" : "text-muted"
+          }`}
+        >
+          {help}
+        </span>
+      ) : null}
     </label>
   );
 }

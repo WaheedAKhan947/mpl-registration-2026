@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import DashboardHeader from "@/components/admin/DashboardHeader";
+import RegistrationStatusCard from "@/components/admin/RegistrationStatusCard";
 import AnnouncementSettingsCard from "@/components/admin/AnnouncementSettingsCard";
 import HighlightsSettingsCard from "@/components/admin/HighlightsSettingsCard";
 import SponsorsSettingsCard from "@/components/admin/SponsorsSettingsCard";
@@ -174,6 +175,7 @@ export default function AdminDashboard({ onLogout }) {
         title={tab === "mpl" ? "MPL Admin Dashboard" : "MFC Admin Dashboard"}
         exportHref={tab === "mpl" ? "/api/admin/export" : "/api/admin/mfc-export"}
       />
+      <RegistrationStatusCard />
       <AnnouncementSettingsCard />
       <HighlightsSettingsCard />
       <SponsorsSettingsCard />

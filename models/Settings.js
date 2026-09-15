@@ -6,6 +6,9 @@ const SettingsSchema = new mongoose.Schema(
     highlightVideoUrl: { type: String, trim: true, default: "" },
     announcementText: { type: String, trim: true, default: "" },
     announcementEnabled: { type: Boolean, default: true },
+    mplRegistrationOpen: { type: Boolean, default: true },
+    mfcRegistrationOpen: { type: Boolean, default: true },
+    mplRegistrationFee: { type: Number, default: 1000, min: 0 },
   },
   { timestamps: true }
 );

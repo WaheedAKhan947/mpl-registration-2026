@@ -1,5 +1,6 @@
 import { Anton, Inter } from "next/font/google";
 import AnnouncementBar from "@/components/site/AnnouncementBar";
+import RegistrationAlertModal from "@/components/site/RegistrationAlertModal";
 import "./globals.css";
 
 const displayFont = Anton({
@@ -26,6 +27,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${displayFont.variable} ${bodyFont.variable}`}>
       <body>
         <AnnouncementBar />
+        <RegistrationAlertModal />
         {children}
       </body>
     </html>

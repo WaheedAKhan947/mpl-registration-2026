@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import FootballRegistration from "@/models/FootballRegistration";
+import Settings from "@/models/Settings";
 import { parseUploadedFile, buildFileKey, uploadBufferToR2, deleteFileFromR2 } from "@/lib/r2";
 
 const REQUIRED_FIELDS = [
@@ -39,6 +40,14 @@ export async function POST(request) {
     const cnicNumber = body.cnicNumber.trim();
 
     await connectToDatabase();
+
+    const settings = await Settings.findOne({ key: "site" }).lean();
+    if (settings && settings.mfcRegistrationOpen === false) {
+      return NextResponse.json(
+        { error: "MFC registration is currently closed." },
+        { status: 403 }
+      );
+    }
 
     const existingCnic = await FootballRegistration.findOne({ cnicNumber }).lean();
     if (existingCnic) {

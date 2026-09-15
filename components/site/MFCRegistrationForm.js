@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
 import FormField from "@/components/ui/FormField";
+import RegistrationClosedNotice from "@/components/site/RegistrationClosedNotice";
 import { MFC_REGISTRATION_FIELDS } from "@/lib/siteData";
 import { readFileAsDataUrl } from "@/lib/files";
 import { generateRegistrationPdf } from "@/lib/pdf";
@@ -12,6 +13,22 @@ export default function MFCRegistrationForm() {
   const [submitting, setSubmitting] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [submittedRegistration, setSubmittedRegistration] = useState(null);
+  const [registrationOpen, setRegistrationOpen] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/settings", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) setRegistrationOpen(data.mfcRegistrationOpen ?? true);
+      })
+      .catch(() => {
+        if (!cancelled) setRegistrationOpen(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -85,6 +102,10 @@ export default function MFCRegistrationForm() {
       setDownloading(false);
     }
   }
+
+  if (registrationOpen === null) return null;
+
+  if (!registrationOpen) return <RegistrationClosedNotice orgName="MFC" />;
 
   return (
     <form

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import FormField from "@/components/ui/FormField";
+import RegistrationClosedNotice from "@/components/site/RegistrationClosedNotice";
 import { REGISTRATION_FIELDS } from "@/lib/siteData";
 import { readFileAsDataUrl } from "@/lib/files";
 import { generateRegistrationPdf } from "@/lib/pdf";
@@ -13,6 +14,34 @@ export default function RegistrationForm() {
   const [submitting, setSubmitting] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [submittedRegistration, setSubmittedRegistration] = useState(null);
+  const [registrationOpen, setRegistrationOpen] = useState(null);
+  const [fee, setFee] = useState(1000);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/settings", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled) return;
+        setRegistrationOpen(data.mplRegistrationOpen ?? true);
+        setFee(data.mplRegistrationFee ?? 1000);
+      })
+      .catch(() => {
+        if (!cancelled) setRegistrationOpen(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const fields = REGISTRATION_FIELDS.map((field) =>
+    field.name === "feeReceipt"
+      ? {
+          ...field,
+          help: `Registration Fee: Rs. ${fee}/- (Non-Refundable). Upload payment receipt screenshot, image, or PDF.`,
+        }
+      : field
+  );
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -77,7 +106,7 @@ export default function RegistrationForm() {
         sections: [{ heading: "Player Details", rows }],
         notes: [
           "The player has read and agreed to the Official Playing Conditions & Tournament Regulations.",
-          "The registration fee paid by the player is NON-REFUNDABLE under any circumstances.",
+          `The registration fee of Rs. ${fee} paid by the player is NON-REFUNDABLE under any circumstances.`,
         ],
       });
 
@@ -89,6 +118,10 @@ export default function RegistrationForm() {
     }
   }
 
+  if (registrationOpen === null) return null;
+
+  if (!registrationOpen) return <RegistrationClosedNotice orgName="MPL" />;
+
   return (
     <form
       className="rounded-lg border border-ink/10 bg-white p-6 shadow-[0_14px_42px_rgba(6,66,39,0.08)]"
@@ -96,7 +129,7 @@ export default function RegistrationForm() {
       onSubmit={handleSubmit}
     >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {REGISTRATION_FIELDS.map((field) => (
+        {fields.map((field) => (
           <FormField key={field.name} field={field} />
         ))}
       </div>
@@ -129,7 +162,8 @@ export default function RegistrationForm() {
           className="mt-0.5 h-[18px] w-[18px] shrink-0 accent-green"
         />
         <span>
-          I understand that the registration fee is <strong>non-refundable</strong> under any circumstances.{" "}
+          I understand that the registration fee of <strong>Rs. {fee}</strong> is <strong>non-refundable</strong>{" "}
+          under any circumstances.{" "}
           <span className="font-black text-brand-red">*</span>
         </span>
       </label>

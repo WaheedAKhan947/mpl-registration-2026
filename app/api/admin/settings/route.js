@@ -23,6 +23,9 @@ export async function GET() {
     highlightVideoUrl: settings?.highlightVideoUrl || "",
     announcementText: settings?.announcementText || "",
     announcementEnabled: settings?.announcementEnabled ?? true,
+    mplRegistrationOpen: settings?.mplRegistrationOpen ?? true,
+    mfcRegistrationOpen: settings?.mfcRegistrationOpen ?? true,
+    mplRegistrationFee: settings?.mplRegistrationFee ?? 1000,
   });
 }
 
@@ -57,6 +60,22 @@ export async function PUT(request) {
     update.announcementEnabled = Boolean(body.announcementEnabled);
   }
 
+  if ("mplRegistrationOpen" in body) {
+    update.mplRegistrationOpen = Boolean(body.mplRegistrationOpen);
+  }
+
+  if ("mfcRegistrationOpen" in body) {
+    update.mfcRegistrationOpen = Boolean(body.mfcRegistrationOpen);
+  }
+
+  if ("mplRegistrationFee" in body) {
+    const fee = Number(body.mplRegistrationFee);
+    if (!Number.isFinite(fee) || fee < 0) {
+      return NextResponse.json({ error: "Enter a valid registration fee." }, { status: 400 });
+    }
+    update.mplRegistrationFee = fee;
+  }
+
   await connectToDatabase();
   const settings = await Settings.findOneAndUpdate({ key: "site" }, update, {
     upsert: true,
@@ -68,5 +87,8 @@ export async function PUT(request) {
     highlightVideoUrl: settings.highlightVideoUrl || "",
     announcementText: settings.announcementText || "",
     announcementEnabled: settings.announcementEnabled ?? true,
+    mplRegistrationOpen: settings.mplRegistrationOpen ?? true,
+    mfcRegistrationOpen: settings.mfcRegistrationOpen ?? true,
+    mplRegistrationFee: settings.mplRegistrationFee ?? 1000,
   });
 }
