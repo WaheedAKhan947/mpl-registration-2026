@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Registration from "@/models/Registration";
+import Team from "@/models/Team";
 import { getSignedFileUrl, deleteFileFromR2 } from "@/lib/r2";
 import { ROSTER_TEAMS } from "@/lib/siteData";
 
@@ -71,6 +72,9 @@ export async function PUT(request) {
     return NextResponse.json({ error: "Registration not found." }, { status: 404 });
   }
 
+  // A captain who leaves a team stops being its captain.
+  await Team.updateMany({ captain: registration._id, name: { $ne: team } }, { captain: null });
+
   return NextResponse.json({ ok: true, allocatedTeam: registration.allocatedTeam });
 }
 
@@ -92,6 +96,7 @@ export async function DELETE(request) {
       deleteFileFromR2(registration.profilePicture),
       deleteFileFromR2(registration.cnicImage),
       deleteFileFromR2(registration.feeReceipt),
+      Team.updateMany({ captain: registration._id }, { captain: null }),
     ]);
   }
 

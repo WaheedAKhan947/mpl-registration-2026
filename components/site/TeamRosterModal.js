@@ -14,7 +14,11 @@ function initials(name) {
 
 function PlayerRow({ player }) {
   return (
-    <div className="flex items-center gap-3.5 rounded-lg border border-ink/10 p-3">
+    <div
+      className={`flex items-center gap-3.5 rounded-lg border p-3 ${
+        player.isCaptain ? "border-gold/60 bg-gold/10" : "border-ink/10"
+      }`}
+    >
       {player.profilePicture ? (
         <img
           src={player.profilePicture}
@@ -27,7 +31,17 @@ function PlayerRow({ player }) {
         </span>
       )}
       <div className="min-w-0 flex-1">
-        <strong className="block truncate text-ink">{player.playerName}</strong>
+        <strong className="flex items-center gap-2 text-ink">
+          <span className="truncate">{player.playerName}</span>
+          {player.isCaptain ? (
+            <span
+              title="Captain"
+              className="shrink-0 rounded-full bg-gold px-2 py-0.5 text-[0.7rem] font-black uppercase tracking-wide text-navy-dark"
+            >
+              C
+            </span>
+          ) : null}
+        </strong>
         <span className="block truncate text-sm text-muted">
           {[player.playingRole, player.battingStyle, player.bowlingStyle].filter(Boolean).join(" • ")}
         </span>
@@ -77,9 +91,15 @@ export default function TeamRosterModal({ teamName, onClose }) {
 
         {data ? (
           <>
-            <div className="rounded-lg bg-paper px-3.5 py-3">
-              <span className="text-sm font-bold text-muted">Owner</span>
-              <p className="font-black text-green-dark">{data.ownerName || "To be announced"}</p>
+            <div className="grid gap-2.5 sm:grid-cols-2">
+              <div className="rounded-lg bg-paper px-3.5 py-3">
+                <span className="text-sm font-bold text-muted">Owner</span>
+                <p className="font-black text-green-dark">{data.ownerName || "To be announced"}</p>
+              </div>
+              <div className="rounded-lg bg-paper px-3.5 py-3">
+                <span className="text-sm font-bold text-muted">Captain</span>
+                <p className="font-black text-green-dark">{data.captainName || "To be announced"}</p>
+              </div>
             </div>
 
             {data.players.length ? (

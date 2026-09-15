@@ -17,6 +17,8 @@ export async function GET(request) {
     Registration.find({ allocatedTeam: name }).sort({ playerName: 1 }).lean(),
   ]);
 
+  const captainId = team?.captain ? team.captain.toString() : "";
+
   const data = await Promise.all(
     players.map(async (player) => ({
       id: player._id.toString(),
@@ -25,11 +27,21 @@ export async function GET(request) {
       battingStyle: player.battingStyle,
       bowlingStyle: player.bowlingStyle,
       profilePicture: await getSignedFileUrl(player.profilePicture),
+      isCaptain: player._id.toString() === captainId,
     }))
   );
 
+  // Captain leads the list; everyone else stays alphabetical.
+  data.sort((a, b) => Number(b.isCaptain) - Number(a.isCaptain));
+  const captain = data.find((player) => player.isCaptain);
+
   return NextResponse.json(
-    { name, ownerName: team?.ownerName || "", players: data },
+    {
+      name,
+      ownerName: team?.ownerName || "",
+      captainName: captain?.playerName || "",
+      players: data,
+    },
     { headers: { "Cache-Control": "no-store" } }
   );
 }

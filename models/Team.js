@@ -4,6 +4,9 @@ const TeamSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, unique: true, trim: true },
     ownerName: { type: String, trim: true, default: "" },
+    // The captain must be one of the players allocated to this team. Stored as
+    // a reference so a name change on the registration is reflected here.
+    captain: { type: mongoose.Schema.Types.ObjectId, ref: "Registration", default: null },
   },
   { timestamps: true }
 );
