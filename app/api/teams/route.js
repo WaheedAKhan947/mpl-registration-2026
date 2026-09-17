@@ -18,6 +18,7 @@ export async function GET(request) {
   ]);
 
   const captainId = team?.captain ? team.captain.toString() : "";
+  const viceCaptainId = team?.viceCaptain ? team.viceCaptain.toString() : "";
 
   const data = await Promise.all(
     players.map(async (player) => ({
@@ -28,18 +29,23 @@ export async function GET(request) {
       bowlingStyle: player.bowlingStyle,
       profilePicture: await getSignedFileUrl(player.profilePicture),
       isCaptain: player._id.toString() === captainId,
+      isViceCaptain: player._id.toString() === viceCaptainId,
     }))
   );
 
-  // Captain leads the list; everyone else stays alphabetical.
-  data.sort((a, b) => Number(b.isCaptain) - Number(a.isCaptain));
+  // Captain leads the list, vice-captain next; everyone else stays alphabetical.
+  data.sort(
+    (a, b) => Number(b.isCaptain) - Number(a.isCaptain) || Number(b.isViceCaptain) - Number(a.isViceCaptain)
+  );
   const captain = data.find((player) => player.isCaptain);
+  const viceCaptain = data.find((player) => player.isViceCaptain);
 
   return NextResponse.json(
     {
       name,
       ownerName: team?.ownerName || "",
       captainName: captain?.playerName || "",
+      viceCaptainName: viceCaptain?.playerName || "",
       players: data,
     },
     { headers: { "Cache-Control": "no-store" } }

@@ -9,7 +9,11 @@ import { INPUT_CLASSES } from "@/components/admin/formStyles";
 import { teamLogo } from "@/lib/matches";
 
 function draftFor(team) {
-  return { ownerName: team.ownerName || "", captainId: team.captainId || "" };
+  return {
+    ownerName: team.ownerName || "",
+    captainId: team.captainId || "",
+    viceCaptainId: team.viceCaptainId || "",
+  };
 }
 
 export default function TeamOwnersCard() {
@@ -44,7 +48,7 @@ export default function TeamOwnersCard() {
   }
 
   async function handleSave(name) {
-    const draft = drafts[name] || { ownerName: "", captainId: "" };
+    const draft = drafts[name] || { ownerName: "", captainId: "", viceCaptainId: "" };
     setSavingName(name);
     setError("");
     try {
@@ -55,6 +59,7 @@ export default function TeamOwnersCard() {
           name,
           ownerName: draft.ownerName || "",
           captainId: draft.captainId || "",
+          viceCaptainId: draft.viceCaptainId || "",
         }),
       });
       const data = await res.json();
@@ -62,7 +67,12 @@ export default function TeamOwnersCard() {
       setTeams((prev) =>
         prev.map((team) =>
           team.name === name
-            ? { ...team, ownerName: (draft.ownerName || "").trim(), captainId: draft.captainId || "" }
+            ? {
+                ...team,
+                ownerName: (draft.ownerName || "").trim(),
+                captainId: draft.captainId || "",
+                viceCaptainId: draft.viceCaptainId || "",
+              }
             : team
         )
       );
@@ -76,7 +86,7 @@ export default function TeamOwnersCard() {
   return (
     <Panel
       title="Team Owners & Captains"
-      description="Set each franchise's owner and pick a captain from its allocated players. Both are shown to visitors when they open a team's roster."
+      description="Set each franchise's owner and pick a captain and vice-captain from its allocated players. All are shown to visitors when they open a team's roster."
       actions={
         <Button type="button" size="sm" variant="secondary" disabled={loading} onClick={loadTeams}>
           <RefreshIcon className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
@@ -94,14 +104,16 @@ export default function TeamOwnersCard() {
       {!loading ? (
         <ul className="grid gap-3">
           {teams.map((team) => {
-            const draft = drafts[team.name] || { ownerName: "", captainId: "" };
+            const draft = drafts[team.name] || { ownerName: "", captainId: "", viceCaptainId: "" };
             const isDirty =
-              draft.ownerName !== (team.ownerName || "") || draft.captainId !== (team.captainId || "");
+              draft.ownerName !== (team.ownerName || "") ||
+              draft.captainId !== (team.captainId || "") ||
+              draft.viceCaptainId !== (team.viceCaptainId || "");
             const logo = teamLogo(team.name);
             return (
               <li
                 key={team.name}
-                className="grid gap-3 rounded-xl border border-ink/10 p-4 transition hover:border-ink/20 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-center"
+                className="grid gap-3 rounded-xl border border-ink/10 p-4 transition hover:border-ink/20 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_auto] lg:items-center"
               >
                 <div className="flex min-w-0 items-center gap-3">
                   {logo ? (
@@ -149,7 +161,28 @@ export default function TeamOwnersCard() {
                       {team.players.length ? "No captain" : "No players allocated yet"}
                     </option>
                     {team.players.map((player) => (
-                      <option key={player.id} value={player.id}>
+                      <option key={player.id} value={player.id} disabled={player.id === draft.viceCaptainId}>
+                        {player.playerName}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted lg:sr-only">
+                    Vice Captain
+                  </span>
+                  <select
+                    value={draft.viceCaptainId}
+                    onChange={(event) => updateDraft(team.name, { viceCaptainId: event.target.value })}
+                    aria-label={`${team.name} vice captain`}
+                    disabled={team.players.length === 0}
+                    className={INPUT_CLASSES}
+                  >
+                    <option value="">
+                      {team.players.length ? "No vice-captain" : "No players allocated yet"}
+                    </option>
+                    {team.players.map((player) => (
+                      <option key={player.id} value={player.id} disabled={player.id === draft.captainId}>
                         {player.playerName}
                       </option>
                     ))}

@@ -11,7 +11,8 @@ const REQUIRED_FIELDS = [
   "phone",
   "cnicNumber",
   "area",
-  "preferredTeam",
+  // preferredTeam is intentionally not required here -- the field is
+  // disabled on the registration form and defaults to "Any Team" below.
   "playingRole",
   "battingStyle",
   "bowlingStyle",
@@ -125,7 +126,7 @@ export async function POST(request) {
         phone: body.phone,
         cnicNumber,
         area: body.area,
-        preferredTeam: body.preferredTeam,
+        preferredTeam: body.preferredTeam || "Any Team",
         playingRole: body.playingRole,
         battingStyle: body.battingStyle,
         bowlingStyle: body.bowlingStyle,

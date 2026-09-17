@@ -131,9 +131,50 @@ export default function RegistrationForm() {
       onSubmit={handleSubmit}
     >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {fields.map((field) => (
-          <FormField key={field.name} field={field} />
-        ))}
+        {fields
+          .filter((field) => field.name !== "feeReceipt")
+          .map((field) => (
+            <FormField key={field.name} field={field} />
+          ))}
+
+        <div className="rounded-lg border border-green/25 bg-[#f6faf2] p-4 sm:col-span-2">
+          <p className="font-black text-green-dark">{t("registrationForm.paymentHeading")}</p>
+          <p className="mt-1 text-[0.85rem] font-bold text-muted">{t("registrationForm.paymentInstructions")}</p>
+
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="rounded-lg border border-ink/10 bg-white p-3.5 text-[0.88rem] text-ink">
+              <p className="font-black text-green-dark">{t("registrationForm.paymentMobileMethod")}</p>
+              <p className="mt-1.5">
+                {t("registrationForm.paymentAccountTitle")}: <span className="font-black">Muhammad Hashim Khan</span>
+              </p>
+              <p>
+                {t("registrationForm.paymentAccountNumber")}: <span className="font-black">03109898996</span>
+              </p>
+            </div>
+
+            <div className="rounded-lg border border-ink/10 bg-white p-3.5 text-[0.88rem] text-ink">
+              <p className="font-black text-green-dark">{t("registrationForm.paymentBankMethod")}</p>
+              <p className="mt-1.5">
+                {t("registrationForm.paymentAccountTitle")}: <span className="font-black">Muhammad Hashim</span>
+              </p>
+              <p>
+                {t("registrationForm.paymentAccountNumber")}: <span className="font-black">02017902189503</span>
+              </p>
+              <p>
+                {t("registrationForm.paymentIban")}: <span className="font-black">PK30HABB0002017902189503</span>
+              </p>
+              <p>
+                {t("registrationForm.paymentBranch")}: <span className="font-black">IBB-SWABI</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {fields
+          .filter((field) => field.name === "feeReceipt")
+          .map((field) => (
+            <FormField key={field.name} field={field} />
+          ))}
       </div>
 
       <label className="mt-6 flex items-start gap-3 rounded-lg border border-ink/10 bg-[#fbfbf8] p-4 text-[0.9rem] font-bold text-ink">

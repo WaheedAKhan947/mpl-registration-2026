@@ -38,11 +38,13 @@ export async function GET() {
     const team = teamByName.get(name);
     const teamPlayers = playersByTeam.get(name) || [];
     const captainId = team?.captain ? team.captain.toString() : "";
+    const viceCaptainId = team?.viceCaptain ? team.viceCaptain.toString() : "";
     return {
       name,
       ownerName: team?.ownerName || "",
-      // Ignore a captain that has since been moved off this team.
+      // Ignore a captain/vice-captain that has since been moved off this team.
       captainId: teamPlayers.some((p) => p.id === captainId) ? captainId : "",
+      viceCaptainId: teamPlayers.some((p) => p.id === viceCaptainId) ? viceCaptainId : "",
       players: teamPlayers,
       playerCount: teamPlayers.length,
     };
@@ -56,34 +58,56 @@ export async function PUT(request) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
-  const { name, ownerName, captainId } = await request.json();
+  const { name, ownerName, captainId, viceCaptainId } = await request.json();
   if (!ROSTER_TEAMS.includes(name)) {
     return NextResponse.json({ error: "Invalid team." }, { status: 400 });
   }
 
   await connectToDatabase();
 
+  const existingTeam = await Team.findOne({ name }).select("captain viceCaptain").lean();
+
+  async function resolvePlayer(id, label) {
+    const trimmed = String(id || "").trim();
+    if (!trimmed) return { objectId: null, id: "" };
+    if (!mongoose.isValidObjectId(trimmed)) {
+      throw new Error(`Invalid ${label}.`);
+    }
+    const player = await Registration.findById(trimmed).select("allocatedTeam").lean();
+    if (!player || player.allocatedTeam !== name) {
+      throw new Error(`The ${label} must be a player allocated to this team.`);
+    }
+    return { objectId: player._id, id: trimmed };
+  }
+
   const update = {};
   if (ownerName !== undefined) {
     update.ownerName = String(ownerName || "").trim();
   }
-  if (captainId !== undefined) {
-    const id = String(captainId || "").trim();
-    if (!id) {
-      update.captain = null;
-    } else {
-      if (!mongoose.isValidObjectId(id)) {
-        return NextResponse.json({ error: "Invalid captain." }, { status: 400 });
-      }
-      const player = await Registration.findById(id).select("allocatedTeam").lean();
-      if (!player || player.allocatedTeam !== name) {
-        return NextResponse.json(
-          { error: "The captain must be a player allocated to this team." },
-          { status: 400 }
-        );
-      }
-      update.captain = player._id;
+
+  let nextCaptainId = existingTeam?.captain ? existingTeam.captain.toString() : "";
+  let nextViceCaptainId = existingTeam?.viceCaptain ? existingTeam.viceCaptain.toString() : "";
+
+  try {
+    if (captainId !== undefined) {
+      const resolved = await resolvePlayer(captainId, "captain");
+      update.captain = resolved.objectId;
+      nextCaptainId = resolved.id;
     }
+    if (viceCaptainId !== undefined) {
+      const resolved = await resolvePlayer(viceCaptainId, "vice-captain");
+      update.viceCaptain = resolved.objectId;
+      nextViceCaptainId = resolved.id;
+    }
+  } catch (err) {
+    return NextResponse.json({ error: err.message }, { status: 400 });
+  }
+
+  if (nextCaptainId && nextViceCaptainId && nextCaptainId === nextViceCaptainId) {
+    return NextResponse.json(
+      { error: "The captain and vice-captain must be different players." },
+      { status: 400 }
+    );
   }
 
   await Team.findOneAndUpdate({ name }, update, { upsert: true });

@@ -16,7 +16,43 @@ function initials(name) {
     .toUpperCase();
 }
 
-function PlayerLine({ player, captainLabel, wkLabel }) {
+function LeaderAvatar({
+  player,
+  label,
+  size = "h-36 w-36 sm:h-44 sm:w-44",
+  ringClass = "border-gold",
+  labelTextClass = "text-gold",
+}) {
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className={`relative ${size}`}>
+        {player.profilePicture ? (
+          <img
+            src={player.profilePicture}
+            alt={player.playerName}
+            className={`h-full w-full rounded-full border-4 ${ringClass} object-cover shadow-panel-navy`}
+          />
+        ) : (
+          <span
+            className={`grid h-full w-full place-items-center rounded-full border-4 ${ringClass} bg-green text-3xl font-black text-white`}
+          >
+            {initials(player.playerName)}
+          </span>
+        )}
+        <span
+          className={`absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-navy-dark px-3 py-1 text-[0.62rem] font-black uppercase tracking-wide ${labelTextClass} shadow`}
+        >
+          {label}
+        </span>
+      </div>
+      <p className="mt-1 max-w-[10rem] truncate text-center text-sm font-extrabold uppercase text-white">
+        {player.playerName}
+      </p>
+    </div>
+  );
+}
+
+function PlayerLine({ player, captainLabel, viceCaptainLabel, wkLabel }) {
   return (
     <li className="flex items-center gap-2 border-b border-white/10 py-2 last:border-0">
       <span className="min-w-0 flex-1 truncate text-[0.92rem] font-extrabold uppercase tracking-wide text-white">
@@ -29,8 +65,15 @@ function PlayerLine({ player, captainLabel, wkLabel }) {
         >
           C
         </span>
+      ) : player.isViceCaptain ? (
+        <span
+          title={viceCaptainLabel}
+          className="shrink-0 rounded bg-lime px-1.5 py-[1px] text-[0.62rem] font-black uppercase tracking-wide text-navy-dark"
+        >
+          VC
+        </span>
       ) : null}
-      {!player.isCaptain && player.playingRole === "Wicket Keeper" ? (
+      {!player.isCaptain && !player.isViceCaptain && player.playingRole === "Wicket Keeper" ? (
         <span
           title={wkLabel}
           className="shrink-0 rounded bg-white/15 px-1.5 py-[1px] text-[0.62rem] font-black uppercase tracking-wide text-white/85"
@@ -82,6 +125,7 @@ export default function TeamRosterModal({ teamName, onClose }) {
   if (!teamName) return null;
 
   const captain = data?.players.find((player) => player.isCaptain) || null;
+  const viceCaptain = data?.players.find((player) => player.isViceCaptain) || null;
 
   return (
     <Modal
@@ -137,27 +181,18 @@ export default function TeamRosterModal({ teamName, onClose }) {
 
           {data ? (
             <div className="flex flex-col gap-6 sm:grid sm:grid-cols-[1fr_auto] sm:items-start">
-              {captain ? (
-                <div className="mx-auto flex shrink-0 flex-col items-center gap-2 sm:order-2 sm:mx-0">
-                  <div className="relative h-36 w-36 sm:h-44 sm:w-44">
-                    {captain.profilePicture ? (
-                      <img
-                        src={captain.profilePicture}
-                        alt={captain.playerName}
-                        className="h-full w-full rounded-full border-4 border-gold object-cover shadow-panel-navy"
-                      />
-                    ) : (
-                      <span className="grid h-full w-full place-items-center rounded-full border-4 border-gold bg-green text-3xl font-black text-white">
-                        {initials(captain.playerName)}
-                      </span>
-                    )}
-                    <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-navy-dark px-3 py-1 text-[0.62rem] font-black uppercase tracking-wide text-gold shadow">
-                      {t("teamRoster.captain")}
-                    </span>
-                  </div>
-                  <p className="mt-1 max-w-[10rem] truncate text-center text-sm font-extrabold uppercase text-white">
-                    {captain.playerName}
-                  </p>
+              {captain || viceCaptain ? (
+                <div className="mx-auto flex shrink-0 flex-row flex-wrap items-start justify-center gap-4 sm:order-2 sm:mx-0 sm:flex-col sm:items-center">
+                  {captain ? <LeaderAvatar player={captain} label={t("teamRoster.captain")} /> : null}
+                  {viceCaptain ? (
+                    <LeaderAvatar
+                      player={viceCaptain}
+                      label={t("teamRoster.viceCaptain")}
+                      size="h-28 w-28 sm:h-32 sm:w-32"
+                      ringClass="border-lime"
+                      labelTextClass="text-lime"
+                    />
+                  ) : null}
                 </div>
               ) : null}
 
@@ -172,6 +207,7 @@ export default function TeamRosterModal({ teamName, onClose }) {
                         key={player.id}
                         player={player}
                         captainLabel={t("teamRoster.captain")}
+                        viceCaptainLabel={t("teamRoster.viceCaptain")}
                         wkLabel={t("teamRoster.wicketKeeper")}
                       />
                     ))}

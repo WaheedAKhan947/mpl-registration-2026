@@ -49,7 +49,7 @@ export default function TopBar() {
           <span dir="ltr">+92 310 9898996</span>
           <span dir="ltr">maneripremierleague@gmail.com</span>
         </div>
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-1 flex-wrap items-center justify-between gap-4 lg:flex-none lg:justify-start">
           <div className="flex flex-wrap items-center gap-3" aria-label="Social links">
             {SOCIAL_LINKS.map(({ label, icon: Icon, href }) => (
               <a
