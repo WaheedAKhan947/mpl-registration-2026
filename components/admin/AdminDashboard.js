@@ -10,6 +10,7 @@ import RegistrationStatusCard from "@/components/admin/RegistrationStatusCard";
 import AnnouncementSettingsCard from "@/components/admin/AnnouncementSettingsCard";
 import HighlightsSettingsCard from "@/components/admin/HighlightsSettingsCard";
 import SponsorsSettingsCard from "@/components/admin/SponsorsSettingsCard";
+import ManagementSettingsCard from "@/components/admin/ManagementSettingsCard";
 import TeamOwnersCard from "@/components/admin/TeamOwnersCard";
 import PointsTableCard from "@/components/admin/PointsTableCard";
 import MatchesCard from "@/components/admin/MatchesCard";
@@ -29,6 +30,7 @@ import {
   ShieldIcon,
   StarIcon,
   TargetIcon,
+  TrophyIcon,
   UsersIcon,
 } from "@/components/admin/icons";
 
@@ -97,6 +99,12 @@ const SECTIONS = {
     subtitle: "League standings shown on the homepage.",
     icon: ChartIcon,
   },
+  management: {
+    label: "Management",
+    title: "Management",
+    subtitle: "Committee members, roles, bios, and photos shown on the homepage.",
+    icon: TrophyIcon,
+  },
   sponsors: {
     label: "Sponsors",
     title: "Sponsors",
@@ -115,7 +123,7 @@ const NAV_GROUPS = [
   { label: "Dashboard", items: ["overview"] },
   { label: "Registrations", items: ["mpl", "mfc"] },
   { label: "League", items: ["matches", "teams", "points"] },
-  { label: "Website", items: ["sponsors", "settings"] },
+  { label: "Website", items: ["management", "sponsors", "settings"] },
 ];
 
 const SIDEBAR_STORAGE_KEY = "mpl-admin-sidebar-collapsed";
@@ -506,6 +514,8 @@ export default function AdminDashboard({ onLogout }) {
     content = <TeamOwnersCard />;
   } else if (section === "points") {
     content = <PointsTableCard />;
+  } else if (section === "management") {
+    content = <ManagementSettingsCard />;
   } else if (section === "sponsors") {
     content = <SponsorsSettingsCard />;
   } else if (section === "settings") {

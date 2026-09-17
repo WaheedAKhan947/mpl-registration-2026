@@ -1,7 +1,7 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Carousel from "@/components/ui/Carousel";
-import { getManagement } from "@/lib/siteData";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
 const AVATAR_COLORS = [
@@ -50,7 +50,35 @@ function MemberCard({ member, index }) {
 
 export default function ManagementSection() {
   const { lang, t } = useLanguage();
-  const management = getManagement(lang);
+  const [members, setMembers] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/management", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) setMembers(data.members || []);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Each member carries both languages from the API; pick the Urdu copy
+  // when available and fall back to English otherwise (matches the old
+  // getManagement(lang) behavior for members without a translation yet).
+  const management = useMemo(
+    () =>
+      members.map((member) => ({
+        ...member,
+        role: lang === "ur" && member.roleUr ? member.roleUr : member.role,
+        copy: lang === "ur" && member.copyUr ? member.copyUr : member.copy,
+      })),
+    [members, lang]
+  );
+
+  if (!management.length) return null;
 
   return (
     <section id="management" className="py-16 sm:py-[84px]">

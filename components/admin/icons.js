@@ -148,6 +148,22 @@ export function ChevronLeftIcon(props) {
   );
 }
 
+export function ChevronUpIcon(props) {
+  return (
+    <Svg {...props}>
+      <polyline points="18 15 12 9 6 15" />
+    </Svg>
+  );
+}
+
+export function ChevronDownIcon(props) {
+  return (
+    <Svg {...props}>
+      <polyline points="6 9 12 15 18 9" />
+    </Svg>
+  );
+}
+
 export function ArrowRightIcon(props) {
   return (
     <Svg {...props}>
