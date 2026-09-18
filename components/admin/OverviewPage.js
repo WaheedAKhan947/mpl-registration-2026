@@ -132,6 +132,8 @@ export default function OverviewPage({
 
   const allocated = registrations.filter((r) => r.allocatedTeam).length;
   const unassigned = registrations.length - allocated;
+  const pendingVerification =
+    registrations.filter((r) => !r.verified).length + mfcRegistrations.filter((r) => !r.verified).length;
   const mplThisWeek = registrations.filter((r) => withinDays(r.createdAt, 7)).length;
   const mfcThisWeek = mfcRegistrations.filter((r) => withinDays(r.createdAt, 7)).length;
 
@@ -172,6 +174,11 @@ export default function OverviewPage({
             label: "MFC Registrations",
             value: mfcRegistrations.length,
             caption: `${mfcThisWeek.toLocaleString()} in the last 7 days`,
+          },
+          {
+            label: "Pending Verification",
+            value: pendingVerification,
+            caption: "MPL + MFC players not yet verified",
           },
         ]}
       />

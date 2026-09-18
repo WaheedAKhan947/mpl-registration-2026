@@ -3,6 +3,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import Registration from "@/models/Registration";
 import Settings from "@/models/Settings";
 import { parseUploadedFile, buildFileKey, uploadBufferToR2, deleteFileFromR2 } from "@/lib/r2";
+import { getNextRegistrationId } from "@/lib/registrationId";
 
 const REQUIRED_FIELDS = [
   "playerName",
@@ -117,9 +118,12 @@ export async function POST(request) {
         : null,
     ]);
 
+    const registrationId = await getNextRegistrationId("mpl");
+
     let registration;
     try {
       registration = await Registration.create({
+        registrationId,
         playerName: body.playerName,
         fatherName: body.fatherName,
         age: body.age,
@@ -155,7 +159,7 @@ export async function POST(request) {
       throw createError;
     }
 
-    return NextResponse.json({ ok: true, id: registration._id.toString() }, { status: 201 });
+    return NextResponse.json({ ok: true, id: registration.registrationId }, { status: 201 });
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(

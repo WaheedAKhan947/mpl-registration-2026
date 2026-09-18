@@ -62,11 +62,15 @@ export default function MFCRegistrationForm() {
       if (!response.ok) throw new Error(result.error || t("registrationForm.genericError"));
 
       form.reset();
-      setSubmittedRegistration({ ...registration, id: result.id });
+      const submitted = { ...registration, id: result.id };
+      setSubmittedRegistration(submitted);
       setStatus({
         type: "success",
         text: t("mfcForm.success", { id: result.id }),
       });
+      // Auto-download the confirmation PDF right away; the button below
+      // stays as a manual fallback/re-download.
+      await downloadPdf(submitted);
     } catch (error) {
       setStatus({ type: "error", text: error.message || t("registrationForm.genericError") });
     } finally {
@@ -74,23 +78,23 @@ export default function MFCRegistrationForm() {
     }
   }
 
-  async function handleDownloadPdf() {
-    if (!submittedRegistration) return;
+  async function downloadPdf(registrationData) {
+    if (!registrationData) return;
 
     setDownloading(true);
     try {
       const rows = MFC_REGISTRATION_FIELDS.filter((field) => field.type !== "file").map((field) => [
         field.label,
-        submittedRegistration[field.name],
+        registrationData[field.name],
       ]);
 
       const doc = await generateRegistrationPdf({
         orgName: "Maneri Football Club",
         orgTagline: "MFC - Player Registration Form",
         documentTitle: "Official Registration Confirmation",
-        registrationId: submittedRegistration.id,
+        registrationId: registrationData.id,
         submittedAt: new Date().toLocaleString(),
-        photo: submittedRegistration.photo,
+        photo: registrationData.photo,
         sections: [{ heading: "Player Details", rows }],
         notes: [
           "The player has declared that all information provided is true and correct.",
@@ -98,7 +102,7 @@ export default function MFCRegistrationForm() {
         ],
       });
 
-      doc.save(`MFC-Registration-${submittedRegistration.id}.pdf`);
+      doc.save(`${registrationData.id}.pdf`);
     } catch (error) {
       setStatus({ type: "error", text: t("registrationForm.pdfError") });
     } finally {
@@ -151,7 +155,13 @@ export default function MFCRegistrationForm() {
       ) : null}
 
       {status.type === "success" && submittedRegistration ? (
-        <Button type="button" variant="secondary" className="mt-3" onClick={handleDownloadPdf} disabled={downloading}>
+        <Button
+          type="button"
+          variant="secondary"
+          className="mt-3"
+          onClick={() => downloadPdf(submittedRegistration)}
+          disabled={downloading}
+        >
           {downloading ? t("registrationForm.preparingPdf") : t("registrationForm.downloadPdf")}
         </Button>
       ) : null}

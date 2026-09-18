@@ -1,7 +1,7 @@
 import Avatar from "@/components/admin/Avatar";
 import { TrashIcon } from "@/components/admin/icons";
 
-export default function RegistrationCards({ registrations, onSelect, onDelete }) {
+export default function RegistrationCards({ registrations, onSelect, onDelete, onVerify }) {
   return (
     <div className="grid gap-3 p-3 md:hidden">
       {registrations.map((registration) => (
@@ -17,11 +17,14 @@ export default function RegistrationCards({ registrations, onSelect, onDelete })
         >
           <Avatar src={registration.profilePicture} name={registration.playerName} />
           <div className="min-w-0 flex-1">
+            <span className="block truncate font-mono text-[0.7rem] font-bold text-muted">
+              {registration.registrationId || "—"}
+            </span>
             <strong className="block truncate text-ink">{registration.playerName}</strong>
             <span className="block truncate text-sm text-muted">
               {registration.preferredTeam} • {registration.playingRole}
             </span>
-            <span className="mt-1.5 block">
+            <span className="mt-1.5 flex flex-wrap gap-1.5">
               {registration.allocatedTeam ? (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-green/10 px-2 py-0.5 text-xs font-bold text-green-dark">
                   <span className="h-1.5 w-1.5 rounded-full bg-green" />
@@ -32,6 +35,21 @@ export default function RegistrationCards({ registrations, onSelect, onDelete })
                   Unassigned
                 </span>
               )}
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onVerify(registration.id, !registration.verified);
+                }}
+                className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-bold transition ${
+                  registration.verified
+                    ? "bg-green/10 text-green-dark hover:bg-green/15"
+                    : "bg-gold/15 text-navy-dark hover:bg-gold/25"
+                }`}
+              >
+                <span className={`h-1.5 w-1.5 rounded-full ${registration.verified ? "bg-green" : "bg-gold"}`} />
+                {registration.verified ? "Verified" : "Unverified"}
+              </button>
             </span>
             <span className="mt-1.5 block truncate text-sm tabular-nums text-muted">{registration.phone}</span>
           </div>

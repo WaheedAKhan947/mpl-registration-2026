@@ -39,10 +39,10 @@ export default function TeamsSection() {
                   className="object-contain p-10 drop-shadow-[0_18px_30px_rgba(0,0,0,0.45)]"
                 />
               </div>
-              <div className="absolute inset-x-0 bottom-0 bg-navy-dark/90 p-5 backdrop-blur-sm">
+              <div className="absolute inset-x-0 bottom-0 bg-navy-dark/90 p-5 text-center backdrop-blur-sm">
                 <h3 className="text-[1.15rem] leading-[1.15] text-white">{team.name}</h3>
                 <p className="mt-1 line-clamp-2 text-sm font-semibold text-white/70">{team.copy}</p>
-                <span className="mt-3 inline-flex items-center rounded-full bg-gold px-3.5 py-1.5 text-[0.75rem] font-black uppercase tracking-wide text-navy-dark shadow">
+                <span className="mt-3 inline-flex items-center justify-center rounded-full bg-gold px-3.5 py-1.5 text-[0.75rem] font-black uppercase tracking-wide text-navy-dark shadow">
                   {t("teams.viewSquad")}
                 </span>
               </div>

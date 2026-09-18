@@ -76,11 +76,15 @@ export default function RegistrationForm() {
       if (!response.ok) throw new Error(result.error || t("registrationForm.genericError"));
 
       form.reset();
-      setSubmittedRegistration({ ...registration, id: result.id });
+      const submitted = { ...registration, id: result.id };
+      setSubmittedRegistration(submitted);
       setStatus({
         type: "success",
         text: t("registrationForm.success", { id: result.id }),
       });
+      // Auto-download the confirmation PDF right away; the button below
+      // stays as a manual fallback/re-download.
+      await downloadPdf(submitted);
     } catch (error) {
       setStatus({ type: "error", text: error.message || t("registrationForm.genericError") });
     } finally {
@@ -88,23 +92,23 @@ export default function RegistrationForm() {
     }
   }
 
-  async function handleDownloadPdf() {
-    if (!submittedRegistration) return;
+  async function downloadPdf(registrationData) {
+    if (!registrationData) return;
 
     setDownloading(true);
     try {
       const rows = REGISTRATION_FIELDS.filter((field) => field.type !== "file").map((field) => [
         field.label,
-        submittedRegistration[field.name],
+        registrationData[field.name],
       ]);
 
       const doc = await generateRegistrationPdf({
         orgName: "Maneri Premier League",
         orgTagline: "MPL 2026 - Player Registration Form",
         documentTitle: "Official Registration Confirmation",
-        registrationId: submittedRegistration.id,
+        registrationId: registrationData.id,
         submittedAt: new Date().toLocaleString(),
-        photo: submittedRegistration.profilePicture,
+        photo: registrationData.profilePicture,
         sections: [{ heading: "Player Details", rows }],
         notes: [
           "The player has read and agreed to the Official Playing Conditions & Tournament Regulations.",
@@ -112,7 +116,7 @@ export default function RegistrationForm() {
         ],
       });
 
-      doc.save(`MPL-Registration-${submittedRegistration.id}.pdf`);
+      doc.save(`${registrationData.id}.pdf`);
     } catch (error) {
       setStatus({ type: "error", text: t("registrationForm.pdfError") });
     } finally {
@@ -226,7 +230,13 @@ export default function RegistrationForm() {
       ) : null}
 
       {status.type === "success" && submittedRegistration ? (
-        <Button type="button" variant="secondary" className="mt-3" onClick={handleDownloadPdf} disabled={downloading}>
+        <Button
+          type="button"
+          variant="secondary"
+          className="mt-3"
+          onClick={() => downloadPdf(submittedRegistration)}
+          disabled={downloading}
+        >
           {downloading ? t("registrationForm.preparingPdf") : t("registrationForm.downloadPdf")}
         </Button>
       ) : null}

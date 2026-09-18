@@ -32,7 +32,7 @@ function DetailRow({ label, value }) {
   );
 }
 
-export default function RegistrationDetailsModal({ registration, onClose, onDelete, onAllocate }) {
+export default function RegistrationDetailsModal({ registration, onClose, onDelete, onAllocate, onVerify }) {
   const [team, setTeam] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -63,6 +63,9 @@ export default function RegistrationDetailsModal({ registration, onClose, onDele
       <div className="flex flex-col gap-4">
         <div className="flex flex-col items-center gap-2 text-center">
           <Avatar src={registration.profilePicture} name={registration.playerName} size="lg" />
+          {registration.registrationId ? (
+            <p className="font-mono text-xs font-bold tracking-wide text-muted">{registration.registrationId}</p>
+          ) : null}
           {registration.allocatedTeam ? (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-green/10 px-3 py-1 text-xs font-bold text-green-dark">
               <span className="h-1.5 w-1.5 rounded-full bg-green" />
@@ -73,6 +76,31 @@ export default function RegistrationDetailsModal({ registration, onClose, onDele
               Unassigned
             </span>
           )}
+        </div>
+
+        <div
+          className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4 ${
+            registration.verified ? "border-green/25 bg-[#f6faf2]" : "border-gold/30 bg-[#fff8e8]"
+          }`}
+        >
+          <div>
+            <p className={`text-sm font-bold ${registration.verified ? "text-green-dark" : "text-navy-dark"}`}>
+              {registration.verified ? "Verified" : "Not verified yet"}
+            </p>
+            <p className="mt-0.5 text-xs text-muted">
+              {registration.verified
+                ? "This registration has been reviewed and confirmed."
+                : "Check the CNIC image and fee receipt below, then mark it verified."}
+            </p>
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant={registration.verified ? "secondary" : "primary"}
+            onClick={() => onVerify(registration.id, !registration.verified)}
+          >
+            {registration.verified ? "Mark Unverified" : "Mark Verified"}
+          </Button>
         </div>
 
         <div className="rounded-xl border border-green/25 bg-[#f6faf2] p-4">

@@ -37,14 +37,16 @@ function SponsorCard({ sponsor, index, visitLabel }) {
       )}
       <div className="absolute inset-x-0 bottom-0 bg-[#700F0F] p-5">
         <h3 className="mb-3 line-clamp-1 text-[1.15rem] leading-[1.15] text-white">{sponsor.name}</h3>
-        <a
-          href={sponsor.url || "#"}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex min-h-[38px] items-center justify-center rounded-full bg-gold px-4 text-[0.8rem] font-black uppercase text-navy-dark shadow transition hover:-translate-y-0.5"
-        >
-          {visitLabel}
-        </a>
+        {sponsor.url ? (
+          <a
+            href={sponsor.url}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex min-h-[38px] items-center justify-center rounded-full bg-gold px-4 text-[0.8rem] font-black uppercase text-navy-dark shadow transition hover:-translate-y-0.5"
+          >
+            {visitLabel}
+          </a>
+        ) : null}
       </div>
     </article>
   );

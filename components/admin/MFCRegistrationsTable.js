@@ -2,12 +2,22 @@ import Avatar from "@/components/admin/Avatar";
 import { TrashIcon } from "@/components/admin/icons";
 import { DELETE_BUTTON_CLASSES } from "@/components/admin/formStyles";
 
-const COLUMNS = ["Player", "Phone", "Village", "Position", "Preferred Foot", "Submitted", ""];
+const COLUMNS = [
+  "Reg. ID",
+  "Player",
+  "Phone",
+  "Village",
+  "Position",
+  "Preferred Foot",
+  "Status",
+  "Submitted",
+  "",
+];
 
-export default function MFCRegistrationsTable({ registrations, onSelect, onDelete }) {
+export default function MFCRegistrationsTable({ registrations, onSelect, onDelete, onVerify }) {
   return (
     <div className="hidden overflow-x-auto md:block">
-      <table className="w-full min-w-[760px] border-collapse text-[0.88rem]">
+      <table className="w-full min-w-[920px] border-collapse text-[0.88rem]">
         <thead>
           <tr>
             {COLUMNS.map((heading, index) => (
@@ -27,6 +37,9 @@ export default function MFCRegistrationsTable({ registrations, onSelect, onDelet
               onClick={() => onSelect(registration)}
               className="cursor-pointer border-b border-ink/[0.06] transition last:border-0 hover:bg-green/[0.035]"
             >
+              <td className="whitespace-nowrap px-4 py-3 font-mono text-xs font-bold text-muted">
+                {registration.registrationId || "—"}
+              </td>
               <td className="px-4 py-3">
                 <div className="flex items-center gap-3">
                   <Avatar src={registration.photo} name={registration.fullName} size="sm" />
@@ -46,6 +59,24 @@ export default function MFCRegistrationsTable({ registrations, onSelect, onDelet
                 </span>
               </td>
               <td className="whitespace-nowrap px-4 py-3 text-ink">{registration.preferredFoot}</td>
+              <td className="whitespace-nowrap px-4 py-3">
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onVerify(registration.id, !registration.verified);
+                  }}
+                  title={registration.verified ? "Click to mark unverified" : "Click to mark verified"}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold transition ${
+                    registration.verified
+                      ? "bg-green/10 text-green-dark hover:bg-green/15"
+                      : "bg-gold/15 text-navy-dark hover:bg-gold/25"
+                  }`}
+                >
+                  <span className={`h-1.5 w-1.5 rounded-full ${registration.verified ? "bg-green" : "bg-gold"}`} />
+                  {registration.verified ? "Verified" : "Unverified"}
+                </button>
+              </td>
               <td className="whitespace-nowrap px-4 py-3 text-muted">
                 {registration.createdAt ? new Date(registration.createdAt).toLocaleString() : "—"}
               </td>

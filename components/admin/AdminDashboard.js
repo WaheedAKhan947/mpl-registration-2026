@@ -325,6 +325,38 @@ export default function AdminDashboard({ user, onLogout }) {
     }
   }
 
+  async function handleVerify(id, verified) {
+    try {
+      const res = await fetch("/api/admin/registrations", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, verified }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not update verification status.");
+      setRegistrations((prev) => prev.map((r) => (r.id === id ? { ...r, verified: data.verified } : r)));
+      setSelected((prev) => (prev && prev.id === id ? { ...prev, verified: data.verified } : prev));
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  async function handleMfcVerify(id, verified) {
+    try {
+      const res = await fetch("/api/admin/mfc-registrations", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, verified }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not update verification status.");
+      setMfcRegistrations((prev) => prev.map((r) => (r.id === id ? { ...r, verified: data.verified } : r)));
+      setMfcSelected((prev) => (prev && prev.id === id ? { ...prev, verified: data.verified } : prev));
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
   const filteredRegistrations = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return registrations;
@@ -345,6 +377,8 @@ export default function AdminDashboard({ user, onLogout }) {
   const mfcSearching = Boolean(mfcSearch.trim());
 
   const allocatedCount = registrations.filter((r) => r.allocatedTeam).length;
+  const verifiedCount = registrations.filter((r) => r.verified).length;
+  const mfcVerifiedCount = mfcRegistrations.filter((r) => r.verified).length;
   const mplThisWeek = registrations.filter((r) => withinDays(r.createdAt, 7)).length;
   const mfcThisWeek = mfcRegistrations.filter((r) => withinDays(r.createdAt, 7)).length;
 
@@ -398,7 +432,8 @@ export default function AdminDashboard({ user, onLogout }) {
         <StatsRow
           items={[
             { label: "Total Registrations", value: registrations.length, caption: "MPL players registered" },
-            { label: "Allocated", value: allocatedCount, caption: "assigned to a franchise", accent: true },
+            { label: "Verified", value: verifiedCount, caption: "reviewed and confirmed", accent: true },
+            { label: "Allocated", value: allocatedCount, caption: "assigned to a franchise" },
             {
               label: "Unassigned",
               value: registrations.length - allocatedCount,
@@ -439,8 +474,18 @@ export default function AdminDashboard({ user, onLogout }) {
 
           {filteredRegistrations.length > 0 ? (
             <>
-              <RegistrationsTable registrations={filteredRegistrations} onSelect={setSelected} onDelete={handleDelete} />
-              <RegistrationCards registrations={filteredRegistrations} onSelect={setSelected} onDelete={handleDelete} />
+              <RegistrationsTable
+                registrations={filteredRegistrations}
+                onSelect={setSelected}
+                onDelete={handleDelete}
+                onVerify={handleVerify}
+              />
+              <RegistrationCards
+                registrations={filteredRegistrations}
+                onSelect={setSelected}
+                onDelete={handleDelete}
+                onVerify={handleVerify}
+              />
             </>
           ) : null}
         </Panel>
@@ -452,7 +497,8 @@ export default function AdminDashboard({ user, onLogout }) {
         <StatsRow
           items={[
             { label: "Total MFC Registrations", value: mfcRegistrations.length, caption: "football players registered" },
-            { label: "Last 7 Days", value: mfcThisWeek, caption: "new sign-ups", accent: true },
+            { label: "Verified", value: mfcVerifiedCount, caption: "reviewed and confirmed", accent: true },
+            { label: "Last 7 Days", value: mfcThisWeek, caption: "new sign-ups" },
             mfcSearching
               ? {
                   label: "Matching Search",
@@ -499,11 +545,13 @@ export default function AdminDashboard({ user, onLogout }) {
                 registrations={filteredMfcRegistrations}
                 onSelect={setMfcSelected}
                 onDelete={handleMfcDelete}
+                onVerify={handleMfcVerify}
               />
               <MFCRegistrationCards
                 registrations={filteredMfcRegistrations}
                 onSelect={setMfcSelected}
                 onDelete={handleMfcDelete}
+                onVerify={handleMfcVerify}
               />
             </>
           ) : null}
@@ -570,11 +618,13 @@ export default function AdminDashboard({ user, onLogout }) {
         onClose={() => setSelected(null)}
         onDelete={handleDelete}
         onAllocate={handleAllocate}
+        onVerify={handleVerify}
       />
       <MFCRegistrationDetailsModal
         registration={mfcSelected}
         onClose={() => setMfcSelected(null)}
         onDelete={handleMfcDelete}
+        onVerify={handleMfcVerify}
       />
     </div>
   );

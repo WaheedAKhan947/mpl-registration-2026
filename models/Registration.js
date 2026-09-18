@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const RegistrationSchema = new mongoose.Schema(
   {
+    // Short human-readable ID shown to the player and used on the printed
+    // PDF (e.g. "mpl-2026-01001"), separate from Mongo's own _id.
+    registrationId: { type: String, required: true, unique: true, index: true },
+    // Every new registration starts unverified; an admin confirms it from
+    // the dashboard after checking the CNIC and fee receipt.
+    verified: { type: Boolean, default: false },
     playerName: { type: String, required: true, trim: true },
     fatherName: { type: String, required: true, trim: true },
     age: { type: String, required: true, trim: true },

@@ -3,6 +3,7 @@ import { connectToDatabase } from "@/lib/mongodb";
 import FootballRegistration from "@/models/FootballRegistration";
 import Settings from "@/models/Settings";
 import { parseUploadedFile, buildFileKey, uploadBufferToR2, deleteFileFromR2 } from "@/lib/r2";
+import { getNextRegistrationId } from "@/lib/registrationId";
 
 const REQUIRED_FIELDS = [
   "fullName",
@@ -92,9 +93,12 @@ export async function POST(request) {
         : null,
     ]);
 
+    const registrationId = await getNextRegistrationId("mfc");
+
     let registration;
     try {
       registration = await FootballRegistration.create({
+        registrationId,
         fullName: body.fullName,
         fatherName: body.fatherName,
         dob: body.dob,
@@ -128,7 +132,7 @@ export async function POST(request) {
       throw createError;
     }
 
-    return NextResponse.json({ ok: true, id: registration._id.toString() }, { status: 201 });
+    return NextResponse.json({ ok: true, id: registration.registrationId }, { status: 201 });
   } catch (error) {
     console.error("MFC registration error:", error);
     return NextResponse.json(

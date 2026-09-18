@@ -23,6 +23,8 @@ export async function GET() {
   const data = await Promise.all(
     registrations.map(async (r) => ({
       id: r._id.toString(),
+      registrationId: r.registrationId || "",
+      verified: Boolean(r.verified),
       createdAt: r.createdAt,
       playerName: r.playerName,
       fatherName: r.fatherName,
@@ -51,31 +53,50 @@ export async function PUT(request) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
-  const { id, allocatedTeam } = await request.json();
+  const body = await request.json();
+  const { id } = body;
   if (!id) {
     return NextResponse.json({ error: "Missing id." }, { status: 400 });
   }
 
-  const team = String(allocatedTeam || "").trim();
-  if (team && !ROSTER_TEAMS.includes(team)) {
-    return NextResponse.json({ error: "Invalid team." }, { status: 400 });
+  // Only touch the fields actually present in the request, so toggling
+  // "verified" doesn't accidentally reset the allocated team (and vice
+  // versa) -- the admin dashboard calls this for either action separately.
+  const update = {};
+  if ("allocatedTeam" in body) {
+    const team = String(body.allocatedTeam || "").trim();
+    if (team && !ROSTER_TEAMS.includes(team)) {
+      return NextResponse.json({ error: "Invalid team." }, { status: 400 });
+    }
+    update.allocatedTeam = team;
+  }
+  if ("verified" in body) {
+    update.verified = Boolean(body.verified);
+  }
+  if (!Object.keys(update).length) {
+    return NextResponse.json({ error: "Nothing to update." }, { status: 400 });
   }
 
   await connectToDatabase();
-  const registration = await Registration.findByIdAndUpdate(
-    id,
-    { allocatedTeam: team },
-    { new: true }
-  ).lean();
+  const registration = await Registration.findByIdAndUpdate(id, update, { new: true }).lean();
 
   if (!registration) {
     return NextResponse.json({ error: "Registration not found." }, { status: 404 });
   }
 
-  // A captain who leaves a team stops being its captain.
-  await Team.updateMany({ captain: registration._id, name: { $ne: team } }, { captain: null });
+  if ("allocatedTeam" in update) {
+    // A captain who leaves a team stops being its captain.
+    await Team.updateMany(
+      { captain: registration._id, name: { $ne: update.allocatedTeam } },
+      { captain: null }
+    );
+  }
 
-  return NextResponse.json({ ok: true, allocatedTeam: registration.allocatedTeam });
+  return NextResponse.json({
+    ok: true,
+    allocatedTeam: registration.allocatedTeam,
+    verified: registration.verified,
+  });
 }
 
 export async function DELETE(request) {

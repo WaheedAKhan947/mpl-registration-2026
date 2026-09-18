@@ -1,7 +1,7 @@
 import Avatar from "@/components/admin/Avatar";
 import { TrashIcon } from "@/components/admin/icons";
 
-export default function MFCRegistrationCards({ registrations, onSelect, onDelete }) {
+export default function MFCRegistrationCards({ registrations, onSelect, onDelete, onVerify }) {
   return (
     <div className="grid gap-3 p-3 md:hidden">
       {registrations.map((registration) => (
@@ -17,11 +17,31 @@ export default function MFCRegistrationCards({ registrations, onSelect, onDelete
         >
           <Avatar src={registration.photo} name={registration.fullName} />
           <div className="min-w-0 flex-1">
+            <span className="block truncate font-mono text-[0.7rem] font-bold text-muted">
+              {registration.registrationId || "—"}
+            </span>
             <strong className="block truncate text-ink">{registration.fullName}</strong>
             <span className="block truncate text-sm text-muted">
               {registration.position} • {registration.preferredFoot} foot
             </span>
             <span className="block truncate text-sm text-muted">{registration.village}</span>
+            <span className="mt-1.5 flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onVerify(registration.id, !registration.verified);
+                }}
+                className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-bold transition ${
+                  registration.verified
+                    ? "bg-green/10 text-green-dark hover:bg-green/15"
+                    : "bg-gold/15 text-navy-dark hover:bg-gold/25"
+                }`}
+              >
+                <span className={`h-1.5 w-1.5 rounded-full ${registration.verified ? "bg-green" : "bg-gold"}`} />
+                {registration.verified ? "Verified" : "Unverified"}
+              </button>
+            </span>
             <span className="mt-1 block truncate text-sm tabular-nums text-muted">{registration.phone}</span>
           </div>
           <button

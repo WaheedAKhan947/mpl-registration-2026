@@ -33,7 +33,7 @@ function DetailRow({ label, value }) {
   );
 }
 
-export default function MFCRegistrationDetailsModal({ registration, onClose, onDelete }) {
+export default function MFCRegistrationDetailsModal({ registration, onClose, onDelete, onVerify }) {
   if (!registration) return null;
 
   return (
@@ -41,11 +41,39 @@ export default function MFCRegistrationDetailsModal({ registration, onClose, onD
       <div className="flex flex-col gap-4">
         <div className="flex flex-col items-center gap-2 text-center">
           <Avatar src={registration.photo} name={registration.fullName} size="lg" />
+          {registration.registrationId ? (
+            <p className="font-mono text-xs font-bold tracking-wide text-muted">{registration.registrationId}</p>
+          ) : null}
           {registration.position ? (
             <span className="inline-flex rounded-full bg-navy/[0.08] px-3 py-1 text-xs font-bold text-navy">
               {registration.position}
             </span>
           ) : null}
+        </div>
+
+        <div
+          className={`flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4 ${
+            registration.verified ? "border-green/25 bg-[#f6faf2]" : "border-gold/30 bg-[#fff8e8]"
+          }`}
+        >
+          <div>
+            <p className={`text-sm font-bold ${registration.verified ? "text-green-dark" : "text-navy-dark"}`}>
+              {registration.verified ? "Verified" : "Not verified yet"}
+            </p>
+            <p className="mt-0.5 text-xs text-muted">
+              {registration.verified
+                ? "This registration has been reviewed and confirmed."
+                : "Check the CNIC / B-Form image below, then mark it verified."}
+            </p>
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant={registration.verified ? "secondary" : "primary"}
+            onClick={() => onVerify(registration.id, !registration.verified)}
+          >
+            {registration.verified ? "Mark Unverified" : "Mark Verified"}
+          </Button>
         </div>
 
         <div className="rounded-xl border border-ink/10 px-4">

@@ -21,6 +21,8 @@ export async function GET() {
   const data = await Promise.all(
     registrations.map(async (r) => ({
       id: r._id.toString(),
+      registrationId: r.registrationId || "",
+      verified: Boolean(r.verified),
       createdAt: r.createdAt,
       fullName: r.fullName,
       fatherName: r.fatherName,
@@ -45,6 +47,34 @@ export async function GET() {
   );
 
   return NextResponse.json({ registrations: data });
+}
+
+export async function PUT(request) {
+  if (!requireAuth()) {
+    return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+  }
+
+  const body = await request.json();
+  const { id } = body;
+  if (!id) {
+    return NextResponse.json({ error: "Missing id." }, { status: 400 });
+  }
+  if (!("verified" in body)) {
+    return NextResponse.json({ error: "Nothing to update." }, { status: 400 });
+  }
+
+  await connectToDatabase();
+  const registration = await FootballRegistration.findByIdAndUpdate(
+    id,
+    { verified: Boolean(body.verified) },
+    { new: true }
+  ).lean();
+
+  if (!registration) {
+    return NextResponse.json({ error: "Registration not found." }, { status: 404 });
+  }
+
+  return NextResponse.json({ ok: true, verified: registration.verified });
 }
 
 export async function DELETE(request) {
