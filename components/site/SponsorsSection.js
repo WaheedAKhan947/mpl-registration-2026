@@ -1,30 +1,52 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Carousel from "@/components/ui/Carousel";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
-function SponsorCard({ sponsor, visitLabel }) {
+const AVATAR_COLORS = [
+  "bg-navy-dark text-gold",
+  "bg-gold text-navy-dark",
+  "bg-brand-red text-white",
+  "bg-ember text-white",
+];
+
+function initials(name) {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
+
+function SponsorCard({ sponsor, index, visitLabel }) {
   return (
-    <div className="flex h-64 w-44 shrink-0 flex-col items-center gap-3 rounded-lg border border-ink/10 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-panel sm:w-52">
-      <div className="flex h-28 w-full items-center justify-center">
-        {sponsor.logo ? (
-          <img src={sponsor.logo} alt={sponsor.name} className="max-h-28 w-auto object-contain" />
-        ) : (
-          <span className="text-center text-sm font-bold uppercase tracking-wide text-ink/70">
-            {sponsor.name}
-          </span>
-        )}
+    <article className="group relative h-[420px] w-full overflow-hidden rounded-2xl shadow-[0_14px_42px_rgba(6,66,39,0.08)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-panel-navy hover:ring-2 hover:ring-gold/40">
+      {sponsor.logo ? (
+        <div className="absolute inset-0 flex items-center justify-center bg-white p-10 transition-transform duration-700 ease-out group-hover:scale-105">
+          <img src={sponsor.logo} alt={sponsor.name} className="max-h-full max-w-full object-contain" />
+        </div>
+      ) : (
+        <div
+          className={`absolute inset-0 grid place-items-center text-6xl font-black transition-transform duration-700 ease-out group-hover:scale-110 ${AVATAR_COLORS[index % AVATAR_COLORS.length]}`}
+        >
+          {initials(sponsor.name)}
+        </div>
+      )}
+      <div className="absolute inset-x-0 bottom-0 bg-[#700F0F] p-5">
+        <h3 className="mb-3 line-clamp-1 text-[1.15rem] leading-[1.15] text-white">{sponsor.name}</h3>
+        <a
+          href={sponsor.url || "#"}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex min-h-[38px] items-center justify-center rounded-full bg-gold px-4 text-[0.8rem] font-black uppercase text-navy-dark shadow transition hover:-translate-y-0.5"
+        >
+          {visitLabel}
+        </a>
       </div>
-      <p className="line-clamp-1 text-center text-[0.95rem] font-black text-green-dark">{sponsor.name}</p>
-      <a
-        href={sponsor.url || "#"}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-auto inline-flex min-h-[38px] items-center justify-center rounded-lg bg-green px-4 text-[0.8rem] font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-green-dark"
-      >
-        {visitLabel}
-      </a>
-    </div>
+    </article>
   );
 }
 
@@ -47,12 +69,6 @@ export default function SponsorsSection() {
 
   if (!sponsors.length) return null;
 
-  // The marquee works by rendering the list twice and scrolling exactly
-  // halfway, so it loops seamlessly. With only a few sponsors that just
-  // looks like duplicates sitting side by side, so only loop once there
-  // are enough of them to actually need scrolling.
-  const shouldLoop = sponsors.length > 5;
-
   return (
     <section id="sponsors" className="py-16 sm:py-[84px]">
       <div className="mx-auto w-[min(1180px,calc(100%-32px))]">
@@ -62,25 +78,15 @@ export default function SponsorsSection() {
           </h2>
           <p className="max-w-[440px] font-semibold text-muted">{t("sponsors.subtitle")}</p>
         </div>
-
-        {!shouldLoop ? (
-          <div className="flex flex-wrap items-stretch justify-center gap-6">
-            {sponsors.map((sponsor) => (
-              <SponsorCard key={sponsor.id} sponsor={sponsor} visitLabel={t("sponsors.visit")} />
-            ))}
-          </div>
-        ) : null}
+        <Carousel
+          items={sponsors}
+          ariaLabel={t("sponsors.heading")}
+          slideClassName="w-[86%] sm:w-[46%] lg:w-[31%]"
+          renderItem={(sponsor, index) => (
+            <SponsorCard sponsor={sponsor} index={index} visitLabel={t("sponsors.visit")} />
+          )}
+        />
       </div>
-
-      {shouldLoop ? (
-        <div className="group overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
-          <div className="flex w-max animate-marquee items-stretch gap-6 group-hover:[animation-play-state:paused]">
-            {[...sponsors, ...sponsors].map((sponsor, index) => (
-              <SponsorCard key={`${sponsor.id}-${index}`} sponsor={sponsor} visitLabel={t("sponsors.visit")} />
-            ))}
-          </div>
-        </div>
-      ) : null}
     </section>
   );
 }
