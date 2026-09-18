@@ -3,6 +3,14 @@
 import Image from "next/image";
 import { ChevronLeftIcon, LogoutIcon, XIcon } from "@/components/admin/icons";
 
+function getInitials(name) {
+  if (!name) return "AD";
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "AD";
+  const initials = parts.length === 1 ? parts[0][0] : parts[0][0] + parts[parts.length - 1][0];
+  return initials.toUpperCase();
+}
+
 export default function Sidebar({
   groups,
   active,
@@ -12,6 +20,7 @@ export default function Sidebar({
   mobileOpen,
   onCloseMobile,
   onLogout,
+  user,
 }) {
   const hideWhenCollapsed = collapsed ? "lg:hidden" : "";
 
@@ -132,11 +141,11 @@ export default function Sidebar({
             }`}
           >
             <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-green/10 text-[0.78rem] font-black text-green-dark">
-              AD
+              {getInitials(user?.name)}
             </span>
             <div className={`min-w-0 flex-1 ${hideWhenCollapsed}`}>
-              <p className="truncate text-sm font-bold text-ink">Admin</p>
-              <p className="truncate text-xs text-muted">Signed in</p>
+              <p className="truncate text-sm font-bold text-ink">{user?.name || "Admin"}</p>
+              <p className="truncate text-xs text-muted">{user?.email || "Signed in"}</p>
             </div>
             <button
               type="button"

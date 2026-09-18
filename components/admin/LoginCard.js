@@ -7,6 +7,7 @@ import Notice from "@/components/admin/Notice";
 import { EyeIcon, EyeOffIcon, LockIcon } from "@/components/admin/icons";
 
 export default function LoginCard({ onLogin }) {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
@@ -17,7 +18,7 @@ export default function LoginCard({ onLogin }) {
     setLoginError("");
     setLoggingIn(true);
     try {
-      await onLogin(password);
+      await onLogin(email, password);
     } catch (error) {
       setLoginError(error.message);
     } finally {
@@ -50,8 +51,20 @@ export default function LoginCard({ onLogin }) {
           />
           <p className="text-[0.68rem] font-black uppercase tracking-[0.18em] text-green">Maneri Premier League</p>
           <h1 className="mt-1 font-sans text-2xl font-black tracking-tight text-ink">Admin sign in</h1>
-          <p className="mt-1.5 text-sm text-muted">Enter the admin password to view registrations and manage the site.</p>
+          <p className="mt-1.5 text-sm text-muted">Sign in with your admin account to manage registrations and the site.</p>
         </div>
+
+        <label className="mb-4 block">
+          <span className="mb-1.5 block text-sm font-bold text-ink">Email</span>
+          <input
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+            className="w-full rounded-xl border border-ink/15 bg-[#fafbfa] py-3 px-3.5 text-ink outline-none transition focus:border-green focus:bg-white focus:ring-4 focus:ring-green/10"
+          />
+        </label>
 
         <label className="block">
           <span className="mb-1.5 block text-sm font-bold text-ink">Password</span>

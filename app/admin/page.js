@@ -7,28 +7,36 @@ import AdminDashboard from "@/components/admin/AdminDashboard";
 export default function AdminPage() {
   const [checkingSession, setCheckingSession] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     fetch("/api/admin/session")
       .then((res) => res.json())
-      .then((data) => setAuthenticated(Boolean(data.authenticated)))
+      .then((data) => {
+        setAuthenticated(Boolean(data.authenticated));
+        if (data.authenticated) {
+          setUser({ id: data.id, name: data.name, email: data.email, role: data.role });
+        }
+      })
       .finally(() => setCheckingSession(false));
   }, []);
 
-  async function handleLogin(password) {
+  async function handleLogin(email, password) {
     const res = await fetch("/api/admin/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Login failed.");
+    setUser({ id: data.id, name: data.name, email: data.email, role: data.role });
     setAuthenticated(true);
   }
 
   async function handleLogout() {
     await fetch("/api/admin/logout", { method: "POST" });
     setAuthenticated(false);
+    setUser(null);
   }
 
   if (checkingSession) {
@@ -49,5 +57,5 @@ export default function AdminPage() {
     return <LoginCard onLogin={handleLogin} />;
   }
 
-  return <AdminDashboard onLogout={handleLogout} />;
+  return <AdminDashboard user={user} onLogout={handleLogout} />;
 }

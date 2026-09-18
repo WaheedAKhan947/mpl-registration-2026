@@ -11,6 +11,8 @@ import AnnouncementSettingsCard from "@/components/admin/AnnouncementSettingsCar
 import HighlightsSettingsCard from "@/components/admin/HighlightsSettingsCard";
 import SponsorsSettingsCard from "@/components/admin/SponsorsSettingsCard";
 import ManagementSettingsCard from "@/components/admin/ManagementSettingsCard";
+import AccountSettingsCard from "@/components/admin/AccountSettingsCard";
+import AdminsSettingsCard from "@/components/admin/AdminsSettingsCard";
 import TeamOwnersCard from "@/components/admin/TeamOwnersCard";
 import PointsTableCard from "@/components/admin/PointsTableCard";
 import MatchesCard from "@/components/admin/MatchesCard";
@@ -114,7 +116,7 @@ const SECTIONS = {
   settings: {
     label: "Settings",
     title: "Settings",
-    subtitle: "Registration status, fee, announcement bar and highlights video.",
+    subtitle: "Registration status, fee, announcement bar, highlights video, and your account.",
     icon: SettingsIcon,
   },
 };
@@ -168,7 +170,7 @@ function ListToolbar({ search, onSearch, placeholder, showing, total }) {
   );
 }
 
-export default function AdminDashboard({ onLogout }) {
+export default function AdminDashboard({ user, onLogout }) {
   const [section, setSectionState] = useState("overview");
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -520,12 +522,16 @@ export default function AdminDashboard({ onLogout }) {
     content = <SponsorsSettingsCard />;
   } else if (section === "settings") {
     content = (
-      <div className="grid gap-6 xl:grid-cols-2 xl:items-start">
-        <RegistrationStatusCard />
-        <div className="grid gap-6">
-          <AnnouncementSettingsCard />
-          <HighlightsSettingsCard />
+      <div className="grid gap-6">
+        <div className="grid gap-6 xl:grid-cols-2 xl:items-start">
+          <RegistrationStatusCard />
+          <div className="grid gap-6">
+            <AnnouncementSettingsCard />
+            <HighlightsSettingsCard />
+          </div>
         </div>
+        <AccountSettingsCard user={user} />
+        {user?.role === "owner" ? <AdminsSettingsCard currentUserId={user.id} /> : null}
       </div>
     );
   }
@@ -541,6 +547,7 @@ export default function AdminDashboard({ onLogout }) {
         mobileOpen={mobileOpen}
         onCloseMobile={() => setMobileOpen(false)}
         onLogout={onLogout}
+        user={user}
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
