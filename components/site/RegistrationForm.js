@@ -62,7 +62,8 @@ export default function RegistrationForm() {
         registration[field.name] = field.trim ? value.trim() : value;
       }
       registration.profilePicture = await readFileAsDataUrl(form.elements.profilePicture.files[0]);
-      registration.cnicImage = await readFileAsDataUrl(form.elements.cnicImage.files[0]);
+      registration.cnicFront = await readFileAsDataUrl(form.elements.cnicFront.files[0]);
+      registration.cnicBack = await readFileAsDataUrl(form.elements.cnicBack.files[0]);
       registration.feeReceipt = await readFileAsDataUrl(form.elements.feeReceipt.files[0]);
       registration.agreedToTerms = form.elements.agreedToTerms.checked;
       registration.feeNonRefundableAcknowledged = form.elements.feeNonRefundableAcknowledged.checked;
@@ -168,7 +169,7 @@ export default function RegistrationForm() {
                 {t("registrationForm.paymentIban")}: <span className="font-black">PK30HABB0002017902189503</span>
               </p>
               <p>
-                {t("registrationForm.paymentBranch")}: <span className="font-black">IBB-SWABI</span>
+                {t("registrationForm.paymentBranch")}: <span className="font-black">HBL-SWABI</span>
               </p>
             </div>
           </div>

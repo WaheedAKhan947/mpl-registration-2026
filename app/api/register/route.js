@@ -66,20 +66,30 @@ export async function POST(request) {
       );
     }
 
-    let profile, cnicFile, receipt;
+    let profile, cnicFrontFile, cnicBackFile, receipt;
     try {
       profile = parseUploadedFile(body.profilePicture);
-      cnicFile = parseUploadedFile(body.cnicImage);
+      cnicFrontFile = parseUploadedFile(body.cnicFront);
+      cnicBackFile = parseUploadedFile(body.cnicBack);
       receipt = parseUploadedFile(body.feeReceipt);
     } catch (fileError) {
       return NextResponse.json({ error: fileError.message }, { status: 400 });
     }
 
-    if (cnicFile) {
-      const dupCnicImage = await Registration.findOne({ cnicImageHash: cnicFile.hash }).lean();
-      if (dupCnicImage) {
+    if (cnicFrontFile) {
+      const dupCnicFront = await Registration.findOne({ cnicFrontHash: cnicFrontFile.hash }).lean();
+      if (dupCnicFront) {
         return NextResponse.json(
-          { error: "This CNIC image has already been used for another registration." },
+          { error: "This CNIC front image has already been used for another registration." },
+          { status: 409 }
+        );
+      }
+    }
+    if (cnicBackFile) {
+      const dupCnicBack = await Registration.findOne({ cnicBackHash: cnicBackFile.hash }).lean();
+      if (dupCnicBack) {
+        return NextResponse.json(
+          { error: "This CNIC back image has already been used for another registration." },
           { status: 409 }
         );
       }
@@ -94,7 +104,7 @@ export async function POST(request) {
       }
     }
 
-    const [profilePictureKey, cnicImageKey, feeReceiptKey] = await Promise.all([
+    const [profilePictureKey, cnicFrontKey, cnicBackKey, feeReceiptKey] = await Promise.all([
       profile
         ? uploadBufferToR2(
             buildFileKey("profile-pictures", body.playerName, cnicNumber, "profile", profile.contentType),
@@ -102,11 +112,18 @@ export async function POST(request) {
             profile.contentType
           )
         : null,
-      cnicFile
+      cnicFrontFile
         ? uploadBufferToR2(
-            buildFileKey("cnic", body.playerName, cnicNumber, "cnic", cnicFile.contentType),
-            cnicFile.buffer,
-            cnicFile.contentType
+            buildFileKey("cnic", body.playerName, cnicNumber, "cnic_front", cnicFrontFile.contentType),
+            cnicFrontFile.buffer,
+            cnicFrontFile.contentType
+          )
+        : null,
+      cnicBackFile
+        ? uploadBufferToR2(
+            buildFileKey("cnic", body.playerName, cnicNumber, "cnic_back", cnicBackFile.contentType),
+            cnicBackFile.buffer,
+            cnicBackFile.contentType
           )
         : null,
       receipt
@@ -139,15 +156,18 @@ export async function POST(request) {
         agreedToTerms: Boolean(body.agreedToTerms),
         feeNonRefundableAcknowledged: Boolean(body.feeNonRefundableAcknowledged),
         profilePicture: profilePictureKey || undefined,
-        cnicImage: cnicImageKey || undefined,
+        cnicFront: cnicFrontKey || undefined,
+        cnicBack: cnicBackKey || undefined,
         feeReceipt: feeReceiptKey || undefined,
-        cnicImageHash: cnicFile?.hash,
+        cnicFrontHash: cnicFrontFile?.hash,
+        cnicBackHash: cnicBackFile?.hash,
         feeReceiptHash: receipt?.hash,
       });
     } catch (createError) {
       await Promise.all([
         deleteFileFromR2(profilePictureKey),
-        deleteFileFromR2(cnicImageKey),
+        deleteFileFromR2(cnicFrontKey),
+        deleteFileFromR2(cnicBackKey),
         deleteFileFromR2(feeReceiptKey),
       ]);
       if (createError.code === 11000) {

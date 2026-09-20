@@ -90,7 +90,7 @@ export default function RegistrationDetailsModal({ registration, onClose, onDele
             <p className="mt-0.5 text-xs text-muted">
               {registration.verified
                 ? "This registration has been reviewed and confirmed."
-                : "Check the CNIC image and fee receipt below, then mark it verified."}
+                : "Check the CNIC images and fee receipt below, then mark it verified."}
             </p>
           </div>
           <Button
@@ -140,15 +140,26 @@ export default function RegistrationDetailsModal({ registration, onClose, onDele
         </div>
 
         <div className="flex flex-wrap gap-3">
-          {registration.cnicImage ? (
+          {registration.cnicFront ? (
             <a
-              href={registration.cnicImage}
+              href={registration.cnicFront}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1.5 rounded-lg border border-ink/10 px-3 py-2 text-sm font-bold text-green-dark transition hover:bg-green/10"
             >
               <DownloadIcon className="h-4 w-4" />
-              View CNIC Image
+              View CNIC Front
+            </a>
+          ) : null}
+          {registration.cnicBack ? (
+            <a
+              href={registration.cnicBack}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-ink/10 px-3 py-2 text-sm font-bold text-green-dark transition hover:bg-green/10"
+            >
+              <DownloadIcon className="h-4 w-4" />
+              View CNIC Back
             </a>
           ) : null}
           {registration.feeReceipt ? (

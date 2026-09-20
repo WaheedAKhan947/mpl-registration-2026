@@ -29,7 +29,8 @@ export async function GET() {
     "CricPro ID": r.cricProId,
     Notes: r.notes,
     "Has Profile Picture": r.profilePicture ? "Yes" : "No",
-    "Has CNIC Image": r.cnicImage ? "Yes" : "No",
+    "Has CNIC Front": r.cnicFront ? "Yes" : "No",
+    "Has CNIC Back": r.cnicBack ? "Yes" : "No",
     "Has Fee Receipt": r.feeReceipt ? "Yes" : "No",
   }));
 

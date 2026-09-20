@@ -40,7 +40,8 @@ export async function GET() {
       notes: r.notes,
       allocatedTeam: r.allocatedTeam || "",
       profilePicture: await getSignedFileUrl(r.profilePicture),
-      cnicImage: await getSignedFileUrl(r.cnicImage),
+      cnicFront: await getSignedFileUrl(r.cnicFront),
+      cnicBack: await getSignedFileUrl(r.cnicBack),
       feeReceipt: await getSignedFileUrl(r.feeReceipt),
     }))
   );
@@ -115,7 +116,8 @@ export async function DELETE(request) {
   if (registration) {
     await Promise.all([
       deleteFileFromR2(registration.profilePicture),
-      deleteFileFromR2(registration.cnicImage),
+      deleteFileFromR2(registration.cnicFront),
+      deleteFileFromR2(registration.cnicBack),
       deleteFileFromR2(registration.feeReceipt),
       Team.updateMany({ captain: registration._id }, { captain: null }),
     ]);

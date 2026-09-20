@@ -27,11 +27,13 @@ const RegistrationSchema = new mongoose.Schema(
     allocatedTeam: { type: String, trim: true, default: "" },
     // R2 object keys (not URLs) -- signed URLs are generated on read.
     profilePicture: { type: String, trim: true },
-    cnicImage: { type: String, trim: true },
+    cnicFront: { type: String, trim: true },
+    cnicBack: { type: String, trim: true },
     feeReceipt: { type: String, trim: true },
     // SHA-256 hashes of the uploaded CNIC/receipt files, used to block the
     // same image being submitted under more than one registration.
-    cnicImageHash: { type: String, unique: true, sparse: true },
+    cnicFrontHash: { type: String, unique: true, sparse: true },
+    cnicBackHash: { type: String, unique: true, sparse: true },
     feeReceiptHash: { type: String, unique: true, sparse: true },
   },
   { timestamps: true }
