@@ -6,7 +6,8 @@ import Button from "@/components/ui/Button";
 import FormField from "@/components/ui/FormField";
 import RegistrationClosedNotice from "@/components/site/RegistrationClosedNotice";
 import { getRegistrationFields, REGISTRATION_FIELDS } from "@/lib/siteData";
-import { readFileAsDataUrl } from "@/lib/files";
+import { readFileAsDataUrl, uploadFileDirect } from "@/lib/files";
+import { safeJsonResponse } from "@/lib/http";
 import { generateRegistrationPdf } from "@/lib/pdf";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
@@ -61,23 +62,55 @@ export default function RegistrationForm() {
         const value = formData.get(field.name);
         registration[field.name] = field.trim ? value.trim() : value;
       }
-      registration.profilePicture = await readFileAsDataUrl(form.elements.profilePicture.files[0]);
-      registration.cnicFront = await readFileAsDataUrl(form.elements.cnicFront.files[0]);
-      registration.cnicBack = await readFileAsDataUrl(form.elements.cnicBack.files[0]);
-      registration.feeReceipt = await readFileAsDataUrl(form.elements.feeReceipt.files[0]);
+
+      const profilePictureFile = form.elements.profilePicture.files[0];
+      const cnicFrontFile = form.elements.cnicFront.files[0];
+      const cnicBackFile = form.elements.cnicBack.files[0];
+      const feeReceiptFile = form.elements.feeReceipt.files[0];
+      const uploadContext = { playerName: registration.playerName, cnicNumber: registration.cnicNumber };
+
+      // Upload the four files straight to R2 first (small requests each,
+      // no size limit imposed by our own server), then submit everything
+      // else -- including only the resulting object keys, not file bytes
+      // -- as one small JSON request. This is what actually fixes the
+      // submit failures: the old flow embedded all four files as base64 in
+      // a single JSON body large enough to be rejected or dropped by the
+      // hosting platform on slower mobile connections.
+      setStatus({ type: "info", text: t("registrationForm.uploadingFiles") });
+      const [profilePicture, cnicFront, cnicBack, feeReceipt] = await Promise.all([
+        uploadFileDirect(profilePictureFile, { field: "profilePicture", ...uploadContext }),
+        uploadFileDirect(cnicFrontFile, { field: "cnicFront", ...uploadContext }),
+        uploadFileDirect(cnicBackFile, { field: "cnicBack", ...uploadContext }),
+        uploadFileDirect(feeReceiptFile, { field: "feeReceipt", ...uploadContext }),
+      ]);
+
+      // Read the profile picture locally too, just to embed it in the
+      // confirmation PDF further down -- this never touches the network.
+      const profilePictureDataUrl = await readFileAsDataUrl(profilePictureFile);
+
+      registration.profilePicture = profilePicture;
+      registration.cnicFront = cnicFront;
+      registration.cnicBack = cnicBack;
+      registration.feeReceipt = feeReceipt;
       registration.agreedToTerms = form.elements.agreedToTerms.checked;
       registration.feeNonRefundableAcknowledged = form.elements.feeNonRefundableAcknowledged.checked;
 
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(registration),
-      });
-      const result = await response.json();
+      setStatus({ type: "info", text: t("registrationForm.savingRegistration") });
+      let response;
+      try {
+        response = await fetch("/api/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(registration),
+        });
+      } catch {
+        throw new Error(t("registrationForm.networkError"));
+      }
+      const result = await safeJsonResponse(response);
       if (!response.ok) throw new Error(result.error || t("registrationForm.genericError"));
 
       form.reset();
-      const submitted = { ...registration, id: result.id };
+      const submitted = { ...registration, profilePicture: profilePictureDataUrl, id: result.id };
       setSubmittedRegistration(submitted);
       setStatus({
         type: "success",
@@ -223,7 +256,11 @@ export default function RegistrationForm() {
       {status.text ? (
         <p
           className={`mt-4 rounded-lg px-3.5 py-3 font-extrabold ${
-            status.type === "error" ? "bg-[#ffe3df] text-brand-red" : "bg-[#e8f2db] text-green-dark"
+            status.type === "error"
+              ? "bg-[#ffe3df] text-brand-red"
+              : status.type === "success"
+              ? "bg-[#e8f2db] text-green-dark"
+              : "bg-[#eef2f7] text-ink"
           }`}
         >
           {status.text}
