@@ -13,8 +13,44 @@ import {
   INPUT_CLASSES,
 } from "@/components/admin/formStyles";
 import { readFileAsDataUrl } from "@/lib/files";
+import { DEFAULT_SPONSOR_TIER, SPONSOR_TIERS, SPONSOR_TIER_LABELS } from "@/lib/sponsorTiers";
 
-const EMPTY_FORM = { name: "", url: "", logoFile: null };
+const EMPTY_FORM = { name: "", url: "", category: DEFAULT_SPONSOR_TIER, logoFile: null };
+
+const TIER_BADGE_CLASSES = {
+  platinum: "bg-slate-200 text-slate-700 ring-slate-300",
+  gold: "bg-gold/20 text-[#8a5a00] ring-gold/40",
+  silver: "bg-ink/[0.06] text-muted ring-ink/10",
+};
+
+function TierBadge({ tier }) {
+  return (
+    <span
+      className={`inline-flex rounded-full px-2 py-0.5 text-[0.66rem] font-black uppercase tracking-[0.08em] ring-1 ring-inset ${
+        TIER_BADGE_CLASSES[tier] || TIER_BADGE_CLASSES.silver
+      }`}
+    >
+      {SPONSOR_TIER_LABELS[tier] || tier}
+    </span>
+  );
+}
+
+function TierSelect({ value, onChange, className = "" }) {
+  return (
+    <select
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      aria-label="Sponsor category"
+      className={`${INPUT_CLASSES} ${className}`}
+    >
+      {SPONSOR_TIERS.map((tier) => (
+        <option key={tier} value={tier}>
+          {SPONSOR_TIER_LABELS[tier]}
+        </option>
+      ))}
+    </select>
+  );
+}
 
 export default function SponsorsSettingsCard() {
   const [sponsors, setSponsors] = useState([]);
@@ -55,7 +91,7 @@ export default function SponsorsSettingsCard() {
       const res = await fetch("/api/admin/sponsors", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: form.name.trim(), url: form.url.trim(), logo }),
+        body: JSON.stringify({ name: form.name.trim(), url: form.url.trim(), category: form.category, logo }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not add sponsor.");
@@ -70,7 +106,12 @@ export default function SponsorsSettingsCard() {
 
   function startEdit(sponsor) {
     setEditingId(sponsor.id);
-    setEditForm({ name: sponsor.name, url: sponsor.url || "", logoFile: null });
+    setEditForm({
+      name: sponsor.name,
+      url: sponsor.url || "",
+      category: sponsor.category || DEFAULT_SPONSOR_TIER,
+      logoFile: null,
+    });
     setError("");
   }
 
@@ -84,7 +125,13 @@ export default function SponsorsSettingsCard() {
       const res = await fetch("/api/admin/sponsors", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, name: editForm.name.trim(), url: editForm.url.trim(), logo }),
+        body: JSON.stringify({
+          id,
+          name: editForm.name.trim(),
+          url: editForm.url.trim(),
+          category: editForm.category,
+          logo,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not update sponsor.");
@@ -116,7 +163,7 @@ export default function SponsorsSettingsCard() {
   return (
     <Panel
       title="Sponsors"
-      description="Manage the sponsor logos, names, and website links shown on the homepage."
+      description="Manage the sponsor logos, names, links, and categories shown on the homepage. Sponsors are grouped by category: Platinum, Gold, then Silver."
       actions={
         !loading ? (
           <span className="rounded-full bg-ink/[0.06] px-2.5 py-1 text-xs font-bold tabular-nums text-muted">
@@ -137,7 +184,7 @@ export default function SponsorsSettingsCard() {
           {sponsors.map((sponsor) =>
             editingId === sponsor.id ? (
               <li key={sponsor.id} className={`${EDITING_BOX_CLASSES} p-4`}>
-                <div className="grid gap-2.5 sm:grid-cols-3">
+                <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
                   <input
                     value={editForm.name}
                     onChange={(event) => setEditForm((f) => ({ ...f, name: event.target.value }))}
@@ -149,6 +196,10 @@ export default function SponsorsSettingsCard() {
                     onChange={(event) => setEditForm((f) => ({ ...f, url: event.target.value }))}
                     placeholder="https://sponsor-site.com"
                     className={INPUT_CLASSES}
+                  />
+                  <TierSelect
+                    value={editForm.category}
+                    onChange={(category) => setEditForm((f) => ({ ...f, category }))}
                   />
                   <input
                     type="file"
@@ -204,7 +255,10 @@ export default function SponsorsSettingsCard() {
                   )}
                 </div>
                 <div className="min-w-[140px] flex-1">
-                  <p className="font-bold text-ink">{sponsor.name}</p>
+                  <p className="flex flex-wrap items-center gap-2 font-bold text-ink">
+                    {sponsor.name}
+                    <TierBadge tier={sponsor.category} />
+                  </p>
                   <p className="truncate text-sm text-muted">{sponsor.url || "No link set"}</p>
                 </div>
                 <div className="flex gap-1.5">
@@ -227,9 +281,9 @@ export default function SponsorsSettingsCard() {
 
       <form
         onSubmit={handleAdd}
-        className="grid gap-2.5 rounded-xl border border-dashed border-ink/20 bg-[#fafbfa] p-4 sm:grid-cols-[1fr_1fr_auto_auto]"
+        className="grid gap-2.5 rounded-xl border border-dashed border-ink/20 bg-[#fafbfa] p-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_150px_auto_auto]"
       >
-        <p className="text-xs font-black uppercase tracking-[0.12em] text-muted sm:col-span-4">Add a sponsor</p>
+        <p className="text-xs font-black uppercase tracking-[0.12em] text-muted sm:col-span-2 lg:col-span-5">Add a sponsor</p>
         <input
           value={form.name}
           onChange={(event) => setForm((f) => ({ ...f, name: event.target.value }))}
@@ -242,11 +296,12 @@ export default function SponsorsSettingsCard() {
           placeholder="https://sponsor-site.com"
           className={INPUT_CLASSES}
         />
+        <TierSelect value={form.category} onChange={(category) => setForm((f) => ({ ...f, category }))} />
         <input
           type="file"
           accept="image/*"
           onChange={(event) => setForm((f) => ({ ...f, logoFile: event.target.files[0] || null }))}
-          className={`${FILE_INPUT_CLASSES} sm:max-w-[240px]`}
+          className={`${FILE_INPUT_CLASSES} lg:max-w-[240px]`}
         />
         <Button type="submit" size="sm" disabled={saving || !form.name.trim()}>
           {saving ? "Adding..." : "Add Sponsor"}

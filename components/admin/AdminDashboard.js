@@ -10,6 +10,7 @@ import RegistrationStatusCard from "@/components/admin/RegistrationStatusCard";
 import AnnouncementSettingsCard from "@/components/admin/AnnouncementSettingsCard";
 import HighlightsSettingsCard from "@/components/admin/HighlightsSettingsCard";
 import SponsorsSettingsCard from "@/components/admin/SponsorsSettingsCard";
+import BrandAmbassadorsSettingsCard from "@/components/admin/BrandAmbassadorsSettingsCard";
 import ManagementSettingsCard from "@/components/admin/ManagementSettingsCard";
 import AccountSettingsCard from "@/components/admin/AccountSettingsCard";
 import AdminsSettingsCard from "@/components/admin/AdminsSettingsCard";
@@ -25,6 +26,7 @@ import MFCRegistrationsTable from "@/components/admin/MFCRegistrationsTable";
 import MFCRegistrationCards from "@/components/admin/MFCRegistrationCards";
 import MFCRegistrationDetailsModal from "@/components/admin/MFCRegistrationDetailsModal";
 import {
+  MegaphoneIcon,
   CalendarIcon,
   ChartIcon,
   GridIcon,
@@ -110,8 +112,14 @@ const SECTIONS = {
   sponsors: {
     label: "Sponsors",
     title: "Sponsors",
-    subtitle: "Sponsor logos and links shown on the homepage.",
+    subtitle: "Sponsor logos, links, and categories shown on the homepage.",
     icon: StarIcon,
+  },
+  ambassadors: {
+    label: "Brand Ambassadors",
+    title: "Brand Ambassadors",
+    subtitle: "Brand ambassadors, their details, and photos shown on the homepage.",
+    icon: MegaphoneIcon,
   },
   settings: {
     label: "Settings",
@@ -125,7 +133,7 @@ const NAV_GROUPS = [
   { label: "Dashboard", items: ["overview"] },
   { label: "Registrations", items: ["mpl", "mfc"] },
   { label: "League", items: ["matches", "teams", "points"] },
-  { label: "Website", items: ["management", "sponsors", "settings"] },
+  { label: "Website", items: ["management", "sponsors", "ambassadors", "settings"] },
 ];
 
 const SIDEBAR_STORAGE_KEY = "mpl-admin-sidebar-collapsed";
@@ -568,6 +576,8 @@ export default function AdminDashboard({ user, onLogout }) {
     content = <ManagementSettingsCard />;
   } else if (section === "sponsors") {
     content = <SponsorsSettingsCard />;
+  } else if (section === "ambassadors") {
+    content = <BrandAmbassadorsSettingsCard />;
   } else if (section === "settings") {
     content = (
       <div className="grid gap-6">

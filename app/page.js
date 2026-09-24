@@ -10,6 +10,7 @@ import ManagementSection from "@/components/site/ManagementSection";
 import GallerySection from "@/components/site/GallerySection";
 import HighlightsSection from "@/components/site/HighlightsSection";
 import ContactSection from "@/components/site/ContactSection";
+import BrandAmbassadorsSection from "@/components/site/BrandAmbassadorsSection";
 import SponsorsSection from "@/components/site/SponsorsSection";
 import Footer from "@/components/site/Footer";
 
@@ -29,6 +30,7 @@ export default function HomePage() {
         <ManagementSection />
         <GallerySection />
         <HighlightsSection />
+        <BrandAmbassadorsSection />
         <SponsorsSection />
         <ContactSection />
       </main>

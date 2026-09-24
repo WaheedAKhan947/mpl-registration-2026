@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Sponsor from "@/models/Sponsor";
+import { ensureSponsorCategories, sortSponsorsByTier } from "@/lib/sponsors";
+import { normalizeSponsorTier, DEFAULT_SPONSOR_TIER } from "@/lib/sponsorTiers";
 import { parseUploadedFile, buildAssetKey, uploadBufferToR2, deleteFileFromR2, getSignedFileUrl } from "@/lib/r2";
 
 function requireAuth() {
@@ -16,13 +18,15 @@ export async function GET() {
   }
 
   await connectToDatabase();
+  await ensureSponsorCategories();
   const sponsors = await Sponsor.find().sort({ createdAt: 1 }).lean();
 
   const data = await Promise.all(
-    sponsors.map(async (sponsor) => ({
+    sortSponsorsByTier(sponsors).map(async (sponsor) => ({
       id: sponsor._id.toString(),
       name: sponsor.name,
       url: sponsor.url,
+      category: sponsor.category,
       logo: await getSignedFileUrl(sponsor.logo),
     }))
   );
@@ -40,6 +44,10 @@ export async function POST(request) {
   if (!name) {
     return NextResponse.json({ error: "Sponsor name is required." }, { status: 400 });
   }
+  const category = body.category === undefined ? DEFAULT_SPONSOR_TIER : normalizeSponsorTier(body.category);
+  if (!category) {
+    return NextResponse.json({ error: "Choose a valid sponsor category." }, { status: 400 });
+  }
 
   let logoKey = "";
   try {
@@ -56,6 +64,7 @@ export async function POST(request) {
     name,
     url: String(body.url || "").trim(),
     logo: logoKey,
+    category,
   });
 
   return NextResponse.json({ ok: true, id: sponsor._id.toString() }, { status: 201 });
@@ -87,6 +96,13 @@ export async function PUT(request) {
   }
   if (body.url !== undefined) {
     sponsor.url = String(body.url).trim();
+  }
+  if (body.category !== undefined) {
+    const category = normalizeSponsorTier(body.category);
+    if (!category) {
+      return NextResponse.json({ error: "Choose a valid sponsor category." }, { status: 400 });
+    }
+    sponsor.category = category;
   }
 
   let oldLogoKey = null;

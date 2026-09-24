@@ -100,7 +100,7 @@ const QUICK_LINKS = [
   { id: "matches", label: "Scorecard & Fixtures", copy: "Add fixtures and update live scores.", icon: CalendarIcon },
   { id: "teams", label: "Teams & Captains", copy: "Set franchise owners and captains.", icon: ShieldIcon },
   { id: "points", label: "Points Table", copy: "Manage the league standings.", icon: ChartIcon },
-  { id: "sponsors", label: "Sponsors", copy: "Logos and links on the homepage.", icon: StarIcon },
+  { id: "sponsors", label: "Sponsors", copy: "Logos, links, and categories on the homepage.", icon: StarIcon },
 ];
 
 export default function OverviewPage({
