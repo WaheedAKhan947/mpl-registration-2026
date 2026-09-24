@@ -18,9 +18,13 @@ import { DEFAULT_SPONSOR_TIER, SPONSOR_TIERS, SPONSOR_TIER_LABELS } from "@/lib/
 const EMPTY_FORM = { name: "", url: "", category: DEFAULT_SPONSOR_TIER, logoFile: null };
 
 const TIER_BADGE_CLASSES = {
+  diamond: "bg-sky-100 text-sky-800 ring-sky-300",
   platinum: "bg-slate-200 text-slate-700 ring-slate-300",
   gold: "bg-gold/20 text-[#8a5a00] ring-gold/40",
   silver: "bg-ink/[0.06] text-muted ring-ink/10",
+  bronze: "bg-orange-100 text-orange-800 ring-orange-300",
+  media: "bg-purple-100 text-purple-800 ring-purple-300",
+  official: "bg-green/10 text-green-dark ring-green/30",
 };
 
 function TierBadge({ tier }) {
@@ -163,7 +167,7 @@ export default function SponsorsSettingsCard() {
   return (
     <Panel
       title="Sponsors"
-      description="Manage the sponsor logos, names, links, and categories shown on the homepage. Sponsors are grouped by category: Platinum, Gold, then Silver."
+      description="Manage the sponsor logos, names, links, and categories shown on the homepage. Sponsors are grouped by category in this order: Diamond, Platinum, Gold, Silver, Bronze, Media Partner, then Official Partner."
       actions={
         !loading ? (
           <span className="rounded-full bg-ink/[0.06] px-2.5 py-1 text-xs font-bold tabular-nums text-muted">
@@ -281,7 +285,7 @@ export default function SponsorsSettingsCard() {
 
       <form
         onSubmit={handleAdd}
-        className="grid gap-2.5 rounded-xl border border-dashed border-ink/20 bg-[#fafbfa] p-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_150px_auto_auto]"
+        className="grid gap-2.5 rounded-xl border border-dashed border-ink/20 bg-[#fafbfa] p-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_190px_auto_auto]"
       >
         <p className="text-xs font-black uppercase tracking-[0.12em] text-muted sm:col-span-2 lg:col-span-5">Add a sponsor</p>
         <input

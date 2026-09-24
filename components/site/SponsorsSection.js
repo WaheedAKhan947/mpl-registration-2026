@@ -14,24 +14,38 @@ const AVATAR_COLORS = [
 
 // Higher tiers get bigger cards and fewer per row so the ranking is visible
 // at a glance, not just from the label.
+const LARGE = { cardHeight: "h-[440px]", initialsSize: "text-7xl", slideClassName: "w-[88%] sm:w-[48%] lg:w-[48%]" };
+const MEDIUM = { cardHeight: "h-[380px]", initialsSize: "text-6xl", slideClassName: "w-[86%] sm:w-[46%] lg:w-[31%]" };
+const SMALL = { cardHeight: "h-[300px]", initialsSize: "text-5xl", slideClassName: "w-[70%] sm:w-[31%] lg:w-[23%]" };
+
 const TIER_STYLES = {
+  diamond: {
+    ...LARGE,
+    chip: "bg-gradient-to-r from-[#0b3d91] via-[#1f7ae0] to-[#5cc8ff] text-white ring-1 ring-[#1f7ae0]/60",
+  },
   platinum: {
+    ...LARGE,
     chip: "bg-gradient-to-r from-[#e8ebef] via-white to-[#c9ced6] text-navy-dark ring-1 ring-[#b8bec8]",
-    cardHeight: "h-[440px]",
-    initialsSize: "text-7xl",
-    slideClassName: "w-[88%] sm:w-[48%] lg:w-[48%]",
   },
   gold: {
     chip: "bg-gradient-to-r from-[#f7d774] via-gold to-[#d99a1e] text-navy-dark ring-1 ring-gold/60",
-    cardHeight: "h-[380px]",
-    initialsSize: "text-6xl",
-    slideClassName: "w-[86%] sm:w-[46%] lg:w-[31%]",
+    ...MEDIUM,
   },
   silver: {
+    ...SMALL,
     chip: "bg-gradient-to-r from-[#f1f2f4] to-[#d7dade] text-[#3f4c45] ring-1 ring-[#c4c8ce]",
-    cardHeight: "h-[300px]",
-    initialsSize: "text-5xl",
-    slideClassName: "w-[70%] sm:w-[31%] lg:w-[23%]",
+  },
+  bronze: {
+    ...SMALL,
+    chip: "bg-gradient-to-r from-[#8a4b1c] via-[#c07a3a] to-[#e0a066] text-white ring-1 ring-[#a8612a]/60",
+  },
+  media: {
+    ...SMALL,
+    chip: "bg-gradient-to-r from-[#4b1d7a] via-[#7b3fc4] to-[#b07ae8] text-white ring-1 ring-[#7b3fc4]/60",
+  },
+  official: {
+    ...SMALL,
+    chip: "bg-gradient-to-r from-[#0f5a24] via-[#1f8a3a] to-[#4cc36a] text-white ring-1 ring-[#1f8a3a]/60",
   },
 };
 

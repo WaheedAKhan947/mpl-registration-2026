@@ -12,9 +12,14 @@ const SponsorSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// A dev server that loaded this model before `category` existed keeps the old
-// schema cached across hot reloads, which silently drops category writes.
-if (mongoose.models.Sponsor && !mongoose.models.Sponsor.schema.path("category")) {
+// A dev server keeps the compiled model cached across hot reloads. If that
+// cached copy predates `category` or the current tier list, it would drop or
+// reject category writes, so rebuild it.
+const cachedCategory = mongoose.models.Sponsor?.schema.path("category");
+if (
+  mongoose.models.Sponsor &&
+  (!cachedCategory || String(cachedCategory.enumValues) !== String(SPONSOR_TIERS))
+) {
   mongoose.deleteModel("Sponsor");
 }
 
