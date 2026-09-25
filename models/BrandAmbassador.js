@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export const MAX_AMBASSADOR_IMAGES = 4;
+export const MAX_AMBASSADOR_IMAGES = 6;
 
 const BrandAmbassadorSchema = new mongoose.Schema(
   {
@@ -25,4 +25,14 @@ const BrandAmbassadorSchema = new mongoose.Schema(
 
 BrandAmbassadorSchema.index({ order: 1, createdAt: 1 });
 
-export default mongoose.models.BrandAmbassador || mongoose.model("BrandAmbassador", BrandAmbassadorSchema);
+// A dev server keeps the compiled model cached across hot reloads; rebuild it
+// if it was compiled with a different image limit.
+if (mongoose.models.BrandAmbassador && mongoose.models.BrandAmbassador.maxImages !== MAX_AMBASSADOR_IMAGES) {
+  mongoose.deleteModel("BrandAmbassador");
+}
+
+const BrandAmbassador =
+  mongoose.models.BrandAmbassador || mongoose.model("BrandAmbassador", BrandAmbassadorSchema);
+BrandAmbassador.maxImages = MAX_AMBASSADOR_IMAGES;
+
+export default BrandAmbassador;

@@ -15,7 +15,7 @@ import {
 import { readFileAsDataUrl } from "@/lib/files";
 
 // Mirrors MAX_AMBASSADOR_IMAGES in models/BrandAmbassador.js (the server enforces it).
-const MAX_IMAGES = 4;
+const MAX_IMAGES = 6;
 
 const EMPTY_FORM = { name: "", details: "", detailsUr: "", imageFiles: [] };
 
@@ -190,7 +190,7 @@ export default function BrandAmbassadorsSettingsCard() {
   return (
     <Panel
       title="Brand Ambassadors"
-      description="Add the brand ambassadors shown on the homepage. Each one has a name, details, and 1 to 4 images. Use the arrows to change the display order."
+      description="Add the brand ambassadors shown on the homepage. Each one has a name, details, and 1 to 6 images. The images appear as a photo album on the homepage. Use the arrows to change the display order."
       actions={
         !loading ? (
           <span className="rounded-full bg-ink/[0.06] px-2.5 py-1 text-xs font-bold tabular-nums text-muted">
