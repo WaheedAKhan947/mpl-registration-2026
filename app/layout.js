@@ -49,6 +49,14 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${displayFont.variable} ${bodyFont.variable} ${urduFont.variable}`}>
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3091777487981416"
+          crossOrigin="anonymous"
+          strategy="afterInteractive">
+        </script>
+      </head>
       <body>
         <script dangerouslySetInnerHTML={{ __html: BOOTSTRAP_SCRIPT }} />
         <LanguageProvider>
