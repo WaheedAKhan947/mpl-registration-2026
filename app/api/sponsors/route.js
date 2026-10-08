@@ -17,7 +17,10 @@ export async function GET() {
       name: sponsor.name,
       url: sponsor.url,
       category: sponsor.category,
+      details: sponsor.details || "",
+      detailsUr: sponsor.detailsUr || "",
       logo: await getSignedFileUrl(sponsor.logo),
+      images: await Promise.all((sponsor.images || []).map((key) => getSignedFileUrl(key))),
     }))
   );
 

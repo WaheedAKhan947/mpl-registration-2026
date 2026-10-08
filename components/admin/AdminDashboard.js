@@ -112,7 +112,7 @@ const SECTIONS = {
   sponsors: {
     label: "Sponsors",
     title: "Sponsors",
-    subtitle: "Sponsor logos, links, and categories shown on the homepage.",
+    subtitle: "Sponsor logos, links, categories, details, and photo albums shown on the homepage.",
     icon: StarIcon,
   },
   ambassadors: {

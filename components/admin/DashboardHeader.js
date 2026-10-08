@@ -41,10 +41,11 @@ export default function DashboardHeader({
             {exportHref ? (
               <a
                 href={exportHref}
+                title="Download a ZIP with the Excel sheet plus player photos and CNIC images"
                 className="inline-flex h-10 items-center gap-2 rounded-lg bg-green px-3.5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(11,107,58,0.25)] transition hover:bg-green-dark"
               >
                 <DownloadIcon className="h-4 w-4" />
-                <span className="hidden sm:inline">Export Excel</span>
+                <span className="hidden sm:inline">Export (Excel + Photos)</span>
               </a>
             ) : null}
           </div>
