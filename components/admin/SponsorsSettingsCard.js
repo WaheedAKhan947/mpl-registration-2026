@@ -25,6 +25,7 @@ const TIER_BADGE_CLASSES = {
   bronze: "bg-orange-100 text-orange-800 ring-orange-300",
   media: "bg-purple-100 text-purple-800 ring-purple-300",
   official: "bg-green/10 text-green-dark ring-green/30",
+  sports: "bg-red-100 text-red-800 ring-red-300",
 };
 
 function TierBadge({ tier }) {
@@ -167,7 +168,7 @@ export default function SponsorsSettingsCard() {
   return (
     <Panel
       title="Sponsors"
-      description="Manage the sponsor logos, names, links, and categories shown on the homepage. Sponsors are grouped by category in this order: Diamond, Platinum, Gold, Silver, Bronze, Media Partner, then Official Partner."
+      description="Manage the sponsor logos, names, links, and categories shown on the homepage. Sponsors are grouped by category in this order: Diamond, Platinum, Gold, Official Partner, Sports Partner, Silver, Bronze, then Media Partner."
       actions={
         !loading ? (
           <span className="rounded-full bg-ink/[0.06] px-2.5 py-1 text-xs font-bold tabular-nums text-muted">
