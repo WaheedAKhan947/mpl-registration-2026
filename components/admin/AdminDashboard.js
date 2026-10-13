@@ -17,6 +17,7 @@ import AdminsSettingsCard from "@/components/admin/AdminsSettingsCard";
 import TeamOwnersCard from "@/components/admin/TeamOwnersCard";
 import PointsTableCard from "@/components/admin/PointsTableCard";
 import MatchesCard from "@/components/admin/MatchesCard";
+import DraftBoard from "@/components/admin/DraftBoard";
 import StatsRow from "@/components/admin/StatsRow";
 import SearchBar from "@/components/admin/SearchBar";
 import RegistrationsTable from "@/components/admin/RegistrationsTable";
@@ -29,6 +30,7 @@ import {
   MegaphoneIcon,
   CalendarIcon,
   ChartIcon,
+  ClipboardIcon,
   GridIcon,
   SettingsIcon,
   ShieldIcon,
@@ -91,6 +93,12 @@ const SECTIONS = {
     subtitle: "Fixtures, live scores and results shown on the homepage.",
     icon: CalendarIcon,
   },
+  draft: {
+    label: "Draft Board",
+    title: "Draft Board",
+    subtitle: "Pick players for each franchise and download their stat cards.",
+    icon: ClipboardIcon,
+  },
   teams: {
     label: "Teams & Captains",
     title: "Teams & Captains",
@@ -132,7 +140,7 @@ const SECTIONS = {
 const NAV_GROUPS = [
   { label: "Dashboard", items: ["overview"] },
   { label: "Registrations", items: ["mpl", "mfc"] },
-  { label: "League", items: ["matches", "teams", "points"] },
+  { label: "League", items: ["matches", "draft", "teams", "points"] },
   { label: "Website", items: ["management", "sponsors", "ambassadors", "settings"] },
 ];
 
@@ -297,6 +305,12 @@ export default function AdminDashboard({ user, onLogout }) {
       prev.map((r) => (r.id === id ? { ...r, allocatedTeam: data.allocatedTeam } : r))
     );
     setSelected((prev) => (prev && prev.id === id ? { ...prev, allocatedTeam: data.allocatedTeam } : prev));
+  }
+
+  // Keeps the MPL Registrations list in step when a player is drafted from
+  // the Draft Board, which loads its own (privacy-trimmed) player list.
+  function syncAllocatedTeam(id, allocatedTeam) {
+    setRegistrations((prev) => prev.map((r) => (r.id === id ? { ...r, allocatedTeam } : r)));
   }
 
   async function handleDelete(id) {
@@ -568,6 +582,8 @@ export default function AdminDashboard({ user, onLogout }) {
     );
   } else if (section === "matches") {
     content = <MatchesCard />;
+  } else if (section === "draft") {
+    content = <DraftBoard onAllocated={syncAllocatedTeam} />;
   } else if (section === "teams") {
     content = <TeamOwnersCard />;
   } else if (section === "points") {

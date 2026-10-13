@@ -13,8 +13,8 @@ const AVATAR_COLORS = [
 ];
 
 // Each tier is a centered, wrapping row of cards, so any number of sponsors
-// stays visible and incomplete rows sit in the middle. Higher tiers get bigger
-// cards and fewer per row so the ranking is visible at a glance.
+// stays visible and incomplete rows sit in the middle. Every tier uses the
+// same large card; the colored tier chip shows the ranking.
 // Widths subtract each card's share of the gap: gap-4 (16px) on phones,
 // gap-6 (24px) from sm.
 const LARGE = {
@@ -27,27 +27,6 @@ const LARGE = {
   infoPad: "px-5 pb-6 pt-5",
   compact: false,
 };
-const MEDIUM = {
-  // 1 per row on phones, 2 from sm, 3 from lg.
-  width: "w-full max-w-[400px] sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]",
-  cardHeight: "h-[370px] sm:h-[390px]",
-  initialsSize: "text-6xl",
-  logoPad: "p-7",
-  nameSize: "line-clamp-1 text-[1.5rem] sm:text-[1.7rem]",
-  infoPad: "px-5 pb-5 pt-4",
-  compact: false,
-};
-const SMALL = {
-  // 2 per row on phones, 3 from sm, 4 from lg.
-  width: "w-[calc(50%-8px)] max-w-[300px] sm:w-[calc(33.333%-16px)] lg:w-[calc(25%-18px)]",
-  cardHeight: "h-[300px] sm:h-[340px]",
-  initialsSize: "text-4xl sm:text-5xl",
-  logoPad: "p-4 sm:p-5",
-  // Two lines on small cards so names are not cut short on phones.
-  nameSize: "line-clamp-2 min-h-[2.1em] text-[1.05rem] sm:text-[1.25rem]",
-  infoPad: "px-3 pb-4 pt-3 sm:px-4",
-  compact: true,
-};
 
 const TIER_STYLES = {
   diamond: {
@@ -59,27 +38,27 @@ const TIER_STYLES = {
     chip: "bg-gradient-to-r from-[#e8ebef] via-white to-[#c9ced6] text-navy-dark ring-1 ring-[#b8bec8]",
   },
   gold: {
-    ...MEDIUM,
+    ...LARGE,
     chip: "bg-gradient-to-r from-[#f7d774] via-gold to-[#d99a1e] text-navy-dark ring-1 ring-gold/60",
   },
   official: {
-    ...SMALL,
+    ...LARGE,
     chip: "bg-gradient-to-r from-[#0f5a24] via-[#1f8a3a] to-[#4cc36a] text-white ring-1 ring-[#1f8a3a]/60",
   },
   sports: {
-    ...SMALL,
+    ...LARGE,
     chip: "bg-gradient-to-r from-[#b3261e] via-brand-red to-ember text-white ring-1 ring-brand-red/60",
   },
   silver: {
-    ...SMALL,
+    ...LARGE,
     chip: "bg-gradient-to-r from-[#f1f2f4] to-[#d7dade] text-[#3f4c45] ring-1 ring-[#c4c8ce]",
   },
   bronze: {
-    ...SMALL,
+    ...LARGE,
     chip: "bg-gradient-to-r from-[#8a4b1c] via-[#c07a3a] to-[#e0a066] text-white ring-1 ring-[#a8612a]/60",
   },
   media: {
-    ...SMALL,
+    ...LARGE,
     chip: "bg-gradient-to-r from-[#4b1d7a] via-[#7b3fc4] to-[#b07ae8] text-white ring-1 ring-[#7b3fc4]/60",
   },
 };
