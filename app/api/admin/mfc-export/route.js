@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { verifyAdminSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { buildExportZipResponse } from "@/lib/exportZip";
 import FootballRegistration from "@/models/FootballRegistration";
@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 // photo and CNIC / B-Form image.
 export async function GET() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  if (!verifySessionToken(token)) {
+  if (!verifyAdminSessionToken(token)) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 

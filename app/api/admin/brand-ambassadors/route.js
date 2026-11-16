@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { verifyAdminSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import BrandAmbassador, { MAX_AMBASSADOR_IMAGES } from "@/models/BrandAmbassador";
 import { parseUploadedFile, buildAssetKey, uploadBufferToR2, deleteFileFromR2, getSignedFileUrl } from "@/lib/r2";
@@ -13,7 +13,7 @@ const TOO_MANY_IMAGES = `A brand ambassador can have at most ${MAX_AMBASSADOR_IM
 
 function requireAuth() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  return verifySessionToken(token);
+  return verifyAdminSessionToken(token);
 }
 
 async function toAdminShape(ambassador) {

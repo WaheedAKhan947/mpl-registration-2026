@@ -165,6 +165,7 @@ export default function AdminsSettingsCard({ currentUserId }) {
         >
           <option value="admin">Admin</option>
           <option value="owner">Owner</option>
+          <option value="scorer">Scorer (scores &amp; League section only)</option>
         </select>
         <Button
           type="submit"

@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
-import { MATCH_STATUSES } from "@/lib/matches";
+import { MATCH_STATUSES, SCORING_STATUSES } from "@/lib/matches";
+
+const objectId = mongoose.Schema.Types.ObjectId;
 
 const PerformerSchema = new mongoose.Schema(
   {
@@ -41,10 +43,52 @@ const MatchSchema = new mongoose.Schema(
       team: { type: String, trim: true, default: "" },
       performance: { type: String, trim: true, default: "" },
     },
+
+    // ---- Ball-by-ball scoring. Everything below is optional; a match that is
+    // never scored live keeps using the manual fields above.
+    toss: {
+      // Team name, matching teamA / teamB.
+      winner: { type: String, trim: true, default: "" },
+      decision: { type: String, enum: ["", "bat", "bowl"], default: "" },
+    },
+    // Overs per innings for this match (6, 8, 10, 20 ...).
+    overs: { type: Number, min: 1, max: 50, default: null },
+    playingXI: {
+      teamA: [{ type: objectId, ref: "Registration" }],
+      teamB: [{ type: objectId, ref: "Registration" }],
+    },
+    scoringStatus: { type: String, enum: SCORING_STATUSES, default: "not_started" },
+    // Structured form of `result` for scored matches, written on finish and
+    // recomputable from the balls. Feeds the automatic points table.
+    resultInfo: {
+      outcome: { type: String, enum: ["", "win", "tie", "no_result"], default: "" },
+      winner: { type: String, trim: true, default: "" },
+      margin: { type: Number, default: null },
+      marginType: { type: String, enum: ["", "runs", "wickets"], default: "" },
+    },
+    // 0 before the toss, then 1 / 2 (3 / 4 for a super over).
+    currentInnings: { type: Number, default: 0 },
+    // Accounts allowed to score this match; empty means any admin or scorer.
+    scorers: [{ type: objectId, ref: "AdminUser" }],
+    // League rule tweaks for this match; blanks fall back to lib/scoring.js defaults.
+    scoringConfig: {
+      widePenalty: { type: Number, min: 0, max: 5, default: 1 },
+      noBallPenalty: { type: Number, min: 0, max: 5, default: 1 },
+      maxOversPerBowler: { type: Number, min: 1, max: 50, default: null },
+      lastManStands: { type: Boolean, default: false },
+    },
   },
   { timestamps: true }
 );
 
 MatchSchema.index({ date: 1, matchNumber: 1 });
+MatchSchema.index({ scoringStatus: 1 });
+
+// In development Next.js keeps a model compiled from an older version of
+// this file across hot reloads, and Mongoose then silently drops any field
+// added since. Re-register it so schema edits apply without a restart.
+if (process.env.NODE_ENV !== "production" && mongoose.models.Match) {
+  mongoose.deleteModel("Match");
+}
 
 export default mongoose.models.Match || mongoose.model("Match", MatchSchema);

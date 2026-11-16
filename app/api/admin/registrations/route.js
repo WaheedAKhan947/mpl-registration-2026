@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { verifyAdminSessionToken, verifyLeagueSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Registration from "@/models/Registration";
 import Team from "@/models/Team";
@@ -9,7 +9,7 @@ import { ROSTER_TEAMS } from "@/lib/siteData";
 
 function requireAuth() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  return verifySessionToken(token);
+  return verifyAdminSessionToken(token);
 }
 
 export async function GET() {
@@ -50,7 +50,11 @@ export async function GET() {
 }
 
 export async function PUT(request) {
-  if (!requireAuth()) {
+  // Scorers run the League section, which includes drafting players, so they
+  // may change a player's allocated team. Verifying registrations (and every
+  // other registration action) stays with owners and admins.
+  const session = verifyLeagueSessionToken(cookies().get(SESSION_COOKIE_NAME)?.value);
+  if (!session) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
@@ -58,6 +62,9 @@ export async function PUT(request) {
   const { id } = body;
   if (!id) {
     return NextResponse.json({ error: "Missing id." }, { status: 400 });
+  }
+  if (session.role === "scorer" && "verified" in body) {
+    return NextResponse.json({ error: "Only an owner or admin can verify registrations." }, { status: 403 });
   }
 
   // Only touch the fields actually present in the request, so toggling

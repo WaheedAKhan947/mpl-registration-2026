@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { verifyAdminSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Sponsor, { MAX_SPONSOR_IMAGES } from "@/models/Sponsor";
 import { ensureSponsorCategories, sortSponsorsByTier } from "@/lib/sponsors";
@@ -14,7 +14,7 @@ const TOO_MANY_IMAGES = `A sponsor can have at most ${MAX_SPONSOR_IMAGES} album 
 
 function requireAuth() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  return verifySessionToken(token);
+  return verifyAdminSessionToken(token);
 }
 
 async function uploadAlbumImage(file, name) {

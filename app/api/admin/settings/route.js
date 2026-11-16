@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { verifyAdminSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Settings from "@/models/Settings";
 import { getYoutubeVideoId } from "@/lib/youtube";
@@ -9,7 +9,7 @@ const MAX_ANNOUNCEMENT_LENGTH = 240;
 
 function requireAuth() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  return verifySessionToken(token);
+  return verifyAdminSessionToken(token);
 }
 
 export async function GET() {

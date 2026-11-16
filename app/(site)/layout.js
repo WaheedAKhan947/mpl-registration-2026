@@ -3,7 +3,7 @@ import AnnouncementBar from "@/components/site/AnnouncementBar";
 import RegistrationAlertModal from "@/components/site/RegistrationAlertModal";
 import HtmlLangSync from "@/components/site/HtmlLangSync";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
-import "./globals.css";
+import "../globals.css";
 
 const displayFont = Anton({
   subsets: ["latin"],

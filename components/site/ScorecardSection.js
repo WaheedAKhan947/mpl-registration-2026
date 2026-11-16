@@ -1,12 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { formatMatchDate, formatScore, shiftIsoDate, teamLogo } from "@/lib/matches";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
-// Live scores change quickly, so refresh while the page stays open and visible.
+// Live scores change quickly, so refresh while the page stays open and
+// visible: every 15 seconds on a match day or while a match is live,
+// otherwise every minute.
 const REFRESH_MS = 60 * 1000;
+const LIVE_REFRESH_MS = 15 * 1000;
+
+// Fired on window when a match goes live, gets a result or is re-opened, so
+// the points table can refresh straight away.
+export const RESULTS_UPDATED_EVENT = "mpl:results-updated";
 
 function getStatusBadges(t) {
   return {
@@ -126,7 +134,10 @@ function MatchCard({ match }) {
   const hasFooter = Boolean(match.result || motm.name || !showScore);
 
   return (
-    <article className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.06] shadow-[0_18px_44px_rgba(0,0,0,0.28)]">
+    <Link
+      href={`/match/${match.id}`}
+      className="group block overflow-hidden rounded-xl border border-white/10 bg-white/[0.06] shadow-[0_18px_44px_rgba(0,0,0,0.28)] transition hover:-translate-y-0.5 hover:border-gold/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
+    >
       <header className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 px-4 py-3">
         <div className="min-w-0">
           <p className="text-[0.72rem] font-black uppercase tracking-[0.16em] text-gold">
@@ -161,7 +172,13 @@ function MatchCard({ match }) {
           ) : null}
         </footer>
       ) : null}
-    </article>
+      <p className="flex items-center justify-end gap-1.5 border-t border-white/10 px-4 py-2 text-[0.72rem] font-black uppercase tracking-wider text-gold/90 transition group-hover:text-gold">
+        {t("scorecard.viewDetails")}
+        <span aria-hidden="true" className="transition group-hover:translate-x-0.5 rtl:rotate-180">
+          →
+        </span>
+      </p>
+    </Link>
   );
 }
 
@@ -185,9 +202,23 @@ function Bucket({ title, subtitle, bucket, emptyText, className = "" }) {
   );
 }
 
+// What changed on the scorecard that other sections (the points table) care
+// about: a match going live, a result being saved, or a match re-opened.
+function resultsSignature(body) {
+  return [body?.recent, body?.today, body?.upcoming]
+    .flatMap((bucket) => bucket?.matches || [])
+    .map((m) => `${m.id}:${m.status}:${m.scoringStatus}:${m.status === "live" ? "" : m.result}`)
+    .join("|");
+}
+
 export default function ScorecardSection() {
   const [data, setData] = useState(null);
   const { t } = useLanguage();
+  const lastSignature = useRef(null);
+  const matches = data ? [data.recent, data.today, data.upcoming].flatMap((bucket) => bucket?.matches || []) : [];
+  const anyLive = matches.some((m) => m.status === "live");
+  // On a match day, check often so a match going live or finishing shows quickly.
+  const busy = anyLive || Boolean(data?.today?.matches?.length);
 
   useEffect(() => {
     let cancelled = false;
@@ -196,7 +227,13 @@ export default function ScorecardSection() {
       try {
         const res = await fetch("/api/matches", { cache: "no-store" });
         const body = await res.json();
-        if (!cancelled && res.ok) setData(body);
+        if (cancelled || !res.ok) return;
+        setData(body);
+        const signature = resultsSignature(body);
+        if (lastSignature.current !== null && lastSignature.current !== signature) {
+          window.dispatchEvent(new Event(RESULTS_UPDATED_EVENT));
+        }
+        lastSignature.current = signature;
       } catch {
         // Keep showing whatever loaded last.
       }
@@ -205,13 +242,13 @@ export default function ScorecardSection() {
     load();
     const timer = setInterval(() => {
       if (document.visibilityState === "visible") load();
-    }, REFRESH_MS);
+    }, busy ? LIVE_REFRESH_MS : REFRESH_MS);
 
     return () => {
       cancelled = true;
       clearInterval(timer);
     };
-  }, []);
+  }, [busy]);
 
   if (!data || (!data.recent && !data.today && !data.upcoming)) return null;
 

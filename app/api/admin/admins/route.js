@@ -48,7 +48,7 @@ export async function POST(request) {
   const name = String(body.name || "").trim();
   const email = String(body.email || "").trim().toLowerCase();
   const password = String(body.password || "");
-  const role = body.role === "owner" ? "owner" : "admin";
+  const role = body.role === "owner" || body.role === "scorer" ? body.role : "admin";
 
   if (!name || !email || !password) {
     return NextResponse.json({ error: "Name, email, and password are required." }, { status: 400 });

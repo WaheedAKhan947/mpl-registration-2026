@@ -6,7 +6,7 @@
 // ever locked out.
 //
 // Usage (Node 20.6+, for --env-file support):
-//   node --env-file=.env.local scripts/create-admin.js --name "Full Name" --email you@example.com --password "a strong password" [--role owner|admin]
+//   node --env-file=.env.local scripts/create-admin.js --name "Full Name" --email you@example.com --password "a strong password" [--role owner|admin|scorer]
 //
 // If MONGODB_URI is already exported in your shell, you can drop --env-file.
 // If an account with that email already exists, this updates its
@@ -31,7 +31,7 @@ function parseArgs(argv) {
 function printUsageAndExit(message) {
   if (message) console.error(message);
   console.error(
-    '\nUsage: node --env-file=.env.local scripts/create-admin.js --name "Full Name" --email you@example.com --password "a strong password" [--role owner|admin]'
+    '\nUsage: node --env-file=.env.local scripts/create-admin.js --name "Full Name" --email you@example.com --password "a strong password" [--role owner|admin|scorer]'
   );
   process.exit(1);
 }
@@ -41,7 +41,7 @@ async function main() {
   const name = args.name;
   const email = String(args.email || "").trim().toLowerCase();
   const password = args.password;
-  const requestedRole = args.role === "owner" ? "owner" : args.role === "admin" ? "admin" : null;
+  const requestedRole = ["owner", "admin", "scorer"].includes(args.role) ? args.role : null;
 
   if (!name || !email || !password) {
     printUsageAndExit("Missing --name, --email, or --password.");
@@ -64,7 +64,7 @@ async function main() {
       name: { type: String, required: true, trim: true },
       email: { type: String, required: true, trim: true, lowercase: true, unique: true },
       passwordHash: { type: String, required: true },
-      role: { type: String, enum: ["owner", "admin"], default: "admin" },
+      role: { type: String, enum: ["owner", "admin", "scorer"], default: "admin" },
       failedAttempts: { type: Number, default: 0 },
       lockUntil: { type: Date, default: null },
       lastLoginAt: { type: Date, default: null },

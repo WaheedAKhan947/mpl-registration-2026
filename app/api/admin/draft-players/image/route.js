@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { verifyLeagueSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Registration from "@/models/Registration";
 import Sponsor from "@/models/Sponsor";
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 function requireAuth() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  return verifySessionToken(token);
+  return verifyLeagueSessionToken(token);
 }
 
 const TYPE_BY_EXTENSION = {

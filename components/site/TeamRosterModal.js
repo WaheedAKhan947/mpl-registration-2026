@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Modal from "@/components/ui/Modal";
+import PlayerLink from "@/components/site/PlayerLink";
 import { TEAM_CARDS } from "@/lib/siteData";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
 
@@ -46,7 +47,7 @@ function LeaderAvatar({
         </span>
       </div>
       <p className="mt-1 max-w-[10rem] truncate text-center text-sm font-extrabold uppercase text-white">
-        {player.playerName}
+        <PlayerLink id={player.id}>{player.playerName}</PlayerLink>
       </p>
     </div>
   );
@@ -55,9 +56,12 @@ function LeaderAvatar({
 function PlayerLine({ player, captainLabel, viceCaptainLabel, wkLabel }) {
   return (
     <li className="flex items-center gap-2 border-b border-white/10 py-2 last:border-0">
-      <span className="min-w-0 flex-1 truncate text-[0.92rem] font-extrabold uppercase tracking-wide text-white">
+      <PlayerLink
+        id={player.id}
+        className="min-w-0 flex-1 truncate text-[0.92rem] font-extrabold uppercase tracking-wide text-white"
+      >
         {player.playerName}
-      </span>
+      </PlayerLink>
       {player.isCaptain ? (
         <span
           title={captainLabel}

@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { verifyLeagueSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import PointsTableRow from "@/models/PointsTableRow";
+import { pointsTable } from "@/lib/pointsTable";
 
 function requireAuth() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  return verifySessionToken(token);
+  return verifyLeagueSessionToken(token);
 }
 
 function toNumber(value, fallback = 0) {
@@ -32,7 +33,10 @@ export async function GET() {
   }
 
   await connectToDatabase();
-  const rows = await PointsTableRow.find().sort({ points: -1, netRunRate: -1 }).lean();
+  const [rows, standings] = await Promise.all([
+    PointsTableRow.find().sort({ points: -1, netRunRate: -1 }).lean(),
+    pointsTable(),
+  ]);
 
   const data = rows.map((row) => ({
     id: row._id.toString(),
@@ -46,7 +50,8 @@ export async function GET() {
     netRunRate: row.netRunRate,
   }));
 
-  return NextResponse.json({ rows: data });
+  // `rows` are the manual overrides; `auto` is computed from scored matches.
+  return NextResponse.json({ rows: data, auto: standings.auto, autoMatchCount: standings.autoMatchCount });
 }
 
 export async function POST(request) {

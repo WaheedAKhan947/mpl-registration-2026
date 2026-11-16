@@ -12,6 +12,7 @@ import {
   INPUT_CLASSES,
 } from "@/components/admin/formStyles";
 import { teamLogo } from "@/lib/matches";
+import { ROSTER_TEAMS } from "@/lib/siteData";
 
 const STAT_FIELDS = [
   { key: "played", label: "M" },
@@ -48,8 +49,70 @@ function StatChip({ label, value, tone = "" }) {
   );
 }
 
+const AUTO_HEADINGS = ["#", "Team", "M", "W", "L", "T", "NR", "P", "NRR", ""];
+
+function AutoStandingsPanel({ rows, matchCount, loading }) {
+  const description = matchCount
+    ? `Worked out from ${matchCount} finished ball-by-ball match${matchCount === 1 ? "" : "es"}. Win 2, tie 1, no result 1. NRR counts an all-out side as facing its full overs.`
+    : "Appears once a ball-by-ball scored match is finished from Live Scoring.";
+
+  return (
+    <Panel title="Automatic standings" description={description} bodyClassName="p-0">
+      {!loading && rows.length ? (
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[560px] text-sm tabular-nums">
+            <thead>
+              <tr className="border-b border-ink/[0.06] text-[0.68rem] font-black uppercase tracking-[0.1em] text-muted">
+                {AUTO_HEADINGS.map((heading, i) => (
+                  <th key={i} className={`px-3 py-2.5 first:pl-5 last:pr-5 ${i < 2 ? "text-left" : "text-right"}`}>
+                    {heading}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, index) => (
+                <tr
+                  key={row.team}
+                  className={`border-b border-ink/[0.06] last:border-0 ${row.overridden ? "text-muted" : "text-ink"}`}
+                >
+                  <td className="px-3 py-2.5 pl-5 font-bold">{index + 1}</td>
+                  <td className="px-3 py-2.5 font-bold">{row.team}</td>
+                  <td className="px-3 py-2.5 text-right">{row.played}</td>
+                  <td className="px-3 py-2.5 text-right">{row.won}</td>
+                  <td className="px-3 py-2.5 text-right">{row.lost}</td>
+                  <td className="px-3 py-2.5 text-right">{row.tied}</td>
+                  <td className="px-3 py-2.5 text-right">{row.noResult}</td>
+                  <td className="px-3 py-2.5 text-right font-black text-green-dark">{row.points}</td>
+                  <td
+                    className={`px-3 py-2.5 text-right font-bold ${
+                      row.netRunRate >= 0 ? "text-green-dark" : "text-brand-red"
+                    }`}
+                  >
+                    {row.netRunRate > 0 ? "+" : ""}
+                    {row.netRunRate.toFixed(3)}
+                  </td>
+                  <td className="px-3 py-2.5 pr-5 text-right">
+                    {row.overridden ? (
+                      <span className="whitespace-nowrap rounded-full bg-gold/20 px-2 py-0.5 text-[0.68rem] font-black uppercase text-navy-dark">
+                        Manual row used
+                      </span>
+                    ) : null}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+    </Panel>
+  );
+}
+
 export default function PointsTableCard() {
   const [rows, setRows] = useState([]);
+  const [auto, setAuto] = useState([]);
+  const [autoMatchCount, setAutoMatchCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -69,6 +132,8 @@ export default function PointsTableCard() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not load the points table.");
       setRows(data.rows);
+      setAuto(data.auto || []);
+      setAutoMatchCount(data.autoMatchCount || 0);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -128,7 +193,7 @@ export default function PointsTableCard() {
   }
 
   async function handleDelete(id) {
-    if (!confirm("Delete this team from the points table? This cannot be undone.")) return;
+    if (!confirm("Delete this manual row? The team then uses its automatic standings from scored matches.")) return;
     try {
       const res = await fetch("/api/admin/points-table", {
         method: "DELETE",
@@ -137,161 +202,170 @@ export default function PointsTableCard() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not delete the row.");
-      setRows((prev) => prev.filter((row) => row.id !== id));
+      await loadRows();
     } catch (err) {
       alert(err.message);
     }
   }
 
   return (
-    <Panel
-      title="Points Table"
-      description="Manage league standings shown on the homepage. Rows are ranked automatically by points, then net run rate."
-    >
-      {error ? (
-        <Notice tone="error" className="mb-4">
-          {error}
-        </Notice>
-      ) : null}
-      {loading ? <p className="text-sm text-muted">Loading points table...</p> : null}
+    <div className="grid gap-6">
+      <AutoStandingsPanel rows={auto} matchCount={autoMatchCount} loading={loading} />
+      <Panel
+        title="Manual rows"
+        description="A manual row with at least one match played replaces the automatic standings for its team (for matches not scored ball by ball). Rows with nothing played step aside once automatic standings exist. Delete a team's row, or set its matches to 0, to switch it to automatic."
+      >
+        {error ? (
+          <Notice tone="error" className="mb-4">
+            {error}
+          </Notice>
+        ) : null}
+        {loading ? <p className="text-sm text-muted">Loading points table...</p> : null}
 
-      {!loading && rows.length ? (
-        <ul className="mb-5 grid gap-3">
-          {rows.map((row, index) =>
-            editingId === row.id ? (
-              <li key={row.id} className={`${EDITING_BOX_CLASSES} p-4`}>
-                <input
-                  value={editForm.team}
-                  onChange={(event) => setEditForm((f) => ({ ...f, team: event.target.value }))}
-                  placeholder="Team name"
-                  className={`${INPUT_CLASSES} mb-2.5`}
-                />
-                <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-7">
-                  {STAT_FIELDS.map((field) => (
-                    <label key={field.key} className="text-sm">
+        {!loading && rows.length ? (
+          <ul className="mb-5 grid gap-3">
+            {rows.map((row, index) =>
+              editingId === row.id ? (
+                <li key={row.id} className={`${EDITING_BOX_CLASSES} p-4`}>
+                  <input
+                    value={editForm.team}
+                    onChange={(event) => setEditForm((f) => ({ ...f, team: event.target.value }))}
+                    placeholder="Team name"
+                    className={`${INPUT_CLASSES} mb-2.5`}
+                  />
+                  <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-7">
+                    {STAT_FIELDS.map((field) => (
+                      <label key={field.key} className="text-sm">
+                        <span className="mb-1 block text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted">
+                          {field.label}
+                        </span>
+                        <input
+                          type="number"
+                          value={editForm[field.key]}
+                          onChange={(event) =>
+                            setEditForm((f) => ({ ...f, [field.key]: event.target.value }))
+                          }
+                          className={SMALL_INPUT_CLASSES}
+                        />
+                      </label>
+                    ))}
+                    <label className="text-sm">
                       <span className="mb-1 block text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted">
-                        {field.label}
+                        NRR
                       </span>
                       <input
                         type="number"
-                        value={editForm[field.key]}
+                        step="0.001"
+                        value={editForm.netRunRate}
                         onChange={(event) =>
-                          setEditForm((f) => ({ ...f, [field.key]: event.target.value }))
+                          setEditForm((f) => ({ ...f, netRunRate: event.target.value }))
                         }
                         className={SMALL_INPUT_CLASSES}
                       />
                     </label>
-                  ))}
-                  <label className="text-sm">
-                    <span className="mb-1 block text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted">
-                      NRR
-                    </span>
-                    <input
-                      type="number"
-                      step="0.001"
-                      value={editForm.netRunRate}
-                      onChange={(event) =>
-                        setEditForm((f) => ({ ...f, netRunRate: event.target.value }))
-                      }
-                      className={SMALL_INPUT_CLASSES}
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <Button type="button" size="sm" disabled={saving} onClick={() => handleUpdate(row.id)}>
+                      {saving ? "Saving..." : "Save"}
+                    </Button>
+                    <Button type="button" size="sm" variant="secondary" onClick={() => setEditingId(null)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </li>
+              ) : (
+                <li
+                  key={row.id}
+                  className="flex flex-wrap items-center gap-3.5 rounded-xl border border-ink/10 p-3.5 transition hover:border-ink/20"
+                >
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-ink/[0.05] text-xs font-black tabular-nums text-muted">
+                    {index + 1}
+                  </span>
+                  {teamLogo(row.team) ? (
+                    <img
+                      src={teamLogo(row.team)}
+                      alt=""
+                      className="h-10 w-10 shrink-0 rounded-full border border-ink/10 bg-white object-contain p-0.5"
                     />
-                  </label>
-                </div>
-                <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <Button type="button" size="sm" disabled={saving} onClick={() => handleUpdate(row.id)}>
-                    {saving ? "Saving..." : "Save"}
-                  </Button>
-                  <Button type="button" size="sm" variant="secondary" onClick={() => setEditingId(null)}>
-                    Cancel
-                  </Button>
-                </div>
-              </li>
-            ) : (
-              <li
-                key={row.id}
-                className="flex flex-wrap items-center gap-3.5 rounded-xl border border-ink/10 p-3.5 transition hover:border-ink/20"
-              >
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-ink/[0.05] text-xs font-black tabular-nums text-muted">
-                  {index + 1}
+                  ) : null}
+                  <div className="min-w-[160px] flex-1">
+                    <p className="font-bold text-ink">{row.team}</p>
+                    {!ROSTER_TEAMS.includes(row.team) ? (
+                      <p className="mt-0.5 text-xs font-semibold text-brand-red">
+                        Not a league team name ({ROSTER_TEAMS.join(", ")}), so it will not line up with automatic
+                        standings. Edit the name to match.
+                      </p>
+                    ) : null}
+                    <p className="mt-1 flex flex-wrap gap-1.5">
+                      <StatChip label="M" value={row.played} />
+                      <StatChip label="W" value={row.won} />
+                      <StatChip label="L" value={row.lost} />
+                      <StatChip label="T" value={row.tied} />
+                      <StatChip label="NR" value={row.noResult} />
+                      <StatChip label="P" value={row.points} tone="text-green-dark" />
+                      <StatChip
+                        label="NRR"
+                        value={`${row.netRunRate > 0 ? "+" : ""}${row.netRunRate}`}
+                        tone={row.netRunRate >= 0 ? "text-green-dark" : "text-brand-red"}
+                      />
+                    </p>
+                  </div>
+                  <div className="flex gap-1.5">
+                    <button type="button" onClick={() => startEdit(row)} className={EDIT_BUTTON_CLASSES}>
+                      <EditIcon className="h-4 w-4" />
+                      Edit
+                    </button>
+                    <button type="button" onClick={() => handleDelete(row.id)} className={DELETE_BUTTON_CLASSES}>
+                      <TrashIcon className="h-4 w-4" />
+                      Delete
+                    </button>
+                  </div>
+                </li>
+              )
+            )}
+          </ul>
+        ) : null}
+
+        {!loading && !rows.length ? <p className="mb-5 text-sm text-muted">No teams added yet.</p> : null}
+
+        <form onSubmit={handleAdd} className="rounded-xl border border-dashed border-ink/20 bg-[#fafbfa] p-4">
+          <p className="mb-2.5 text-xs font-black uppercase tracking-[0.12em] text-muted">Add a team</p>
+          <input
+            value={form.team}
+            onChange={(event) => setForm((f) => ({ ...f, team: event.target.value }))}
+            placeholder="Team name"
+            className={`${INPUT_CLASSES} mb-2.5 sm:max-w-xs`}
+          />
+          <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-7">
+            {STAT_FIELDS.map((field) => (
+              <label key={field.key} className="text-sm">
+                <span className="mb-1 block text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted">
+                  {field.label}
                 </span>
-                {teamLogo(row.team) ? (
-                  <img
-                    src={teamLogo(row.team)}
-                    alt=""
-                    className="h-10 w-10 shrink-0 rounded-full border border-ink/10 bg-white object-contain p-0.5"
-                  />
-                ) : null}
-                <div className="min-w-[160px] flex-1">
-                  <p className="font-bold text-ink">{row.team}</p>
-                  <p className="mt-1 flex flex-wrap gap-1.5">
-                    <StatChip label="M" value={row.played} />
-                    <StatChip label="W" value={row.won} />
-                    <StatChip label="L" value={row.lost} />
-                    <StatChip label="T" value={row.tied} />
-                    <StatChip label="NR" value={row.noResult} />
-                    <StatChip label="P" value={row.points} tone="text-green-dark" />
-                    <StatChip
-                      label="NRR"
-                      value={`${row.netRunRate > 0 ? "+" : ""}${row.netRunRate}`}
-                      tone={row.netRunRate >= 0 ? "text-green-dark" : "text-brand-red"}
-                    />
-                  </p>
-                </div>
-                <div className="flex gap-1.5">
-                  <button type="button" onClick={() => startEdit(row)} className={EDIT_BUTTON_CLASSES}>
-                    <EditIcon className="h-4 w-4" />
-                    Edit
-                  </button>
-                  <button type="button" onClick={() => handleDelete(row.id)} className={DELETE_BUTTON_CLASSES}>
-                    <TrashIcon className="h-4 w-4" />
-                    Delete
-                  </button>
-                </div>
-              </li>
-            )
-          )}
-        </ul>
-      ) : null}
-
-      {!loading && !rows.length ? <p className="mb-5 text-sm text-muted">No teams added yet.</p> : null}
-
-      <form onSubmit={handleAdd} className="rounded-xl border border-dashed border-ink/20 bg-[#fafbfa] p-4">
-        <p className="mb-2.5 text-xs font-black uppercase tracking-[0.12em] text-muted">Add a team</p>
-        <input
-          value={form.team}
-          onChange={(event) => setForm((f) => ({ ...f, team: event.target.value }))}
-          placeholder="Team name"
-          className={`${INPUT_CLASSES} mb-2.5 sm:max-w-xs`}
-        />
-        <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-7">
-          {STAT_FIELDS.map((field) => (
-            <label key={field.key} className="text-sm">
-              <span className="mb-1 block text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted">
-                {field.label}
-              </span>
+                <input
+                  type="number"
+                  value={form[field.key]}
+                  onChange={(event) => setForm((f) => ({ ...f, [field.key]: event.target.value }))}
+                  className={SMALL_INPUT_CLASSES}
+                />
+              </label>
+            ))}
+            <label className="text-sm">
+              <span className="mb-1 block text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted">NRR</span>
               <input
                 type="number"
-                value={form[field.key]}
-                onChange={(event) => setForm((f) => ({ ...f, [field.key]: event.target.value }))}
+                step="0.001"
+                value={form.netRunRate}
+                onChange={(event) => setForm((f) => ({ ...f, netRunRate: event.target.value }))}
                 className={SMALL_INPUT_CLASSES}
               />
             </label>
-          ))}
-          <label className="text-sm">
-            <span className="mb-1 block text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted">NRR</span>
-            <input
-              type="number"
-              step="0.001"
-              value={form.netRunRate}
-              onChange={(event) => setForm((f) => ({ ...f, netRunRate: event.target.value }))}
-              className={SMALL_INPUT_CLASSES}
-            />
-          </label>
-        </div>
-        <Button type="submit" size="sm" disabled={saving || !form.team.trim()} className="mt-3">
-          {saving ? "Adding..." : "Add Team"}
-        </Button>
-      </form>
-    </Panel>
+          </div>
+          <Button type="submit" size="sm" disabled={saving || !form.team.trim()} className="mt-3">
+            {saving ? "Adding..." : "Add Team"}
+          </Button>
+        </form>
+      </Panel>
+    </div>
   );
 }

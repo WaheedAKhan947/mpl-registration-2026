@@ -17,6 +17,8 @@ import AdminsSettingsCard from "@/components/admin/AdminsSettingsCard";
 import TeamOwnersCard from "@/components/admin/TeamOwnersCard";
 import PointsTableCard from "@/components/admin/PointsTableCard";
 import MatchesCard from "@/components/admin/MatchesCard";
+import ScoringCard from "@/components/admin/scoring/ScoringCard";
+import OverlayControlCard from "@/components/admin/OverlayControlCard";
 import DraftBoard from "@/components/admin/DraftBoard";
 import StatsRow from "@/components/admin/StatsRow";
 import SearchBar from "@/components/admin/SearchBar";
@@ -32,6 +34,8 @@ import {
   ChartIcon,
   ClipboardIcon,
   GridIcon,
+  LiveIcon,
+  BroadcastIcon,
   SettingsIcon,
   ShieldIcon,
   StarIcon,
@@ -87,6 +91,18 @@ const SECTIONS = {
     subtitle: "Football player sign-ups.",
     icon: TargetIcon,
   },
+  scoring: {
+    label: "Live Scoring",
+    title: "Live Scoring",
+    subtitle: "Set up a match and score it ball by ball.",
+    icon: LiveIcon,
+  },
+  overlay: {
+    label: "Stream Overlay",
+    title: "Stream Overlay",
+    subtitle: "Graphics on the live stream: screens, panels, player cards, sponsors and replays.",
+    icon: BroadcastIcon,
+  },
   matches: {
     label: "Scorecard & Fixtures",
     title: "Scorecard & Fixtures",
@@ -140,16 +156,23 @@ const SECTIONS = {
 const NAV_GROUPS = [
   { label: "Dashboard", items: ["overview"] },
   { label: "Registrations", items: ["mpl", "mfc"] },
-  { label: "League", items: ["matches", "draft", "teams", "points"] },
+  { label: "League", items: ["scoring", "overlay", "matches", "draft", "teams", "points"] },
   { label: "Website", items: ["management", "sponsors", "ambassadors", "settings"] },
+];
+
+// Scorer accounts see the League section (scores, fixtures, draft, teams,
+// points) and their own account settings; the API refuses them everything else.
+const SCORER_NAV_GROUPS = [
+  { label: "League", items: ["scoring", "overlay", "matches", "draft", "teams", "points"] },
+  { label: "Account", items: ["settings"] },
 ];
 
 const SIDEBAR_STORAGE_KEY = "mpl-admin-sidebar-collapsed";
 
-function readHashSection() {
+function readHashSection(allowed) {
   if (typeof window === "undefined") return null;
   const id = window.location.hash.replace(/^#/, "");
-  return SECTIONS[id] ? id : null;
+  return SECTIONS[id] && allowed.includes(id) ? id : null;
 }
 
 function withinDays(value, days) {
@@ -187,7 +210,10 @@ function ListToolbar({ search, onSearch, placeholder, showing, total }) {
 }
 
 export default function AdminDashboard({ user, onLogout }) {
-  const [section, setSectionState] = useState("overview");
+  const isScorer = user?.role === "scorer";
+  const groups = isScorer ? SCORER_NAV_GROUPS : NAV_GROUPS;
+  const allowedSections = groups.flatMap((group) => group.items);
+  const [section, setSectionState] = useState(isScorer ? "scoring" : "overview");
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -204,21 +230,24 @@ export default function AdminDashboard({ user, onLogout }) {
   const [mfcSelected, setMfcSelected] = useState(null);
 
   useEffect(() => {
+    if (isScorer) return;
     loadRegistrations();
     loadMfcRegistrations();
-  }, []);
+  }, [isScorer]);
 
   // Deep-link support: /admin#matches opens that section, and back/forward keep working.
+  const allowedKey = allowedSections.join(",");
   useEffect(() => {
-    const initial = readHashSection();
+    const allowed = allowedKey.split(",");
+    const initial = readHashSection(allowed);
     if (initial) setSectionState(initial);
     function handleHashChange() {
-      const next = readHashSection();
+      const next = readHashSection(allowed);
       if (next) setSectionState(next);
     }
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
-  }, []);
+  }, [allowedKey]);
 
   useEffect(() => {
     try {
@@ -404,7 +433,7 @@ export default function AdminDashboard({ user, onLogout }) {
   const mplThisWeek = registrations.filter((r) => withinDays(r.createdAt, 7)).length;
   const mfcThisWeek = mfcRegistrations.filter((r) => withinDays(r.createdAt, 7)).length;
 
-  const navGroups = NAV_GROUPS.map((group) => ({
+  const navGroups = groups.map((group) => ({
     label: group.label,
     items: group.items.map((id) => ({
       id,
@@ -580,6 +609,12 @@ export default function AdminDashboard({ user, onLogout }) {
         </Panel>
       </div>
     );
+  } else if (section === "scoring") {
+    content = <ScoringCard user={user} />;
+  } else if (section === "overlay") {
+    content = <OverlayControlCard />;
+  } else if (section === "settings" && isScorer) {
+    content = <AccountSettingsCard user={user} />;
   } else if (section === "matches") {
     content = <MatchesCard />;
   } else if (section === "draft") {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { verifyAdminSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import ManagementMember from "@/models/ManagementMember";
 import { ensureManagementSeeded } from "@/lib/management";
@@ -8,7 +8,7 @@ import { parseUploadedFile, buildAssetKey, uploadBufferToR2, deleteFileFromR2, g
 
 function requireAuth() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  return verifySessionToken(token);
+  return verifyAdminSessionToken(token);
 }
 
 async function toPublicShape(member) {

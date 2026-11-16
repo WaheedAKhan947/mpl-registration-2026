@@ -1,0 +1,420 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* The overlay sits on top of a camera feed inside OBS / PRISM: nothing may
+   paint a background or scroll. `bg=solid|chroma` sets a colour from JS. */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent !important;
+}
+
+body {
+  color: #fff;
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- motion */
+
+@keyframes ovl-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ovl-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ovl-live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes ovl-test-run {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(100vw - 96px));
+  }
+}
+
+@keyframes ovl-test-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ovl-enter-bottom {
+  animation: ovl-slide-up 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.ovl-enter-top {
+  animation: ovl-slide-down 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.ovl-live-dot {
+  animation: ovl-live-pulse 1.4s ease-in-out infinite;
+}
+
+/* A number that just changed rolls up into place (score, runs, figures). */
+@keyframes ovl-roll {
+  from {
+    opacity: 0;
+    transform: translateY(55%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ovl-roll {
+  display: inline-block;
+  animation: ovl-roll 0.45s cubic-bezier(0.2, 0.9, 0.25, 1.15) both;
+}
+
+/* The newest ball chip pops in. */
+@keyframes ovl-chip-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.ovl-chip-in {
+  animation: ovl-chip-in 0.5s cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+
+/* Light mode (?lite=1) for phones: no animation, no blur, no big shadows.
+   Elements marked .ovl-lite-anim keep their (cheap fade) animation. */
+.ovl-lite *:not(.ovl-lite-anim),
+.ovl-lite *::before,
+.ovl-lite *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+}
+
+/* No blur, filters or shadows at all in light mode, including on the cards
+   that keep their slide-in. */
+.ovl-lite *,
+.ovl-lite *::before,
+.ovl-lite *::after {
+  backdrop-filter: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* ---------------------------------------------------------------- effects
+   Every effect animation runs for the effect's full duration (set inline),
+   so the percentages below are points in that effect's timeline. Only
+   transform and opacity are animated. */
+
+@keyframes ovl-fx-band {
+  0% {
+    transform: translateX(-118%) skewX(-12deg);
+  }
+  14%,
+  84% {
+    transform: translateX(0) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(118%) skewX(-12deg);
+  }
+}
+
+@keyframes ovl-fx-word {
+  0% {
+    opacity: 0;
+    transform: translateX(-90px) scale(0.92);
+  }
+  18% {
+    opacity: 1;
+    transform: translateX(18px) scale(1.04);
+  }
+  27%,
+  80% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(110px) scale(1);
+  }
+}
+
+@keyframes ovl-fx-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1.24);
+  }
+  30% {
+    transform: scale(0.95);
+  }
+  38%,
+  84% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes ovl-fx-flash {
+  0% {
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.85;
+  }
+  26%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes ovl-fx-frame {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  14%,
+  44%,
+  74% {
+    opacity: 1;
+  }
+  29%,
+  59% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes ovl-fx-shake {
+  0%,
+  22%,
+  100% {
+    transform: translate(0, 0);
+  }
+  4% {
+    transform: translate(-16px, 7px);
+  }
+  8% {
+    transform: translate(14px, -9px);
+  }
+  12% {
+    transform: translate(-10px, 5px);
+  }
+  16% {
+    transform: translate(7px, -3px);
+  }
+}
+
+@keyframes ovl-fx-particle {
+  0%,
+  8% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.6);
+  }
+}
+
+@keyframes ovl-fx-arc-x {
+  0%,
+  10% {
+    transform: translateX(-120px);
+  }
+  62%,
+  100% {
+    transform: translateX(var(--arc-w));
+  }
+}
+
+@keyframes ovl-fx-arc-y {
+  0%,
+  10% {
+    transform: translateY(var(--arc-h));
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
+  }
+  36% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.6, 0, 0.8, 0.3);
+  }
+  62%,
+  100% {
+    transform: translateY(var(--arc-h));
+  }
+}
+
+@keyframes ovl-fx-card {
+  0%,
+  12% {
+    opacity: 0;
+    transform: translateY(46px);
+  }
+  26%,
+  86% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ovl-fx-bail-left {
+  0%,
+  12% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg);
+  }
+  45% {
+    opacity: 1;
+    transform: translate(-150px, -190px) rotate(-280deg);
+  }
+  60%,
+  100% {
+    opacity: 0;
+    transform: translate(-190px, -120px) rotate(-360deg);
+  }
+}
+
+@keyframes ovl-fx-bail-right {
+  0%,
+  12% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg);
+  }
+  45% {
+    opacity: 1;
+    transform: translate(160px, -170px) rotate(300deg);
+  }
+  60%,
+  100% {
+    opacity: 0;
+    transform: translate(210px, -100px) rotate(380deg);
+  }
+}
+
+@keyframes ovl-fx-stump-tilt {
+  0%,
+  12% {
+    transform: rotate(0deg);
+  }
+  30%,
+  100% {
+    transform: rotate(var(--tilt));
+  }
+}
+
+@keyframes ovl-fx-fade {
+  0% {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  12%,
+  86% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+}
+
+/* Full-screen screens (toss, lineups, innings break, result) fade up in. The
+   end state is fully visible, so light mode (no animation) shows them too. */
+@keyframes ovl-screen-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ovl-screen-in {
+  animation: ovl-screen-in 0.7s cubic-bezier(0.2, 0.85, 0.25, 1) both;
+}
+
+/* Lower-third card: slides in from the left, holds, slides back out. Cheap
+   enough to keep in light mode (.ovl-lite-anim). */
+@keyframes ovl-card-slide {
+  0% {
+    opacity: 0;
+    transform: translateX(-120px);
+  }
+  10%,
+  90% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-120px);
+  }
+}
+
+/* Sponsor logos cross-fade. */
+@keyframes ovl-sponsor-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ovl-sponsor-in {
+  animation: ovl-sponsor-in 0.8s ease-out both;
+}

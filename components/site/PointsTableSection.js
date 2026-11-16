@@ -2,6 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import { RESULTS_UPDATED_EVENT } from "@/components/site/ScorecardSection";
+
+// Standings change the moment a scored match is finished, so keep them fresh
+// while the page is open: refetch whenever the scorecard sees a result
+// change, and every 30 seconds as a fallback.
+const REFRESH_MS = 30 * 1000;
 
 export default function PointsTableSection() {
   const [rows, setRows] = useState([]);
@@ -10,14 +16,28 @@ export default function PointsTableSection() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/points-table", { cache: "no-store" })
-      .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled) setRows(data.rows || []);
-      })
-      .catch(() => {});
+
+    function load() {
+      fetch("/api/points-table", { cache: "no-store" })
+        .then((res) => res.json())
+        .then((data) => {
+          if (!cancelled && Array.isArray(data.rows)) setRows(data.rows);
+        })
+        .catch(() => {});
+    }
+
+    load();
+    const timer = setInterval(() => {
+      if (document.visibilityState === "visible") load();
+    }, REFRESH_MS);
+    window.addEventListener(RESULTS_UPDATED_EVENT, load);
+    document.addEventListener("visibilitychange", load);
+
     return () => {
       cancelled = true;
+      clearInterval(timer);
+      window.removeEventListener(RESULTS_UPDATED_EVENT, load);
+      document.removeEventListener("visibilitychange", load);
     };
   }, []);
 

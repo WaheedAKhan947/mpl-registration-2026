@@ -11,6 +11,7 @@ function useNavLinks(t) {
     { key: "about", label: t("nav.about"), href: "/#about" },
     { key: "teams", label: t("nav.teams"), href: "/#teams" },
     { key: "scorecard", label: t("nav.scorecard"), href: "/#scores" },
+    { key: "stats", label: t("nav.stats"), href: "/stats" },
     // { key: "pointsTable", label: "Points Table", href: "/#points-table" },
     { key: "management", label: t("nav.management"), href: "/#management" },
     { key: "gallery", label: t("nav.gallery"), href: "/#gallery" },

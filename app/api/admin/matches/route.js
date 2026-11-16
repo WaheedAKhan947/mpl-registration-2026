@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import mongoose from "mongoose";
-import { verifySessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { verifyLeagueSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Match from "@/models/Match";
 import { ROSTER_TEAMS } from "@/lib/siteData";
@@ -9,7 +9,7 @@ import { MATCH_STATUSES, isIsoDate, serializeMatch } from "@/lib/matches";
 
 function requireAuth() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  return verifySessionToken(token);
+  return verifyLeagueSessionToken(token);
 }
 
 function text(value, max = 120) {
