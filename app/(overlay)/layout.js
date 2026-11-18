@@ -1,13 +1,10 @@
-import { Anton, Inter } from "next/font/google";
+import { displayFont, bodyFont } from "@/app/fonts";
 import "./overlay.css";
 
 // Root layout for the broadcast overlay. It is deliberately bare: no navbar,
 // footer, announcement bar, registration popup, language provider or AdSense
 // (ads must never appear on a live stream). The site's own root layout lives
-// in app/(site)/layout.js.
-
-const displayFont = Anton({ subsets: ["latin"], weight: "400", variable: "--font-display" });
-const bodyFont = Inter({ subsets: ["latin"], weight: ["500", "700", "800", "900"], variable: "--font-body" });
+// in app/(site)/layout.js. Fonts are self-hosted; see app/fonts/index.js.
 
 export const metadata = {
   title: "MPL Broadcast Overlay",

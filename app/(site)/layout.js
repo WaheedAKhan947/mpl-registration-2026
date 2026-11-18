@@ -1,27 +1,11 @@
-import { Anton, Inter, Noto_Nastaliq_Urdu } from "next/font/google";
+import { displayFont, bodyFont, urduFont } from "@/app/fonts";
 import AnnouncementBar from "@/components/site/AnnouncementBar";
 import RegistrationAlertModal from "@/components/site/RegistrationAlertModal";
 import HtmlLangSync from "@/components/site/HtmlLangSync";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 import "../globals.css";
 
-const displayFont = Anton({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-display",
-});
-
-const bodyFont = Inter({
-  subsets: ["latin"],
-  variable: "--font-body",
-});
-
-const urduFont = Noto_Nastaliq_Urdu({
-  subsets: ["arabic"],
-  weight: ["400", "700"],
-  variable: "--font-urdu",
-  display: "swap",
-});
+// Fonts are self-hosted (no Google Fonts fetch at build time); see app/fonts/index.js.
 
 // Runs before React hydrates so a returning visitor who picked Urdu doesn't
 // see an English/LTR flash before the language context takes over.
