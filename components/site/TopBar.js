@@ -35,6 +35,23 @@ function YouTubeIcon(props) {
   );
 }
 
+function PhoneIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+    </svg>
+  );
+}
+
+function MailIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...props}>
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="m22 7-10 6L2 7" />
+    </svg>
+  );
+}
+
 const SOCIAL_LINKS = [
   { label: "Facebook", icon: FacebookIcon, href: "https://www.facebook.com/share/1CbeTudQ6f/?mibextid=wwXIfr" },
   { label: "TikTok", icon: TikTokIcon, href: "https://www.tiktok.com/@maneri.premier.league?_r=1&_t=ZS-95h8v7XZhw5" },
@@ -45,9 +62,23 @@ export default function TopBar() {
   return (
     <div className="border-b border-gold/20 bg-navy-dark text-sm text-white/90">
       <div className="mx-auto flex min-h-[42px] w-[min(1180px,calc(100%-32px))] flex-wrap items-center justify-between gap-4">
-        <div className="hidden flex-wrap items-center gap-3 md:flex">
-          <span dir="ltr">+92 310 9898996</span>
-          <span dir="ltr">maneripremierleague@gmail.com</span>
+        <div className="flex items-center gap-3">
+          <a
+            href="tel:+923109898996"
+            aria-label="Call +92 310 9898996"
+            title="+92 310 9898996"
+            className="grid h-8 w-8 place-items-center rounded-full bg-white/10 text-gold transition hover:scale-110 hover:bg-white/20"
+          >
+            <PhoneIcon className="h-4 w-4" />
+          </a>
+          <a
+            href="mailto:maneripremierleague@gmail.com"
+            aria-label="Email maneripremierleague@gmail.com"
+            title="maneripremierleague@gmail.com"
+            className="grid h-8 w-8 place-items-center rounded-full bg-white/10 text-gold transition hover:scale-110 hover:bg-white/20"
+          >
+            <MailIcon className="h-4 w-4" />
+          </a>
         </div>
         <div className="flex flex-1 flex-wrap items-center justify-between gap-4 lg:flex-none lg:justify-start">
           <div className="flex flex-wrap items-center gap-3" aria-label="Social links">

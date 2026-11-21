@@ -6,6 +6,7 @@ import Notice from "@/components/admin/Notice";
 import { INPUT_CLASSES } from "@/components/admin/formStyles";
 import { teamLogo } from "@/lib/matches";
 import { safeJsonResponse } from "@/lib/http";
+import { defaultExtraOverBowlers } from "@/lib/scoring";
 
 const OVER_PRESETS = [5, 6, 8, 10, 12, 15, 20];
 const MAX_XI = 15;
@@ -163,6 +164,8 @@ function initialForm(data) {
     widePenalty: String(match.scoringConfig.widePenalty ?? 1),
     noBallPenalty: String(match.scoringConfig.noBallPenalty ?? 1),
     maxOversPerBowler: match.scoringConfig.maxOversPerBowler ? String(match.scoringConfig.maxOversPerBowler) : "",
+    extraOverBowlers:
+      match.scoringConfig.extraOverBowlers === null || match.scoringConfig.extraOverBowlers === undefined ? "" : String(match.scoringConfig.extraOverBowlers),
     lastManStands: Boolean(match.scoringConfig.lastManStands),
   };
 }
@@ -195,6 +198,9 @@ export default function MatchSetup({ data, onStarted, onCancel }) {
 
   const overs = Number(form.overs);
   const autoMaxOvers = overs >= 1 ? Math.max(1, Math.ceil(overs / 5)) : null;
+  const autoExtra = overs >= 1 ? defaultExtraOverBowlers(overs) : null;
+  const limit = Number(form.maxOversPerBowler) || autoMaxOvers;
+  const extra = form.extraOverBowlers === "" ? autoExtra : Number(form.extraOverBowlers);
 
   const problems = [];
   if (!form.tossWinner || !form.decision) problems.push("Set the toss result.");
@@ -240,6 +246,7 @@ export default function MatchSetup({ data, onStarted, onCancel }) {
             widePenalty: Number(form.widePenalty),
             noBallPenalty: Number(form.noBallPenalty),
             maxOversPerBowler: form.maxOversPerBowler === "" ? null : Number(form.maxOversPerBowler),
+            extraOverBowlers: form.extraOverBowlers === "" ? null : Number(form.extraOverBowlers),
             lastManStands: form.lastManStands,
           },
         }),
@@ -308,7 +315,7 @@ export default function MatchSetup({ data, onStarted, onCancel }) {
 
         <details className="mt-3 rounded-xl border border-ink/10 bg-[#fafbfa] p-3 text-sm">
           <summary className="cursor-pointer font-bold text-ink">Match rules</summary>
-          <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <label>
               <span className="mb-1 block text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted">Runs for a wide</span>
               <input
@@ -343,7 +350,25 @@ export default function MatchSetup({ data, onStarted, onCancel }) {
                 className={INPUT_CLASSES}
               />
             </label>
+            <label>
+              <span className="mb-1 block text-[0.68rem] font-black uppercase tracking-[0.12em] text-muted">Bowlers with 1 extra over</span>
+              <input
+                type="number"
+                min="0"
+                max="11"
+                value={form.extraOverBowlers}
+                onChange={(event) => update({ extraOverBowlers: event.target.value })}
+                placeholder={autoExtra !== null ? `${autoExtra} (auto)` : "Auto"}
+                className={INPUT_CLASSES}
+              />
+            </label>
           </div>
+          {limit ? (
+            <p className="mt-2 text-xs text-muted">
+              Each bowler can bowl {limit} {limit === 1 ? "over" : "overs"}
+              {extra > 0 ? `; ${extra === 1 ? "one bowler" : `${extra} bowlers`} can bowl ${limit + 1}` : ""}.
+            </p>
+          ) : null}
           <label className="mt-3 flex items-center gap-2 font-semibold text-ink">
             <input
               type="checkbox"

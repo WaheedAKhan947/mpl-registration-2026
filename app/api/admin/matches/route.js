@@ -4,6 +4,10 @@ import mongoose from "mongoose";
 import { verifyLeagueSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Match from "@/models/Match";
+import Ball from "@/models/Ball";
+import Innings from "@/models/Innings";
+import PlayerMatchStats from "@/models/PlayerMatchStats";
+import OverlayState from "@/models/OverlayState";
 import { ROSTER_TEAMS } from "@/lib/siteData";
 import { MATCH_STATUSES, isIsoDate, serializeMatch } from "@/lib/matches";
 
@@ -142,6 +146,14 @@ export async function DELETE(request) {
 
   await connectToDatabase();
   await Match.findByIdAndDelete(id);
+  // Its ball-by-ball data goes too, so a deleted match never lingers in the
+  // leaderboards, player profiles or points table.
+  await Promise.all([
+    Ball.deleteMany({ match: id }),
+    Innings.deleteMany({ match: id }),
+    PlayerMatchStats.deleteMany({ match: id }),
+    OverlayState.deleteMany({ match: id }),
+  ]);
 
   return NextResponse.json({ ok: true });
 }

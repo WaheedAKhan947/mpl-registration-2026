@@ -359,13 +359,35 @@ describe("bowling restrictions", () => {
   });
 
   test("max overs per bowler is enforced", () => {
-    const inn = innings({ config: { overs: 6 } }); // 2 overs each
+    const inn = innings({ config: { overs: 6, extraOverBowlers: 0 } }); // 2 overs each, no extra
     inn.dots(6);
     inn.bowl("b2").dots(6);
     inn.bowl("b1").dots(6);
     inn.bowl("b2").dots(6);
     inn.bowl("b1");
     assert.match(inn.tryAdd({}), /maximum of 2 overs/);
+  });
+
+  test("10 overs: 2 overs each, and one bowler may bowl 3", () => {
+    const inn = innings({ config: { overs: 10 } });
+    inn.dots(6); // b1 over 1
+    inn.bowl("b2").dots(6);
+    inn.bowl("b1").dots(6); // b1: 2
+    inn.bowl("b2").dots(6); // b2: 2
+    inn.bowl("b1").dots(6); // b1: 3 (the extra over)
+    inn.bowl("b2");
+    assert.match(inn.tryAdd({}), /Only one bowler may bowl 3 overs, and that is taken/);
+    inn.bowl("b3").dots(6);
+    inn.bowl("b1");
+    assert.match(inn.tryAdd({}), /maximum of 3 overs/);
+  });
+
+  test("extra-over bowlers default: 1 under 20 overs, 0 from 20; can be set", () => {
+    assert.equal(resolveConfig({ overs: 10 }).extraOverBowlers, 1);
+    assert.equal(resolveConfig({ overs: 20 }).extraOverBowlers, 0);
+    assert.equal(resolveConfig({ overs: 10, extraOverBowlers: 0 }).extraOverBowlers, 0);
+    assert.equal(resolveConfig({ overs: 10, extraOverBowlers: 2 }).extraOverBowlers, 2);
+    assert.equal(resolveConfig({ overs: 10, extraOverBowlers: null }).extraOverBowlers, 1);
   });
 });
 
@@ -605,7 +627,7 @@ describe("player match stats", () => {
 
 describe("selection helpers", () => {
   test("bowlerProblem mirrors the ball rules", () => {
-    const inn = innings({ config: { overs: 6 } });
+    const inn = innings({ config: { overs: 6, extraOverBowlers: 0 } });
     assert.equal(bowlerProblem(inn.state(), "b1"), null);
     inn.dots(2);
     assert.match(bowlerProblem(inn.state(), "b2"), /another bowler/);

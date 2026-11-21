@@ -91,7 +91,7 @@ export default function PointsTableSection() {
                       }`}
                     >
                       {row.netRunRate > 0 ? "+" : ""}
-                      {row.netRunRate}
+                      {(Number(row.netRunRate) || 0).toFixed(3)}
                     </td>
                   </tr>
                 );

@@ -75,6 +75,9 @@ const MatchSchema = new mongoose.Schema(
       widePenalty: { type: Number, min: 0, max: 5, default: 1 },
       noBallPenalty: { type: Number, min: 0, max: 5, default: 1 },
       maxOversPerBowler: { type: Number, min: 1, max: 50, default: null },
+      // Bowlers allowed one over more than the limit (null = league default:
+      // 1 under 20 overs, else 0).
+      extraOverBowlers: { type: Number, min: 0, max: 11, default: null },
       lastManStands: { type: Boolean, default: false },
     },
   },

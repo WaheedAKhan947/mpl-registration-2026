@@ -73,6 +73,11 @@ export async function POST(request) {
     maxOversPerBowler = wholeNumber(rules.maxOversPerBowler, 1, overs);
     if (!maxOversPerBowler) return error(`Max overs per bowler must be between 1 and ${overs}.`);
   }
+  let extraOverBowlers = null;
+  if (rules.extraOverBowlers !== null && rules.extraOverBowlers !== undefined && rules.extraOverBowlers !== "") {
+    extraOverBowlers = wholeNumber(rules.extraOverBowlers, 0, 11);
+    if (extraOverBowlers === null) return error("Bowlers with an extra over must be 0 to 11.");
+  }
 
   // Playing XIs
   const teamAXI = readXI(body.playingXI?.teamA);
@@ -121,7 +126,7 @@ export async function POST(request) {
         toss: { winner: tossWinner, decision },
         overs,
         playingXI: { teamA: teamAXI, teamB: teamBXI },
-        scoringConfig: { widePenalty, noBallPenalty, maxOversPerBowler, lastManStands: Boolean(rules.lastManStands) },
+        scoringConfig: { widePenalty, noBallPenalty, maxOversPerBowler, extraOverBowlers, lastManStands: Boolean(rules.lastManStands) },
         scoringStatus: "in_progress",
         currentInnings: 1,
         // Keeps the existing homepage scorecard in step.

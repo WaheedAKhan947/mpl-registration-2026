@@ -113,7 +113,7 @@ Balls are the single source of truth. Every score, scorecard, player stat, resul
 **1. Match setup.** Pick a fixture in **Live Scoring**, then set:
 - the toss winner and their choice,
 - overs per innings (presets 5–20, or any number up to 50),
-- match rules: runs for a wide and a no-ball (default 1 each), max overs per bowler (default: a fifth of the innings, rounded up), and last man stands,
+- match rules: runs for a wide and a no-ball (default 1 each), max overs per bowler (default: a fifth of the innings, rounded up), bowlers allowed one extra over (default 1 in matches under 20 overs, so in a 10-over match every bowler can bowl 2 overs and one bowler 3; 0 from 20 overs), and last man stands,
 - each playing XI (2–15 players, chosen from players allocated to that team on the Draft Board),
 - the opening batters and opening bowler.
 
@@ -236,7 +236,7 @@ The overlay is a web page with a **transparent background** that shows TV-style 
 - Numbers come from finished, ball-by-ball scored matches (the same figures as the player's profile page).
 - Cards are not shown while a full-screen screen is up. `cards=off` turns them off. They still show in `lite` mode.
 
-**Sponsor panel.** A white panel in the top-right safe area fades through the sponsors managed in **Admin > Sponsors**, every 6 seconds, highest tier first, with the tier label ("Diamond Sponsor"). Sponsors without a logo are skipped, and the panel is hidden when there are none. The list is reloaded every 30 minutes; if that fails, the current logos stay. `sponsors=off` hides it.
+**Sponsors.** The top-right corner fades through the sponsors managed in **Admin > Sponsors**, every 6 seconds, highest tier first: just the logo and the sponsor's name, with no panel behind them. Sponsors without a logo are skipped, and nothing shows when there are none. The list is reloaded every 30 minutes; if that fails, the current logos stay. `sponsors=off` hides it.
 
 **Operator control (Admin > Stream Overlay).** The person running the stream controls the graphics from the admin dashboard (owners, admins and the match's scorers), on a phone or a PC, without touching OBS or PRISM. Pick the match, then:
 

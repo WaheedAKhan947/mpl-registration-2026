@@ -13,6 +13,7 @@ import {
 } from "@/components/admin/formStyles";
 import { teamLogo } from "@/lib/matches";
 import { ROSTER_TEAMS } from "@/lib/siteData";
+import PointsTableDownload from "@/components/admin/PointsTableDownload";
 
 const STAT_FIELDS = [
   { key: "played", label: "M" },
@@ -210,6 +211,7 @@ export default function PointsTableCard() {
 
   return (
     <div className="grid gap-6">
+      <PointsTableDownload />
       <AutoStandingsPanel rows={auto} matchCount={autoMatchCount} loading={loading} />
       <Panel
         title="Manual rows"
@@ -305,7 +307,7 @@ export default function PointsTableCard() {
                       <StatChip label="P" value={row.points} tone="text-green-dark" />
                       <StatChip
                         label="NRR"
-                        value={`${row.netRunRate > 0 ? "+" : ""}${row.netRunRate}`}
+                        value={`${row.netRunRate > 0 ? "+" : ""}${(Number(row.netRunRate) || 0).toFixed(3)}`}
                         tone={row.netRunRate >= 0 ? "text-green-dark" : "text-brand-red"}
                       />
                     </p>

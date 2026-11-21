@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/lib/i18n/LanguageContext";
+import ScoreTile from "@/components/site/ScoreTile";
 
 const COUNT_DURATION_MS = 1400;
 
@@ -239,10 +240,16 @@ export default function StatsBar() {
           </div>
         </div>
 
-        <div className="grid flex-1 grid-cols-1 divide-y divide-ink/10 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-          {stats.map((stat, index) => (
-            <StatTile key={stat.key} stat={stat} active={active} index={index} liveLabel={t("stats.live")} />
-          ))}
+        {/* Match card on the left, the league stats on the right. */}
+        <div className="flex min-w-0 flex-1 flex-col lg:flex-row">
+          <div className="min-w-0 border-b border-ink/10 lg:w-[48%] lg:border-b-0 lg:border-r empty:hidden">
+            <ScoreTile />
+          </div>
+          <div className="grid flex-1 grid-cols-1 divide-y divide-ink/10 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+            {stats.map((stat, index) => (
+              <StatTile key={stat.key} stat={stat} active={active} index={index} liveLabel={t("stats.live")} />
+            ))}
+          </div>
         </div>
       </div>
     </section>
