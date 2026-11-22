@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 //   { matchId }                    -- after the second innings
 //   { matchId, abandoned: true }   -- no result (rain, bad light...) at any point
 export async function POST(request) {
-  const session = getScoringSession();
+  const session = await getScoringSession();
   if (!session) return jsonError("Not authenticated.", 401);
 
   const body = await request.json().catch(() => ({}));

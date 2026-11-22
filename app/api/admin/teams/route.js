@@ -1,19 +1,20 @@
 import { NextResponse } from "next/server";
+import { verifyLeagueSession } from "@/lib/adminSession";
 import { cookies } from "next/headers";
 import mongoose from "mongoose";
-import { verifyLeagueSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Team from "@/models/Team";
 import Registration from "@/models/Registration";
 import { ROSTER_TEAMS } from "@/lib/siteData";
 
-function requireAuth() {
+async function requireAuth() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  return verifyLeagueSessionToken(token);
+  return await verifyLeagueSession(token);
 }
 
 export async function GET() {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
@@ -54,7 +55,7 @@ export async function GET() {
 }
 
 export async function PUT(request) {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 

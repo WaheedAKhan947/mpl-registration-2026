@@ -1,19 +1,20 @@
 import { NextResponse } from "next/server";
+import { verifyAdminSession, verifyLeagueSession } from "@/lib/adminSession";
 import { cookies } from "next/headers";
-import { verifyAdminSessionToken, verifyLeagueSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Registration from "@/models/Registration";
 import Team from "@/models/Team";
 import { getSignedFileUrl, deleteFileFromR2 } from "@/lib/r2";
 import { ROSTER_TEAMS } from "@/lib/siteData";
 
-function requireAuth() {
+async function requireAuth() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  return verifyAdminSessionToken(token);
+  return await verifyAdminSession(token);
 }
 
 export async function GET() {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
@@ -53,7 +54,7 @@ export async function PUT(request) {
   // Scorers run the League section, which includes drafting players, so they
   // may change a player's allocated team. Verifying registrations (and every
   // other registration action) stays with owners and admins.
-  const session = verifyLeagueSessionToken(cookies().get(SESSION_COOKIE_NAME)?.value);
+  const session = await verifyLeagueSession(cookies().get(SESSION_COOKIE_NAME)?.value);
   if (!session) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
@@ -108,7 +109,7 @@ export async function PUT(request) {
 }
 
 export async function DELETE(request) {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 

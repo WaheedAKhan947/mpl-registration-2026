@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { verifyAdminSession } from "@/lib/adminSession";
 import { cookies } from "next/headers";
-import { verifyAdminSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import BrandAmbassador, { MAX_AMBASSADOR_IMAGES } from "@/models/BrandAmbassador";
 import { parseUploadedFile, buildAssetKey, uploadBufferToR2, deleteFileFromR2, getSignedFileUrl } from "@/lib/r2";
@@ -11,9 +12,9 @@ import { parseUploadedFile, buildAssetKey, uploadBufferToR2, deleteFileFromR2, g
 
 const TOO_MANY_IMAGES = `A brand ambassador can have at most ${MAX_AMBASSADOR_IMAGES} images.`;
 
-function requireAuth() {
+async function requireAuth() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  return verifyAdminSessionToken(token);
+  return await verifyAdminSession(token);
 }
 
 async function toAdminShape(ambassador) {
@@ -39,7 +40,7 @@ async function uploadImage(file, name) {
 }
 
 export async function GET() {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
@@ -50,7 +51,7 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
@@ -82,7 +83,7 @@ export async function POST(request) {
 }
 
 export async function PUT(request) {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
@@ -177,7 +178,7 @@ export async function PUT(request) {
 }
 
 export async function DELETE(request) {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 

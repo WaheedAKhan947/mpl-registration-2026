@@ -53,7 +53,7 @@ function pickBall(input = {}) {
 // the match must be open for scoring and the screen must have seen the
 // innings as it is now (`expectedSeq` = the innings' last ball seq).
 async function loadTarget(request, params) {
-  const session = getScoringSession();
+  const session = await getScoringSession();
   if (!session) return { error: jsonError("Not authenticated.", 401) };
   if (!isObjectId(String(params.id || ""))) return { error: jsonError("Ball not found.", 404) };
 

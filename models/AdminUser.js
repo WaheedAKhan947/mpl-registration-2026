@@ -13,6 +13,21 @@ const AdminUserSchema = new mongoose.Schema(
     failedAttempts: { type: Number, default: 0 },
     lockUntil: { type: Date, default: null },
     lastLoginAt: { type: Date, default: null },
+    // On/off switch for owners (Settings > Team access). An account that is
+    // off cannot log in, and its open sessions stop working at once.
+    active: { type: Boolean, default: true },
+    disabledAt: { type: Date, default: null },
+    // Stamped into each session cookie; bumped when access is turned off (or
+    // the account changes), which invalidates every cookie issued before.
+    sessionVersion: { type: Number, default: 0 },
+    // Activity the owner can see.
+    lastActiveAt: { type: Date, default: null },
+    loginCount: { type: Number, default: 0 },
+    lastFailedLoginAt: { type: Date, default: null },
+    loginHistory: {
+      type: [{ at: { type: Date }, device: { type: String, default: "" }, _id: false }],
+      default: [],
+    },
   },
   { timestamps: true }
 );

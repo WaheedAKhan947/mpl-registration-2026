@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
+import { verifyLeagueSession } from "@/lib/adminSession";
 import { cookies } from "next/headers";
 import mongoose from "mongoose";
-import { verifyLeagueSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Match from "@/models/Match";
 import Ball from "@/models/Ball";
@@ -11,9 +12,9 @@ import OverlayState from "@/models/OverlayState";
 import { ROSTER_TEAMS } from "@/lib/siteData";
 import { MATCH_STATUSES, isIsoDate, serializeMatch } from "@/lib/matches";
 
-function requireAuth() {
+async function requireAuth() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  return verifyLeagueSessionToken(token);
+  return await verifyLeagueSession(token);
 }
 
 function text(value, max = 120) {
@@ -84,7 +85,7 @@ function readMatch(body) {
 }
 
 export async function GET() {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
@@ -95,7 +96,7 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
@@ -111,7 +112,7 @@ export async function POST(request) {
 }
 
 export async function PUT(request) {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
@@ -135,7 +136,7 @@ export async function PUT(request) {
 }
 
 export async function DELETE(request) {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 

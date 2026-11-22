@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 // milestones, hat-tricks with the time each was scored) and the stream start
 // time set in Admin > Stream Overlay. Owners, admins and the match's scorers.
 export async function GET(request) {
-  const session = getScoringSession();
+  const session = await getScoringSession();
   if (!session) return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   const matchId = new URL(request.url).searchParams.get("matchId");
   if (!mongoose.isValidObjectId(String(matchId || ""))) return NextResponse.json({ error: "Choose a match." }, { status: 400 });

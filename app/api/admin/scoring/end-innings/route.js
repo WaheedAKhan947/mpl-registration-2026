@@ -25,7 +25,7 @@ function wholeNumber(value, min, max) {
 // `target` / `maxOvers` are a manual rain (DLS) revision; leave them out for
 // the normal target of first-innings runs + 1.
 export async function POST(request) {
-  const session = getScoringSession();
+  const session = await getScoringSession();
   if (!session) return jsonError("Not authenticated.", 401);
 
   const body = await request.json().catch(() => ({}));

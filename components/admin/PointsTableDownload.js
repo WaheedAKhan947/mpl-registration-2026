@@ -6,7 +6,7 @@ import { useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import Panel from "@/components/admin/Panel";
 import Notice from "@/components/admin/Notice";
-import { formatMatchDate, teamLogo, todayInLeagueTimeZone } from "@/lib/matches";
+import { teamLogo, todayInLeagueTimeZone } from "@/lib/matches";
 
 // Admin > Points Table: download the table as it appears on the website,
 // as an Excel file or as a 1080x1080 image for social media.
@@ -37,12 +37,13 @@ function waitForImages(node) {
 }
 
 export function nrrText(value) {
-  const n = Math.round((Number(value) || 0) * 1000) / 1000;
+  const v = Number(value) || 0;
+  const n = (Math.sign(v) * Math.round(Math.abs(v) * 1000)) / 1000 || 0;
   return `${n > 0 ? "+" : ""}${n.toFixed(3)}`;
 }
 
-// The image itself: league crest, title, date and the table.
-function StandingsGraphic({ rows, logos, crest, date }) {
+// The image itself: league crest, title and the table.
+function StandingsGraphic({ rows, logos, crest }) {
   const cols = ["M", "W", "L", "T", "NR", "P", "NRR"];
   return (
     <div
@@ -65,7 +66,7 @@ function StandingsGraphic({ rows, logos, crest, date }) {
           <div className="font-display" style={{ fontSize: 92, lineHeight: 1, letterSpacing: "0.03em" }}>
             POINTS TABLE
           </div>
-          <div style={{ marginTop: 8, fontSize: 24, fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>Season 2026 · Updated {date}</div>
+          <div style={{ marginTop: 8, fontSize: 24, fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>Season 2026</div>
         </div>
       </div>
 
@@ -122,8 +123,7 @@ function StandingsGraphic({ rows, logos, crest, date }) {
           ))}
         </div>
       </div>
-      <div style={{ fontSize: 20, fontWeight: 700, color: "rgba(255,255,255,0.55)", display: "flex", justifyContent: "space-between" }}>
-        <span>Win 2 · Tie 1 · No result 1 · Top 4 highlighted</span>
+      <div style={{ fontSize: 20, fontWeight: 700, color: "rgba(255,255,255,0.55)", display: "flex", justifyContent: "flex-end" }}>
         <span>maneripremierleague@gmail.com</span>
       </div>
     </div>
@@ -154,7 +154,7 @@ export default function PointsTableDownload() {
       );
       const crest = await toDataUrl("/logo.png").catch(() => null);
       const today = todayInLeagueTimeZone();
-      flushSync(() => setGraphic({ rows, logos, crest, date: formatMatchDate(today, { withYear: true }) }));
+      flushSync(() => setGraphic({ rows, logos, crest }));
       await waitForImages(graphicRef.current);
       const { toPng } = await import("html-to-image");
       const dataUrl = await toPng(graphicRef.current, { width: SIZE, height: SIZE, pixelRatio: 1 });

@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 // the start of that innings instead and re-opens the first.
 // Safe to retry: a ball that is already gone is reported as undone.
 export async function POST(request) {
-  const session = getScoringSession();
+  const session = await getScoringSession();
   if (!session) return jsonError("Not authenticated.", 401);
 
   const body = await request.json().catch(() => ({}));

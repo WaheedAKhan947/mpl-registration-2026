@@ -1,19 +1,20 @@
 import { NextResponse } from "next/server";
+import { verifyAdminSession } from "@/lib/adminSession";
 import { cookies } from "next/headers";
-import { verifyAdminSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Settings from "@/models/Settings";
 import { getYoutubeVideoId } from "@/lib/youtube";
 
 const MAX_ANNOUNCEMENT_LENGTH = 240;
 
-function requireAuth() {
+async function requireAuth() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  return verifyAdminSessionToken(token);
+  return await verifyAdminSession(token);
 }
 
 export async function GET() {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
@@ -30,7 +31,7 @@ export async function GET() {
 }
 
 export async function PUT(request) {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 

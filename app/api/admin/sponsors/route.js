@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { verifyAdminSession } from "@/lib/adminSession";
 import { cookies } from "next/headers";
-import { verifyAdminSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Sponsor, { MAX_SPONSOR_IMAGES } from "@/models/Sponsor";
 import { ensureSponsorCategories, sortSponsorsByTier } from "@/lib/sponsors";
@@ -12,9 +13,9 @@ import { parseUploadedFile, buildAssetKey, uploadBufferToR2, deleteFileFromR2, g
 
 const TOO_MANY_IMAGES = `A sponsor can have at most ${MAX_SPONSOR_IMAGES} album images.`;
 
-function requireAuth() {
+async function requireAuth() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  return verifyAdminSessionToken(token);
+  return await verifyAdminSession(token);
 }
 
 async function uploadAlbumImage(file, name) {
@@ -27,7 +28,7 @@ async function uploadAlbumImage(file, name) {
 }
 
 export async function GET() {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
@@ -54,7 +55,7 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
@@ -92,7 +93,7 @@ export async function POST(request) {
 }
 
 export async function PUT(request) {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
@@ -198,7 +199,7 @@ export async function PUT(request) {
 }
 
 export async function DELETE(request) {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 

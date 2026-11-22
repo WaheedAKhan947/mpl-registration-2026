@@ -2,8 +2,14 @@
    inside OBS / PRISM web sources. */
 
 // The broadcast "bug": MPL logo and a LIVE tag in a corner of the screen.
-// Top-left by default; bottom-left when the score bar is at the top, so the
-// two never collide. Sizes are canvas pixels.
+// Top-left by default, with LIVE under the MPL panel; bottom-left when the
+// score bar is at the top, so the two never collide. Sizes are canvas pixels.
+
+// How far below the top safe margin the badge sits.
+export const BUG_DROP = 14;
+// Top of the space below the badge (MPL panel + LIVE tag): full screens start here.
+export const BUG_HEIGHT = BUG_DROP + 128;
+
 export default function CornerBug({ match, params, live = true }) {
   const marginX = params.width * 0.05;
   const marginY = params.height * 0.05;
@@ -11,8 +17,8 @@ export default function CornerBug({ match, params, live = true }) {
 
   return (
     <div
-      className={`absolute flex items-center gap-4 ${atBottom ? "ovl-enter-bottom" : "ovl-enter-top"}`}
-      style={{ left: marginX, ...(atBottom ? { bottom: marginY } : { top: marginY }) }}
+      className={`absolute flex flex-col items-start gap-2 ${atBottom ? "ovl-enter-bottom" : "ovl-enter-top"}`}
+      style={{ left: marginX, ...(atBottom ? { bottom: marginY } : { top: marginY + BUG_DROP }) }}
     >
       <div className="flex items-center gap-3 rounded-xl bg-[#060f22]/90 py-2 pl-2 pr-4 shadow-[0_10px_26px_rgba(0,0,0,0.5)] ring-1 ring-[#f4b63d]/40">
         <img src="/logo.png" alt="" width={64} height={64} className="h-[64px] w-[64px] object-contain drop-shadow-[0_4px_10px_rgba(244,182,61,0.35)]" />
@@ -24,7 +30,7 @@ export default function CornerBug({ match, params, live = true }) {
         </div>
       </div>
       {live ? (
-        <span className="flex items-center gap-2 self-start rounded-lg bg-[#d83b31] px-3.5 py-2 font-display text-[24px] leading-none tracking-[0.12em] text-white shadow-[0_10px_26px_rgba(0,0,0,0.5)]">
+        <span className="flex items-center gap-2 rounded-lg bg-[#d83b31] px-3 py-1.5 font-display text-[20px] leading-none tracking-[0.12em] text-white shadow-[0_10px_26px_rgba(0,0,0,0.5)]">
           <span className="ovl-live-dot h-[11px] w-[11px] rounded-full bg-white" />
           LIVE
         </span>

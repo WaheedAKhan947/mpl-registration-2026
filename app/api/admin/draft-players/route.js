@@ -1,15 +1,16 @@
 import { NextResponse } from "next/server";
+import { verifyLeagueSession } from "@/lib/adminSession";
 import { cookies } from "next/headers";
-import { verifyLeagueSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Registration from "@/models/Registration";
 import { getSignedFileUrl } from "@/lib/r2";
 
 export const dynamic = "force-dynamic";
 
-function requireAuth() {
+async function requireAuth() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  return verifyLeagueSessionToken(token);
+  return await verifyLeagueSession(token);
 }
 
 // Only the fields the draft card needs. CNIC, phone, receipt and the CNIC
@@ -18,7 +19,7 @@ const DRAFT_FIELDS =
   "registrationId playerName fatherName age area playingRole battingStyle bowlingStyle cricProId verified preferredTeam allocatedTeam profilePicture";
 
 export async function GET(request) {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 

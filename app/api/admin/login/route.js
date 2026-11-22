@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import AdminUser from "@/models/AdminUser";
+import { deviceSummary } from "@/lib/device";
 import {
   createSessionToken,
   verifyPassword,
@@ -55,13 +56,26 @@ export async function POST(request) {
       user.lockUntil = new Date(Date.now() + LOCK_MINUTES * 60 * 1000);
       user.failedAttempts = 0;
     }
+    user.lastFailedLoginAt = new Date();
     await user.save();
     return NextResponse.json({ error: GENERIC_ERROR }, { status: 401 });
   }
 
+  // Checked after the password, so it never reveals which emails exist.
+  if (user.active === false) {
+    return NextResponse.json(
+      { error: "Your access has been turned off by the league owner. Ask them to turn it back on." },
+      { status: 403 }
+    );
+  }
+
+  const now = new Date();
   user.failedAttempts = 0;
   user.lockUntil = null;
-  user.lastLoginAt = new Date();
+  user.lastLoginAt = now;
+  user.lastActiveAt = now;
+  user.loginCount = (user.loginCount || 0) + 1;
+  user.loginHistory = [...(user.loginHistory || []), { at: now, device: deviceSummary(request.headers.get("user-agent")) }].slice(-10);
   await user.save();
 
   const token = createSessionToken(user);

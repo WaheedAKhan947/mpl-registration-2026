@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { verifyAdminSession } from "@/lib/adminSession";
 import { cookies } from "next/headers";
-import { verifyAdminSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { buildExportZipResponse } from "@/lib/exportZip";
 import Registration from "@/models/Registration";
@@ -12,7 +13,7 @@ export const dynamic = "force-dynamic";
 // profile picture and CNIC front/back images.
 export async function GET() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  if (!verifyAdminSessionToken(token)) {
+  if (!(await verifyAdminSession(token))) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 

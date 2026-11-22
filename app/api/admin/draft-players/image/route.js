@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import { verifyLeagueSession } from "@/lib/adminSession";
 import { cookies } from "next/headers";
-import { verifyLeagueSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Registration from "@/models/Registration";
 import Sponsor from "@/models/Sponsor";
@@ -8,9 +9,9 @@ import { getFileStream } from "@/lib/r2";
 
 export const dynamic = "force-dynamic";
 
-function requireAuth() {
+async function requireAuth() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  return verifyLeagueSessionToken(token);
+  return await verifyLeagueSession(token);
 }
 
 const TYPE_BY_EXTENSION = {
@@ -27,7 +28,7 @@ const TYPE_BY_EXTENSION = {
 // for every origin (e.g. localhost). Only these two image fields can be
 // served, so CNIC and receipt files are never reachable through this route.
 export async function GET(request) {
-  if (!requireAuth()) {
+  if (!(await requireAuth())) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 

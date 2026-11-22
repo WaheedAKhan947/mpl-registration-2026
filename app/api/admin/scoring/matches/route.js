@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 // Matches the signed-in account can score, newest first.
 export async function GET() {
-  const session = getScoringSession();
+  const session = await getScoringSession();
   if (!session) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }

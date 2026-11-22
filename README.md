@@ -243,7 +243,7 @@ The overlay is a web page with a **transparent background** that shows TV-style 
 | Control | What the overlay does |
 | --- | --- |
 | **Replay effect** | Plays the last FOUR, SIX or WICKET again with a REPLAY tag. The button names it ("Replay WICKET · 14.2"). |
-| **Screen** | **Automatic** (default) shows coming up, toss and XIs, innings break and result at the right times. **Score bar only** turns those off. **Coming up**, **Toss & XIs**, **Scorecard** (current innings: batting and bowling), **Target** (innings break) and **Result** force that screen until you pick another. A screen whose data doesn't exist yet (Target before the first innings ends) is skipped and the score bar stays. |
+| **Screen** | **Automatic** (default) shows coming up, toss and XIs, innings break and result at the right times. **Score bar only** turns those off. **Coming up**, **Toss & XIs**, **Scorecard** (current innings: batting and bowling), **Target** (innings break), **Result** and **Points table** (league standings as on the website, NRR to 3 decimals) force that screen until you pick another. A screen whose data doesn't exist yet (Target before the first innings ends) is skipped and the score bar stays. |
 | **Quick panel** | A small panel above the score bar, at the right: **Partnership** (runs and balls, both batters, last wicket) or **Run rate** (current and required rate and "Need X off Y" in a chase; current and projected score in the first innings). **Off** hides it. |
 | **Player card** | Pick any player in either playing XI: an 8-second lower-third with photo, role, today's figures ("Today 34* (21) · 2-18 (3.0)") and tournament numbers (batting and bowling). |
 | **Sponsors** | Show or hide the sponsor panel. |
@@ -326,8 +326,10 @@ Bad or out-of-range values fall back to safe defaults, so a typo in the app's UR
   - The owner creates scorer accounts from **Settings > Team access** by choosing the role "Scorer".
   - A match can also be limited to named scorer accounts. If none are named, any scorer can score it.
 - The last owner cannot be removed, and you cannot remove your own account.
+- **Access on/off (owners).** In **Settings > Team access** each admin and scorer has an on/off switch. Switched off, the account is signed out straight away (any API call is refused, and an open dashboard returns to the login screen within 30 seconds) and cannot sign in ("Your access has been turned off by the league owner"). Switching it back on needs a fresh sign-in; old sessions stay invalid. Owner accounts and your own account have no switch. Removing an account or changing its role also takes effect immediately.
+- **Activity tracking (owners).** Each account shows when it was last active (updated at most once a minute), its last login with the device (for example "Chrome on Android"; no IP addresses are stored), number of logins, the last 5 logins, failed sign-in attempts or a lockout, and how many balls it has scored with the time of the last one.
 - **Brute-force protection.** After 5 failed logins an account is locked for 15 minutes.
-- Sessions are an `httpOnly`, HMAC-signed cookie valid for **12 hours**. It carries the admin's id, name, email and role, so API routes can authorise requests without a database read. Rotating `SESSION_SECRET` logs out every session instantly.
+- Sessions are an `httpOnly`, HMAC-signed cookie valid for **12 hours**, carrying the account id and a session version. Every `/api/admin/*` route then checks the account in the database (`lib/adminSession.js`): it must still exist, be switched on and have the same session version, and its role comes from the database. Rotating `SESSION_SECRET` still logs out every session instantly.
 - Every `/api/admin/*` route checks the session before returning data.
 - Public match, player and stats pages only expose player names, photos (through signed URLs), roles and batting and bowling styles. Phone, CNIC and other registration details never leave the server. A player profile exists only for players allocated to a team or with recorded stats.
 
@@ -523,7 +525,7 @@ Public match responses are cached briefly at the CDN: 3 seconds while a match is
 | `Sponsor` | Sponsors with logo and tier |
 | `BrandAmbassador` | Ambassadors with up to 6 images and display order |
 | `Settings` | Single `site` document: announcement, highlight video, registration open flags, MPL fee |
-| `AdminUser` | Admin accounts, roles and login lockout state |
+| `AdminUser` | Admin accounts, roles, on/off access, session version, login lockout state and activity (last active, last 10 logins with device, login count) |
 
 ---
 

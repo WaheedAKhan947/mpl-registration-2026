@@ -9,8 +9,8 @@ const ROTATE_MS = 6000;
 // Logo links are signed for an hour; refresh the list well before that.
 const REFRESH_MS = 30 * 60 * 1000;
 
-// Top-right corner: fades through the league's sponsors (logo and name only,
-// no panel behind them), highest tier first (the order GET /api/sponsors
+// Top-right corner: fades through the league's sponsors (logo only, no panel
+// behind it), highest tier first (the order GET /api/sponsors
 // returns). Hidden with ?sponsors=off or when there are none. A failed
 // refresh keeps the current list.
 export default function SponsorStrip({ params }) {
@@ -67,9 +67,6 @@ export default function SponsorStrip({ params }) {
           onError={() => setBroken((prev) => new Set(prev).add(sponsor.id))}
         />
       </div>
-      <span className="mt-1.5 max-w-full truncate text-[20px] font-extrabold uppercase tracking-wide text-white [text-shadow:0_2px_6px_rgba(0,0,0,0.85),0_0_2px_rgba(0,0,0,0.9)]">
-        {sponsor.name}
-      </span>
     </div>
   );
 }

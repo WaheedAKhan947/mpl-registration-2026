@@ -353,6 +353,8 @@ describe("operator control", async () => {
     assert.equal(canShowScreen("scorecard", { ...base, scorecard: null }), false);
     assert.equal(canShowScreen("preMatch", { ...base, squads: [{ players: [] }, { players: [] }] }), false);
     assert.equal(canShowScreen("result", base), true);
+    assert.equal(canShowScreen("pointsTable", { ...base, pointsTable: null }), false);
+    assert.equal(canShowScreen("pointsTable", { ...base, pointsTable: [{ team: "A" }] }), true);
     assert.equal(canShowScreen(null, base), false);
   });
 });

@@ -36,7 +36,7 @@ function readXI(value) {
 // with its two openers and opening bowler. Can be re-run to fix the setup
 // until the first ball is bowled.
 export async function POST(request) {
-  const session = getScoringSession();
+  const session = await getScoringSession();
   if (!session) return error("Not authenticated.", 401);
 
   const body = await request.json().catch(() => ({}));

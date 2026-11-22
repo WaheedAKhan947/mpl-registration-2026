@@ -9,8 +9,10 @@ export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
 
+  const [notice, setNotice] = useState("");
+
   useEffect(() => {
-    fetch("/api/admin/session")
+    fetch("/api/admin/session", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         setAuthenticated(Boolean(data.authenticated));
@@ -21,6 +23,38 @@ export default function AdminPage() {
       .finally(() => setCheckingSession(false));
   }, []);
 
+  // While signed in, re-check the account every 30 seconds and when the tab
+  // comes back: if the owner has switched it off (or removed it), return to
+  // the login screen. Network errors are ignored (the next check retries).
+  useEffect(() => {
+    if (!authenticated) return undefined;
+    let stopped = false;
+    async function check() {
+      try {
+        const res = await fetch("/api/admin/session", { cache: "no-store" });
+        const data = await res.json();
+        if (stopped) return;
+        if (!data.authenticated) {
+          setNotice("You have been signed out. Your access may have been turned off by the league owner.");
+          setAuthenticated(false);
+          setUser(null);
+        } else {
+          setUser((prev) => (prev && prev.role === data.role && prev.name === data.name ? prev : { id: data.id, name: data.name, email: data.email, role: data.role }));
+        }
+      } catch {
+        // Offline for a moment: try again on the next check.
+      }
+    }
+    const timer = setInterval(check, 30000);
+    const onVisible = () => document.visibilityState === "visible" && check();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      stopped = true;
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [authenticated]);
+
   async function handleLogin(email, password) {
     const res = await fetch("/api/admin/login", {
       method: "POST",
@@ -30,6 +64,7 @@ export default function AdminPage() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || "Login failed.");
     setUser({ id: data.id, name: data.name, email: data.email, role: data.role });
+    setNotice("");
     setAuthenticated(true);
   }
 
@@ -54,7 +89,7 @@ export default function AdminPage() {
   }
 
   if (!authenticated) {
-    return <LoginCard onLogin={handleLogin} />;
+    return <LoginCard key={notice} onLogin={handleLogin} notice={notice} />;
   }
 
   return <AdminDashboard user={user} onLogout={handleLogout} />;

@@ -21,7 +21,7 @@ function idOrNull(value) {
 // an over, or a manual strike change.
 //   { matchId, innings, striker?, nonStriker?, bowler? }  -- only the fields sent change
 export async function POST(request) {
-  const session = getScoringSession();
+  const session = await getScoringSession();
   if (!session) return jsonError("Not authenticated.", 401);
 
   const body = await request.json().catch(() => ({}));

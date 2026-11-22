@@ -43,7 +43,7 @@ function pickBall(input = {}) {
 // `expectedSeq` must be the next ball number, so two scorers (or a stale
 // screen) cannot both write "ball 14"; the loser gets 409 and reloads.
 export async function POST(request) {
-  const session = getScoringSession();
+  const session = await getScoringSession();
   if (!session) return jsonError("Not authenticated.", 401);
 
   const body = await request.json().catch(() => ({}));

@@ -2,20 +2,11 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { connectToDatabase } from "@/lib/mongodb";
 import AdminUser from "@/models/AdminUser";
-import {
-  verifySessionToken,
-  verifyPassword,
-  hashPassword,
-  SESSION_COOKIE_NAME,
-} from "@/lib/auth";
-
-function getSession() {
-  const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  return verifySessionToken(token);
-}
+import { verifyPassword, hashPassword, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { verifyActiveSession } from "@/lib/adminSession";
 
 export async function POST(request) {
-  const session = getSession();
+  const session = await verifyActiveSession(cookies().get(SESSION_COOKIE_NAME)?.value);
   if (!session) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }

@@ -19,6 +19,16 @@ function nameSize(name = "", base) {
   return base;
 }
 
+// Team colour with transparency (#rrggbb -> #rrggbbaa), so the camera shows
+// through the bar a little.
+function seeThrough(hex, alpha = "D9") {
+  return /^#[0-9a-f]{6}$/i.test(hex) ? `${hex}${alpha}` : hex;
+}
+
+// The bar's panels: slightly see-through, with a light blur behind them so
+// the text stays readable over a busy picture (no blur in lite mode).
+const GLASS = "backdrop-blur-[6px]";
+
 function chipStyle(label) {
   if (label === "W" || label === "RO") return { background: "#d83b31", color: "#fff" };
   if (label === "6") return { background: "linear-gradient(135deg,#8a3fd1,#4b1d8f)", color: "#fff" };
@@ -54,24 +64,24 @@ function BatterLine({ batter, onStrike }) {
   if (!batter) {
     // After a wicket, until the scorer picks the next batter.
     return (
-      <div className="flex h-[44px] items-center gap-3">
-        <span className="w-[16px] shrink-0 font-display text-[26px] leading-none text-[#f4b63d]">{onStrike ? "▸" : ""}</span>
-        <span className="text-[22px] font-extrabold uppercase tracking-[0.18em] text-white/45">New batter</span>
+      <div className="flex h-[38px] items-center gap-3">
+        <span className="w-[16px] shrink-0 font-display text-[22px] leading-none text-[#f4b63d]">{onStrike ? "▸" : ""}</span>
+        <span className="text-[20px] font-extrabold uppercase tracking-[0.18em] text-white/45">New batter</span>
       </div>
     );
   }
   return (
-    <div className="flex h-[44px] min-w-0 items-center gap-3">
-      <span className="w-[16px] shrink-0 font-display text-[26px] leading-none text-[#f4b63d]">{onStrike ? "▸" : ""}</span>
+    <div className="flex h-[38px] min-w-0 items-center gap-3">
+      <span className="w-[16px] shrink-0 font-display text-[22px] leading-none text-[#f4b63d]">{onStrike ? "▸" : ""}</span>
       <span
         className="min-w-0 flex-1 truncate font-extrabold uppercase tracking-wide"
-        style={{ fontSize: nameSize(batter.name, 26), color: onStrike ? "#fff" : "rgba(255,255,255,0.78)" }}
+        style={{ fontSize: nameSize(batter.name, 23), color: onStrike ? "#fff" : "rgba(255,255,255,0.78)" }}
       >
         {batter.name}
         {onStrike ? "*" : ""}
       </span>
-      <Roll value={batter.runs} className="shrink-0 font-display text-[34px] leading-none tabular-nums text-white" />
-      <span className="w-[58px] shrink-0 text-[22px] font-bold tabular-nums text-white/60">({batter.balls})</span>
+      <Roll value={batter.runs} className="shrink-0 font-display text-[30px] leading-none tabular-nums text-white" />
+      <span className="w-[54px] shrink-0 text-[20px] font-bold tabular-nums text-white/60">({batter.balls})</span>
     </div>
   );
 }
@@ -94,10 +104,13 @@ function MatchUpBar({ data, params }) {
   const side = (team, align) => (
     <div
       className={`flex min-w-0 flex-1 items-center gap-4 px-6 ${align === "right" ? "flex-row-reverse text-right" : ""}`}
-      style={{ height: 120, background: `linear-gradient(${align === "right" ? 255 : 105}deg, ${team.color} 0%, ${team.color} 60%, rgba(6,15,34,0.95) 140%)` }}
+      style={{
+        height: 92,
+        background: `linear-gradient(${align === "right" ? 255 : 105}deg, ${seeThrough(team.color)} 0%, ${seeThrough(team.color)} 60%, rgba(6,15,34,0.8) 140%)`,
+      }}
     >
-      <Badge team={team} size={92} />
-      <span className="truncate font-display text-[46px] leading-none tracking-[0.06em] text-white">{team.label}</span>
+      <Badge team={team} size={70} />
+      <span className="truncate font-display text-[38px] leading-none tracking-[0.06em] text-white">{team.label}</span>
     </div>
   );
   return (
@@ -105,15 +118,15 @@ function MatchUpBar({ data, params }) {
       className={`absolute ${top ? "ovl-enter-top" : "ovl-enter-bottom"}`}
       style={{ left: params.width * 0.05, right: params.width * 0.05, ...(top ? { top: params.height * 0.05 } : { bottom: params.height * 0.05 }) }}
     >
-      <div className="flex overflow-hidden rounded-2xl shadow-[0_18px_50px_rgba(0,0,0,0.55)] ring-1 ring-white/10">
+      <div className={`flex overflow-hidden rounded-2xl shadow-[0_14px_40px_rgba(0,0,0,0.45)] ring-1 ring-white/10 ${GLASS}`}>
         {side(a, "left")}
-        <div className="grid w-[150px] shrink-0 place-items-center bg-[#060f22]/95 font-display text-[44px] text-[#f4b63d]" style={{ height: 120 }}>
+        <div className="grid w-[120px] shrink-0 place-items-center bg-[#060f22]/80 font-display text-[36px] text-[#f4b63d]" style={{ height: 92 }}>
           VS
         </div>
         {side(b, "right")}
       </div>
       <div className="mt-3 flex justify-center">
-        <span className="rounded-full bg-[#060f22]/90 px-7 py-2.5 text-[24px] font-extrabold uppercase tracking-wider text-white shadow-lg">{line}</span>
+        <span className="rounded-full bg-[#060f22]/85 px-6 py-2 text-[22px] font-extrabold uppercase tracking-wider text-white shadow-lg">{line}</span>
       </div>
     </div>
   );
@@ -135,13 +148,13 @@ export default function ScoreBar({ data, params }) {
   const marginY = params.height * 0.05;
 
   const chips = (
-    <div className="flex items-center gap-2 rounded-full bg-[#060f22]/90 py-1.5 pl-5 pr-2 shadow-lg">
+    <div className={`flex items-center gap-2 rounded-full bg-[#060f22]/80 py-1.5 pl-5 pr-2 shadow-lg ${GLASS}`}>
       <span className="mr-2 font-display text-[18px] tracking-[0.18em] text-white/70">RECENT</span>
       {(now?.recentBalls || []).map((ball, i) => (
         // Keyed by ball id, so only a newly bowled ball mounts (and pops in).
         <span
           key={ball.id || `${i}-${ball.label}`}
-          className="ovl-chip-in grid h-[40px] min-w-[40px] place-items-center rounded-full px-2 font-display text-[20px] leading-none tabular-nums"
+          className="ovl-chip-in grid h-[36px] min-w-[36px] place-items-center rounded-full px-2 font-display text-[18px] leading-none tabular-nums"
           style={chipStyle(ball.label)}
         >
           {ball.label}
@@ -159,45 +172,45 @@ export default function ScoreBar({ data, params }) {
     <div
       className="relative flex shrink-0 items-center gap-4 overflow-hidden px-6"
       style={{
-        width: portrait ? "100%" : 500,
-        height: 128,
-        background: `linear-gradient(105deg, ${batting.color} 0%, ${batting.color} 55%, rgba(6,15,34,0.95) 130%)`,
+        width: portrait ? "100%" : 470,
+        height: 104,
+        background: `linear-gradient(105deg, ${seeThrough(batting.color)} 0%, ${seeThrough(batting.color)} 55%, rgba(6,15,34,0.8) 130%)`,
       }}
     >
-      <Badge team={batting} size={100} />
+      <Badge team={batting} size={82} />
       <div className="min-w-0">
-        <div className="font-display text-[26px] leading-none tracking-[0.12em]" style={{ color: batting.accent }}>
+        <div className="font-display text-[22px] leading-none tracking-[0.12em]" style={{ color: batting.accent }}>
           {batting.label}
         </div>
         <div className="mt-1 flex items-baseline gap-3">
-          <Roll value={scoreText(current)} className="font-display text-[76px] leading-none tabular-nums text-white" />
-          <span className="font-display text-[30px] leading-none tabular-nums text-white/80">({current?.overs || "0.0"})</span>
+          <Roll value={scoreText(current)} className="font-display text-[62px] leading-none tabular-nums text-white" />
+          <span className="font-display text-[26px] leading-none tabular-nums text-white/80">({current?.overs || "0.0"})</span>
         </div>
       </div>
     </div>
   );
 
   const playersBlock = (
-    <div className="flex min-w-0 flex-1 items-center gap-6 bg-[#060f22]/[0.93] px-7" style={{ height: 128 }}>
+    <div className="flex min-w-0 flex-1 items-center gap-6 bg-[#060f22]/[0.8] px-7" style={{ height: 104 }}>
       <div className="flex min-w-0 flex-1 flex-col justify-center">
         <BatterLine batter={now?.striker} onStrike />
         <BatterLine batter={now?.nonStriker} />
       </div>
-      <div className="h-[84px] w-[2px] shrink-0 bg-white/15" />
+      <div className="h-[70px] w-[2px] shrink-0 bg-white/15" />
       <div className="flex w-[300px] shrink-0 flex-col justify-center">
-        <span className="text-[16px] font-black uppercase tracking-[0.2em] text-[#f4b63d]">Bowler</span>
+        <span className="text-[14px] font-black uppercase tracking-[0.2em] text-[#f4b63d]">Bowler</span>
         {now?.bowler ? (
           <>
-            <span className="truncate font-extrabold uppercase tracking-wide text-white" style={{ fontSize: nameSize(now.bowler.name, 24) }}>
+            <span className="truncate font-extrabold uppercase tracking-wide text-white" style={{ fontSize: nameSize(now.bowler.name, 22) }}>
               {now.bowler.name}
             </span>
             <Roll
               value={`${now.bowler.overs}-${now.bowler.maidens}-${now.bowler.runs}-${now.bowler.wickets}`}
-              className="font-display text-[32px] leading-none tabular-nums text-white"
+              className="font-display text-[28px] leading-none tabular-nums text-white"
             />
           </>
         ) : (
-          <span className="text-[22px] font-extrabold uppercase tracking-[0.18em] text-white/45">New bowler</span>
+          <span className="text-[20px] font-extrabold uppercase tracking-[0.18em] text-white/45">New bowler</span>
         )}
       </div>
     </div>
@@ -207,40 +220,40 @@ export default function ScoreBar({ data, params }) {
     <div
       className="flex shrink-0 items-center gap-4 px-6"
       style={{
-        width: portrait ? "100%" : 420,
-        height: 128,
-        background: "linear-gradient(105deg, rgba(6,15,34,0.95) -20%, #0b1c3d 40%, #16305c 100%)",
+        width: portrait ? "100%" : 400,
+        height: 104,
+        background: "linear-gradient(105deg, rgba(6,15,34,0.85) -20%, rgba(11,28,61,0.82) 40%, rgba(22,48,92,0.82) 100%)",
       }}
     >
       <div className="min-w-0 flex-1">
         {situation?.type === "result" ? (
           <>
-            <div className="text-[18px] font-black uppercase tracking-[0.2em] text-[#f4b63d]">Result</div>
-            <div className="mt-1 font-display text-[30px] leading-[1.05] text-white">{resultText(situation, match)}</div>
+            <div className="text-[16px] font-black uppercase tracking-[0.2em] text-[#f4b63d]">Result</div>
+            <div className="mt-1 font-display text-[26px] leading-[1.05] text-white">{resultText(situation, match)}</div>
           </>
         ) : situation?.type === "break" ? (
           <>
-            <div className="font-display text-[40px] leading-none text-white">INNINGS BREAK</div>
+            <div className="font-display text-[34px] leading-none text-white">INNINGS BREAK</div>
             {/* The badge beside this is the chasing side. */}
-            <div className="mt-2 text-[22px] font-extrabold uppercase tracking-wider text-white/75">
+            <div className="mt-1.5 text-[19px] font-extrabold uppercase tracking-wider text-white/75">
               Target <span className="text-[#f4b63d]">{situation.target}</span>
             </div>
           </>
         ) : chasing ? (
           <>
-            <div className="font-display text-[44px] leading-none text-white">
+            <div className="font-display text-[38px] leading-none text-white">
               NEED <Roll value={now.runsNeeded} className="text-[#f4b63d]" /> OFF <Roll value={now.ballsRemaining} />
             </div>
-            <div className="mt-2 text-[20px] font-extrabold uppercase tracking-wider text-white/75">
+            <div className="mt-1.5 text-[18px] font-extrabold uppercase tracking-wider text-white/75">
               Target {current.target} · RRR {now.requiredRate !== null ? now.requiredRate.toFixed(2) : "-"}
             </div>
           </>
         ) : (
           <>
-            <div className="font-display text-[44px] leading-none text-white">
+            <div className="font-display text-[38px] leading-none text-white">
               CRR <span className="text-[#f4b63d]">{(now?.runRate ?? 0).toFixed(2)}</span>
             </div>
-            <div className="mt-2 text-[20px] font-extrabold uppercase tracking-wider text-white/75">
+            <div className="mt-1.5 text-[18px] font-extrabold uppercase tracking-wider text-white/75">
               Inn {current?.number || 1}
               {now?.partnership ? ` · P'ship ${now.partnership.runs} (${now.partnership.balls})` : ""}
             </div>
@@ -248,8 +261,8 @@ export default function ScoreBar({ data, params }) {
         )}
       </div>
       <div className="flex shrink-0 flex-col items-center gap-1">
-        <Badge team={bowling} size={64} />
-        <span className="font-display text-[16px] tracking-[0.14em] text-white/70">{bowling.short}</span>
+        <Badge team={bowling} size={54} />
+        <span className="font-display text-[14px] tracking-[0.14em] text-white/70">{bowling.short}</span>
       </div>
     </div>
   );
@@ -264,7 +277,7 @@ export default function ScoreBar({ data, params }) {
       }}
     >
       <div
-        className={`flex overflow-hidden rounded-2xl shadow-[0_18px_50px_rgba(0,0,0,0.55)] ring-1 ring-white/10 ${portrait ? "flex-col" : "flex-row"}`}
+        className={`flex overflow-hidden rounded-2xl shadow-[0_14px_40px_rgba(0,0,0,0.45)] ring-1 ring-white/10 ${GLASS} ${portrait ? "flex-col" : "flex-row"}`}
       >
         {teamBlock}
         {playersBlock}

@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 // Full scoring state for one match: squads, playing XI, innings and balls.
 export async function GET(_request, { params }) {
-  const session = getScoringSession();
+  const session = await getScoringSession();
   if (!session) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }

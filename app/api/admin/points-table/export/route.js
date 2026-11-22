@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
+import { verifyLeagueSession } from "@/lib/adminSession";
 import { cookies } from "next/headers";
 import * as XLSX from "xlsx";
-import { verifyLeagueSessionToken, SESSION_COOKIE_NAME } from "@/lib/auth";
+import { SESSION_COOKIE_NAME } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { pointsTable } from "@/lib/pointsTable";
 import { todayInLeagueTimeZone } from "@/lib/matches";
@@ -13,7 +14,7 @@ export const dynamic = "force-dynamic";
 // with manual overrides), as an Excel file. NRR to 3 decimal places.
 export async function GET() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
-  if (!verifyLeagueSessionToken(token)) {
+  if (!(await verifyLeagueSession(token))) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
@@ -36,7 +37,7 @@ export async function GET() {
       row.tied,
       row.noResult,
       row.points,
-      Math.round((Number(row.netRunRate) || 0) * 1000) / 1000,
+      (Math.sign(Number(row.netRunRate) || 0) * Math.round(Math.abs(Number(row.netRunRate) || 0) * 1000)) / 1000 || 0,
     ]),
   ];
   const sheet = XLSX.utils.aoa_to_sheet(aoa);

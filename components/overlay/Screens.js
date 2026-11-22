@@ -8,6 +8,7 @@ import { Photo } from "@/components/overlay/Effects";
 import { teamStyle } from "@/lib/overlay/teams";
 import { resultText, scoreText, tossText } from "@/lib/overlay/format";
 import { formatMatchDate } from "@/lib/matches";
+import { BUG_HEIGHT } from "@/components/overlay/CornerBug";
 
 // Full-screen broadcast screens: coming up, toss, playing XIs, innings break
 // and result. They sit inside the 5% safe area over a dark panel; the score
@@ -25,15 +26,17 @@ function Badge({ team, size }) {
   );
 }
 
-function Panel({ params, children, accent = "#f4b63d" }) {
+// `fit`: only as tall as its content (capped at the full space).
+function Panel({ params, children, accent = "#f4b63d", fit = false }) {
+  const top = params.height * 0.05 + BUG_HEIGHT + 8;
   return (
     <div
       className="ovl-screen-in absolute flex flex-col overflow-hidden rounded-[32px] text-white shadow-[0_30px_90px_rgba(0,0,0,0.6)]"
       style={{
         left: params.width * 0.05,
         right: params.width * 0.05,
-        top: params.height * 0.05 + 110,
-        bottom: params.height * 0.05,
+        top,
+        ...(fit ? { maxHeight: params.height * 0.95 - top } : { bottom: params.height * 0.05 }),
         background: "linear-gradient(160deg, rgba(11,28,61,0.96) 0%, rgba(6,15,34,0.97) 55%, rgba(6,48,28,0.96) 100%)",
         border: `3px solid ${accent}`,
       }}
@@ -45,7 +48,7 @@ function Panel({ params, children, accent = "#f4b63d" }) {
 
 function Heading({ children, sub }) {
   return (
-    <div className="px-12 pt-8 text-center">
+    <div className="px-12 pt-6 text-center">
       <div className="font-display text-[64px] leading-none tracking-[0.12em] text-[#f4b63d]">{children}</div>
       {sub ? <div className="mt-2 text-[26px] font-extrabold uppercase tracking-[0.2em] text-white/70">{sub}</div> : null}
     </div>
@@ -177,7 +180,7 @@ export function InningsBreakScreen({ data, params }) {
   return (
     <Panel params={params}>
       <Heading sub={`End of the ${batting.label} innings`}>INNINGS BREAK</Heading>
-      <div className="grid flex-1 grid-cols-[1.25fr_1fr] gap-12 px-14 pb-10 pt-6">
+      <div className="grid min-h-0 flex-1 grid-cols-[1.25fr_1fr] gap-12 px-14 pb-7 pt-4">
         <div className="flex flex-col gap-8">
           <div className="flex items-center gap-6">
             <Badge team={batting} size={130} />
@@ -191,10 +194,10 @@ export function InningsBreakScreen({ data, params }) {
           <PerformerList title="Top batters" rows={first.batters} render={(b) => `${b.runs}${b.out ? "" : "*"} (${b.balls})`} />
           <PerformerList title={`${chasing.label} bowling`} rows={first.bowlers} render={(b) => `${b.wickets}-${b.runs}`} />
         </div>
-        <div className="flex flex-col items-center justify-center gap-6 rounded-3xl bg-white/[0.06] p-10 text-center">
-          <Badge team={chasing} size={170} />
+        <div className="flex flex-col items-center justify-center gap-4 rounded-3xl bg-white/[0.06] p-8 text-center">
+          <Badge team={chasing} size={130} />
           <div className="font-display text-[44px] leading-none tracking-[0.08em] text-white/80">{chasing.label} NEED</div>
-          <div className="font-display text-[200px] leading-[0.85] text-[#f4b63d]">{target}</div>
+          <div className="font-display text-[170px] leading-[0.85] text-[#f4b63d]">{target}</div>
           <div className="font-display text-[40px] tracking-[0.08em]">TO WIN{quota ? ` IN ${quota} ${quota === 1 ? "OVER" : "OVERS"}` : ""}</div>
           {perOver ? <div className="text-[26px] font-extrabold uppercase tracking-wider text-white/70">{perOver} runs an over</div> : null}
         </div>
@@ -268,24 +271,26 @@ export function ScorecardScreen({ data, params }) {
   const batters = card.batting || [];
   const bowlers = (card.bowling || []).filter((b) => b.overs !== "0.0" || b.runs > 0);
   const extras = card.extras?.total ?? 0;
+  // Once the match is finished, the result goes under the card.
+  const result = data.situation?.type === "result" ? resultText(data.situation, data.match) : "";
   return (
-    <Panel params={params} accent={team.accent}>
-      <div className="flex items-center gap-6 px-12 pt-7">
-        <Badge team={team} size={90} />
+    <Panel params={params} accent={team.accent} fit>
+      <div className="flex items-center gap-5 px-12 pt-5">
+        <Badge team={team} size={72} />
         <div className="flex-1">
-          <div className="font-display text-[56px] leading-none tracking-[0.08em]" style={{ color: team.accent }}>{team.label} BATTING</div>
-          <div className="mt-1 text-[22px] font-extrabold uppercase tracking-[0.2em] text-white/70">
+          <div className="font-display text-[46px] leading-none tracking-[0.08em]" style={{ color: team.accent }}>{team.label} BATTING</div>
+          <div className="mt-1 text-[20px] font-extrabold uppercase tracking-[0.2em] text-white/70">
             Innings {card.number}
             {card.target ? ` · target ${card.target}` : ""}
           </div>
         </div>
         <div className="text-right font-display leading-none">
-          <span className="text-[96px]">{scoreText(card.runs, card.wickets)}</span>
-          <span className="ml-3 text-[40px] text-white/70">({card.overs})</span>
+          <span className="text-[76px]">{scoreText(card.runs, card.wickets)}</span>
+          <span className="ml-3 text-[34px] text-white/70">({card.overs})</span>
         </div>
       </div>
-      <div className="grid min-h-0 flex-1 grid-cols-[1.45fr_1fr] gap-10 px-12 pb-8 pt-5">
-        <table className="w-full table-fixed self-start text-[25px]">
+      <div className="grid min-h-0 flex-1 grid-cols-[1.45fr_1fr] gap-10 px-12 pb-6 pt-3">
+        <table className="w-full table-fixed self-start text-[23px]">
           <thead>
             <tr className="text-[19px] font-black uppercase tracking-[0.16em] text-white/55">
               <th className="w-[46%] pb-2 text-left">Batter</th>
@@ -299,23 +304,25 @@ export function ScorecardScreen({ data, params }) {
           <tbody>
             {batters.map((b) => (
               <tr key={b.id} className="border-t border-white/10">
-                <td className="py-[7px] pr-3">
-                  <div className={`truncate font-extrabold uppercase ${b.atCrease ? "text-[#f4b63d]" : ""}`}>
-                    {b.name}
-                    {b.atCrease ? "*" : ""}
+                <td className="py-[5px] pr-3">
+                  <div className="truncate">
+                    <span className={`font-extrabold uppercase ${b.atCrease ? "text-[#f4b63d]" : ""}`}>
+                      {b.name}
+                      {b.atCrease ? "*" : ""}
+                    </span>
+                    <span className="ml-2 text-[16px] font-semibold text-white/50">{b.dismissal || (b.atCrease ? "batting" : "not out")}</span>
                   </div>
-                  <div className="truncate text-[17px] font-semibold text-white/55">{b.dismissal || (b.atCrease ? "batting" : "not out")}</div>
                 </td>
-                <td className="text-right font-display text-[32px]">{b.runs}</td>
+                <td className="text-right font-display text-[28px]">{b.runs}</td>
                 <td className="text-right text-white/75">{b.balls}</td>
                 <td className="text-right text-white/75">{b.fours}</td>
                 <td className="text-right text-white/75">{b.sixes}</td>
                 <td className="text-right text-white/75">{b.balls ? Number(b.strikeRate).toFixed(1) : "-"}</td>
               </tr>
             ))}
-            <tr className="border-t border-white/10 text-[22px] font-bold uppercase tracking-wide text-white/70">
-              <td className="py-2">Extras</td>
-              <td className="text-right font-display text-[28px] text-white">{extras}</td>
+            <tr className="border-t border-white/10 text-[20px] font-bold uppercase tracking-wide text-white/70">
+              <td className="py-1.5">Extras</td>
+              <td className="text-right font-display text-[26px] text-white">{extras}</td>
               <td colSpan={4} />
             </tr>
           </tbody>
@@ -325,7 +332,7 @@ export function ScorecardScreen({ data, params }) {
             <span className="h-3 w-3 rounded-full" style={{ background: bowling.accent }} />
             {bowling.label} bowling
           </div>
-          <table className="w-full table-fixed text-[25px]">
+          <table className="w-full table-fixed text-[23px]">
             <thead>
               <tr className="text-[19px] font-black uppercase tracking-[0.16em] text-white/55">
                 <th className="w-[44%] pb-2 text-left">Bowler</th>
@@ -338,15 +345,85 @@ export function ScorecardScreen({ data, params }) {
             <tbody>
               {bowlers.map((b) => (
                 <tr key={b.id} className="border-t border-white/10">
-                  <td className="truncate py-[9px] pr-3 font-extrabold uppercase">{b.name}</td>
+                  <td className="truncate py-[5px] pr-3 font-extrabold uppercase">{b.name}</td>
                   <td className="text-right text-white/75">{b.overs}</td>
                   <td className="text-right text-white/75">{b.runs}</td>
-                  <td className="text-right font-display text-[32px] text-[#f4b63d]">{b.wickets}</td>
+                  <td className="text-right font-display text-[28px] text-[#f4b63d]">{b.wickets}</td>
                   <td className="text-right text-white/75">{b.economy ?? "-"}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+      {result ? (
+        <div className="flex items-center justify-center gap-4 border-t-2 border-[#f4b63d]/50 bg-[#f4b63d]/[0.12] px-12 py-3" data-scorecard-result>
+          <span className="text-[20px] font-black uppercase tracking-[0.22em] text-[#f4b63d]">Result</span>
+          <span className="font-display text-[38px] uppercase leading-none tracking-[0.03em]">{result}</span>
+        </div>
+      ) : null}
+    </Panel>
+  );
+}
+
+// ---------------------------------------------------------------- points table (operator)
+
+function nrrText(value) {
+  const v = Number(value) || 0;
+  const n = (Math.sign(v) * Math.round(Math.abs(v) * 1000)) / 1000 || 0;
+  return `${n > 0 ? "+" : ""}${n.toFixed(3)}`;
+}
+
+const TABLE_COLS = "70px minmax(0,1fr) repeat(5, 78px) 96px 150px";
+
+// League standings, as on the website. Shown when the stream operator asks
+// for it (Admin > Stream Overlay > Points table).
+export function PointsTableScreen({ data, params }) {
+  const rows = data.pointsTable || [];
+  if (!rows.length) return null;
+  const compact = rows.length > 6;
+  return (
+    <Panel params={params}>
+      <Heading sub="Season 2026">POINTS TABLE</Heading>
+      <div className="flex min-h-0 flex-1 flex-col px-14 pb-8 pt-5">
+        <div
+          className="grid items-center px-6 pb-3 text-[22px] font-black uppercase tracking-[0.14em] text-white/55"
+          style={{ gridTemplateColumns: TABLE_COLS }}
+        >
+          <span>#</span>
+          <span>Team</span>
+          {["M", "W", "L", "T", "NR", "P", "NRR"].map((c) => (
+            <span key={c} className="text-right">
+              {c}
+            </span>
+          ))}
+        </div>
+        <div className={`grid ${compact ? "gap-2" : "gap-3"}`}>
+          {rows.map((row, i) => {
+            const team = teamStyle(row.team);
+            return (
+              <div
+                key={row.team}
+                className={`grid items-center rounded-2xl px-6 font-extrabold ${compact ? "py-2 text-[28px]" : "py-3 text-[32px]"} ${
+                  i < 4 ? "bg-[#f4b63d]/[0.13] ring-2 ring-[#f4b63d]/40" : "bg-white/[0.06] ring-2 ring-white/10"
+                }`}
+                style={{ gridTemplateColumns: TABLE_COLS }}
+              >
+                <span className="font-black text-[#f4b63d]">{i + 1}</span>
+                <span className="flex min-w-0 items-center gap-4">
+                  <Badge team={team} size={compact ? 48 : 60} />
+                  <span className="truncate">{row.team}</span>
+                </span>
+                {[row.played, row.won, row.lost, row.tied, row.noResult].map((v, k) => (
+                  <span key={k} className="text-right text-white/85">
+                    {v}
+                  </span>
+                ))}
+                <span className="text-right font-black text-[#f4b63d]">{row.points}</span>
+                <span className={`text-right ${Number(row.netRunRate) >= 0 ? "text-[#8df0a8]" : "text-[#ff8a80]"}`}>{nrrText(row.netRunRate)}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </Panel>
@@ -360,5 +437,6 @@ export default function OverlayScreen({ screen, data, params }) {
   if (screen === "break") return <InningsBreakScreen data={data} params={params} />;
   if (screen === "result") return <ResultScreen data={data} params={params} />;
   if (screen === "scorecard") return <ScorecardScreen data={data} params={params} />;
+  if (screen === "pointsTable") return <PointsTableScreen data={data} params={params} />;
   return null;
 }

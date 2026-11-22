@@ -6,11 +6,11 @@ import Button from "@/components/ui/Button";
 import Notice from "@/components/admin/Notice";
 import { EyeIcon, EyeOffIcon, LockIcon } from "@/components/admin/icons";
 
-export default function LoginCard({ onLogin }) {
+export default function LoginCard({ onLogin, notice = "" }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loginError, setLoginError] = useState("");
+  const [loginError, setLoginError] = useState(notice);
   const [loggingIn, setLoggingIn] = useState(false);
 
   async function handleSubmit(event) {

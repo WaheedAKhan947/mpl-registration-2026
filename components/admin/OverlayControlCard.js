@@ -24,6 +24,7 @@ const SCREENS = [
   { value: "scorecard", label: "Scorecard", hint: "Current innings" },
   { value: "break", label: "Target", hint: "Innings break" },
   { value: "result", label: "Result", hint: "Winner, top players" },
+  { value: "pointsTable", label: "Points table", hint: "League standings" },
 ];
 
 const PANELS = [

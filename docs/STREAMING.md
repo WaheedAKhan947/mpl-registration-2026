@@ -112,7 +112,7 @@ Everything happens automatically from the scoring: score bar, four / six / wicke
 | Control | Use it for |
 | --- | --- |
 | **Replay effect** | Re-run the last four, six or wicket with a REPLAY tag. |
-| **Screen** | Keep it on **Automatic**. Pick **Scorecard** during a break or a drinks interval, **Toss & XIs** or **Coming up** before the match. Remember to go back to **Automatic**. |
+| **Screen** | Keep it on **Automatic**. Pick **Scorecard** during a break or a drinks interval, **Points table** before the match or after the result, **Toss & XIs** or **Coming up** before the match. Remember to go back to **Automatic**. |
 | **Quick panel** | **Partnership** or **Run rate** above the score bar. Turn **Off** after a few overs. |
 | **Player card** | Introduce a bowler or a fielder who just took a catch. |
 | **Sponsors** | Hide the sponsor panel if it covers something. |

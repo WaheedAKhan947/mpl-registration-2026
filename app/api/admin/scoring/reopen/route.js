@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 // only; scorer accounts cannot change a result once it is final.
 //   { matchId }
 export async function POST(request) {
-  const session = getScoringSession();
+  const session = await getScoringSession();
   if (!session) return jsonError("Not authenticated.", 401);
   if (!canManageScoring(session)) return jsonError("Only an owner or admin can re-open a finished match.", 403);
 

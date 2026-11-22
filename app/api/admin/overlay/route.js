@@ -62,7 +62,7 @@ async function snapshot(data) {
 
 export async function GET(request) {
   const matchId = new URL(request.url).searchParams.get("matchId");
-  const { data, response } = await load(getScoringSession(), matchId);
+  const { data, response } = await load(await getScoringSession(), matchId);
   if (response) return response;
   return NextResponse.json(await snapshot(data), { headers: NO_STORE });
 }
@@ -74,7 +74,7 @@ export async function POST(request) {
   } catch {
     return error("Invalid request.");
   }
-  const session = getScoringSession();
+  const session = await getScoringSession();
   const { data, response } = await load(session, body?.matchId);
   if (response) return response;
 
